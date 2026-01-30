@@ -10,11 +10,13 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Events;
 using VoiceRecognitionAPI;
+using static ItemSCPs.Items.Snowy.SCP9831Behavior;
 using static ItemSCPs.Plugin;
 
 // SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
+// TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand
 
-namespace ItemSCPs.Items.Snowy.SCP983
+namespace ItemSCPs.Items.Snowy
 {
     internal class SCP983Behavior : PhysicsProp
     {
@@ -53,10 +55,10 @@ namespace ItemSCPs.Items.Snowy.SCP983
         static string[] acceptedWords = { "happy", "birthday", "to", "you", "dear", "player", "bad", "luck", "go", "with", "ding", "its", "your" };
 
         // Configs
-        float distanceToActivate = 5f;
-        BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
-        float minAccuracyRequired = 0.6f;
-        float graceWordTiming = 0.3f;
+        const float distanceToActivate = 5f;
+        readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
+        const float minAccuracyRequired = 0.6f;
+        const float graceWordTiming = 0.3f;
 
         public static void RegisterPhrases()
         {
@@ -78,7 +80,7 @@ namespace ItemSCPs.Items.Snowy.SCP983
         {
             base.Update();
 
-            timeSinceSongStarted += Time.time;
+            timeSinceSongStarted += Time.deltaTime;
 
             if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
@@ -140,6 +142,12 @@ namespace ItemSCPs.Items.Snowy.SCP983
         {
             activated = true;
 
+            if (timesPlayed >= maxPlays)
+            {
+                targetPlayer.KillPlayer(Vector3.zero);
+                return;
+            }
+
             audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
             audioSource.clip = birthdaySongsSFX[timesPlayed];
             audioSource.Play();
@@ -147,6 +155,67 @@ namespace ItemSCPs.Items.Snowy.SCP983
             songPlaying = true;
             timesPlayed++;
             ResetVariables();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void DispenseCandyServerRpc(CandyType candyType)
+        {
+            if (!IsServer) { return; }
+            var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
+            (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
+            candyDispensed = true;
+            ResetVariables();
+            songPlaying = false;
+        }
+    }
+
+    internal class SCP9831Behavior : PhysicsProp
+    {
+#pragma warning disable CS8618
+        public AudioClip eatCandySFX;
+        public MeshRenderer[] renderers;
+        public Material[] materials;
+#pragma warning restore CS8618
+
+        public enum CandyType
+        {
+            Perfect,
+            Good,
+            Bad
+        }
+
+        CandyType candyType;
+
+        public override void ItemActivate(bool used, bool buttonDown = true)
+        {
+            base.ItemActivate(used, buttonDown);
+            if (!buttonDown) { return; }
+
+            switch (candyType) // TODO
+            {
+                case CandyType.Perfect:
+                    break;
+                case CandyType.Good:
+                    break;
+                case CandyType.Bad:
+                    break;
+                default:
+                    break;
+            }
+
+            playerHeldBy.statusEffectAudio.PlayOneShot(eatCandySFX, 1f);
+            playerHeldBy.DespawnHeldObject();
+        }
+
+        [ClientRpc]
+        public void ChangeCandyTypeClientRpc(CandyType candyType)
+        {
+            this.candyType = candyType;
+
+            foreach (var renderer in renderers)
+            {
+                renderer.material = materials[(int)candyType];
+            }
         }
     }
 
