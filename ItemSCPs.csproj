@@ -50,9 +50,6 @@
       <None Remove="ItemSCPsUnityProject\**" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Remove="ItemSCPsNetworkHandler.cs" />
-    </ItemGroup>
-    <ItemGroup>
       <None Remove=".gitattributes" />
       <None Remove=".gitignore" />
     </ItemGroup>

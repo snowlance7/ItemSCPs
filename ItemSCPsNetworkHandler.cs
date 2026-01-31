@@ -1,5 +1,4 @@
-﻿/*
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    public class ItemSCPsNetworkHandler : NetworkBehaviour
+    internal class ItemSCPsNetworkHandler : NetworkBehaviour
     {
 #pragma warning disable CS8618
         public static ItemSCPsNetworkHandler Instance { get; private set; }
@@ -21,52 +20,37 @@ namespace ItemSCPs
         public override void OnNetworkSpawn()
         {
             if (IsServer)
-            {
-                Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
-            }
-
+                Instance?.gameObject.GetComponent<NetworkObject>().Despawn(destroy: true);
             Instance = this;
             base.OnNetworkSpawn();
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ShakePlayerCamerasServerRpc(ScreenShakeType type, float distance, Vector3 position)
+        public void ShakePlayerCamerasServerRpc(ScreenShakeType type, Vector3 position, float range)
         {
-            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
-            {
-                ShakePlayerCamerasClientRpc(type, distance, position);
-            }
+            if (!IsServer) { return; }
+            ShakePlayerCamerasClientRpc(type, position, range);
         }
 
         [ClientRpc]
-        private void ShakePlayerCamerasClientRpc(ScreenShakeType type, float distance, Vector3 position)
+        void ShakePlayerCamerasClientRpc(ScreenShakeType type, Vector3 position, float range)
         {
             float num = Vector3.Distance(localPlayer.transform.position, position);
-            if (num < distance)
+            if (num < range)
             {
                 HUDManager.Instance.ShakeCamera(type);
             }
-            else if (num < distance * 2f)
+            else if (num < range * 2f)
             {
                 if ((int)type - 1 >= 0) { HUDManager.Instance.ShakeCamera((ScreenShakeType)((int)type - 1)); }
             }
         }
 
-        [ClientRpc]
-        private void GrabObjectClientRpc(ulong id, ulong clientId) // TODO: Figure out how to turn off grab animation
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangePlayerSizeServerRpc(ulong clientId, float size)
         {
-            if (clientId == localPlayer.actualClientId)
-            {
-                if (localPlayer.ItemSlots.Where(x => x == null).Any())
-                {
-                    GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
-                    logger.LogDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
-
-                    localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
-                    grabbableItem.parentObject = localPlayer.localItemHolder;
-                    grabbableItem.GrabItemOnClient();
-                }
-            }
+            if (!IsServer) { return; }
+            ChangePlayerSizeClientRpc(clientId, size);
         }
 
         [ClientRpc]
@@ -75,13 +59,6 @@ namespace ItemSCPs
             PlayerControllerB? playerHeldBy = PlayerFromId(clientId);
             if (playerHeldBy == null) { return; }
             playerHeldBy.thisPlayerBody.localScale = new Vector3(size, size, size);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void ChangePlayerSizeServerRpc(ulong clientId, float size)
-        {
-            if (!IsServer) { return; }
-            ChangePlayerSizeClientRpc(clientId, size);
         }
     }
 
@@ -93,7 +70,7 @@ namespace ItemSCPs
 #pragma warning restore CS8618
 
         [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
-        public static void Init()
+        public static void StartPostfix()
         {
             logger.LogDebug("Initializing network prefab...");
             if (networkPrefab != null)
@@ -116,4 +93,3 @@ namespace ItemSCPs
         }
     }
 }
-*/

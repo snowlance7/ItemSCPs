@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Unity.Netcode;
 
 namespace ItemSCPs
 {
-    internal class StatusEffectController
+    internal class StatusEffectController : NetworkBehaviour
     {
         public void Bleed()
         {
@@ -16,5 +14,7 @@ namespace ItemSCPs
                 localPlayer.inSpecialInteractAnimation = false;
             }*/
         }
+
+
     }
 }
