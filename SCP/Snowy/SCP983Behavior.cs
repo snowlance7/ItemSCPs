@@ -44,21 +44,16 @@ namespace ItemSCPs.Items.Snowy
         bool songPlaying;
         bool candyDispensed;
 
-        float timeSinceSongStarted;
-        float lastWordTime;
-
         int timesPlayed;
 
-        int maxPlays => birthdaySongsSFX.Length;
-        float songLength => birthdaySongsSFX[timesPlayed].length;
-
-        static string[] acceptedWords = { "happy", "birthday", "to", "you", "dear", "player", "bad", "luck", "go", "with", "ding", "its", "your" };
+        static readonly string[] acceptedWords = { "happy", "birthday", "to", "you", "dear", "player", "bad", "luck", "go", "with", "ding", "its", "your" };
 
         // Configs
         const float distanceToActivate = 5f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
+
         const float minAccuracyRequired = 0.6f;
-        const float graceWordTiming = 0.3f;
+        const int maxPlays = 10;
 
         public static void RegisterPhrases()
         {
@@ -70,7 +65,7 @@ namespace ItemSCPs.Items.Snowy
         public override void Start()
         {
             base.Start();
-            if (activated) { return; }
+            if (candyDispensed) { return; }
             targetPlayer = StartOfRound.Instance.allPlayerScripts[Utils.randomLocal.Next(0, StartOfRound.Instance.allPlayerScripts.Length)];
             if (targetPlayer == localPlayer)
                 onPhraseSpoken.AddListener(OnPhraseSpoken);
@@ -80,15 +75,13 @@ namespace ItemSCPs.Items.Snowy
         {
             base.Update();
 
-            timeSinceSongStarted += Time.deltaTime;
-
             if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
                 activated = true;
                 PlaySongClientRpc();
             }
 
-            if (songPlaying && timeSinceSongStarted > songLength)
+            if (songPlaying && !audioSource.isPlaying)
             {
                 songPlaying = false;
                 CalculateResult();
@@ -100,22 +93,117 @@ namespace ItemSCPs.Items.Snowy
             if (!songPlaying || !acceptedWords.Contains(phrase))
                 return;
 
-            float delta = Time.time - lastWordTime;
-            spoken.Add(new(phrase, delta, confidence));
-            lastWordTime = Time.time;
+            spoken.Add(new(phrase, confidence));
 
-            logger.LogDebug($"{phrase}, {delta}, {confidence}");
+            logger.LogDebug($"{phrase}, {confidence}");
         }
 
         void CalculateResult()
         {
             // TODO
+            Dictionary<string, int> expectedCounts = new();
+            foreach (var step in steps)
+            {
+                expectedCounts.TryAdd(step.phrase, 0);
+                expectedCounts[step.phrase]++;
+            }
+
+            Dictionary<string, List<float>> spokenConfidences = new();
+            foreach (var s in spoken)
+            {
+                if (!spokenConfidences.ContainsKey(s.phrase))
+                    spokenConfidences[s.phrase] = new List<float>();
+
+                spokenConfidences[s.phrase].Add(s.confidence);
+            }
+
+            float score = 0f;
+            float maxScore = steps.Length;
+
+            foreach (var kvp in expectedCounts)
+            {
+                string word = kvp.Key;
+                int expected = kvp.Value;
+
+                if (!spokenConfidences.TryGetValue(word, out var confidences))
+                    continue;
+
+                // Sort highest confidence first
+                confidences.Sort((a, b) => b.CompareTo(a));
+
+                int matches = Mathf.Min(expected, confidences.Count);
+
+                for (int i = 0; i < matches; i++)
+                {
+                    float c = confidences[i];
+
+                    // Confidence-weighted credit
+                    float confidenceScore = Mathf.Clamp01(
+                        (c - minAccuracyRequired) / (1f - minAccuracyRequired)
+                    );
+
+                    score += confidenceScore;
+                }
+            }
+
+            float accuracy = Mathf.Clamp01(score / maxScore);
+
+            if (accuracy >= 1f)
+            {
+                DispenseCandyServerRpc(CandyType.Perfect);
+            }
+            else if (accuracy >= minAccuracyRequired)
+            {
+                DispenseCandyServerRpc(CandyType.Good);
+            }
+            else
+            {
+                PlaySongServerRpc();
+            }
         }
 
-        void ResetVariables()
+        void DoStatusEffects(int songIndex)
         {
-            lastWordTime = 0f;
-            spoken.Clear();
+            // TODO
+            switch (songIndex)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int GetSongIndex(int playCount)
+        {
+            int numSongs = birthdaySongsSFX.Length;
+            int basePlays = maxPlays / numSongs;
+            int extraPlays = maxPlays % numSongs;
+
+            int[] playDistribution = new int[numSongs];
+            for (int i = 0; i < numSongs; i++)
+                playDistribution[i] = basePlays + (i < extraPlays ? 1 : 0);
+
+            // Make last song get the last play
+            playDistribution[numSongs - 1] = maxPlays - playDistribution.Take(numSongs - 1).Sum();
+
+            int runningSum = 0;
+            for (int i = 0; i < numSongs; i++)
+            {
+                runningSum += playDistribution[i];
+                if (playCount <= runningSum)
+                    return i;
+            }
+
+            return numSongs - 1; // fallback
         }
 
         public override int GetItemDataToSave() => candyDispensed ? 1 : 0;
@@ -148,13 +236,16 @@ namespace ItemSCPs.Items.Snowy
                 return;
             }
 
+            int songIndex = GetSongIndex(timesPlayed);
+
+            DoStatusEffects(songIndex);
+
+            spoken.Clear();
             audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
-            audioSource.clip = birthdaySongsSFX[timesPlayed];
+            audioSource.clip = birthdaySongsSFX[songIndex];
             audioSource.Play();
-            timeSinceSongStarted = 0f;
             songPlaying = true;
             timesPlayed++;
-            ResetVariables();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -164,7 +255,7 @@ namespace ItemSCPs.Items.Snowy
             var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
             (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
             candyDispensed = true;
-            ResetVariables();
+            spoken.Clear();
             songPlaying = false;
         }
     }
@@ -219,10 +310,9 @@ namespace ItemSCPs.Items.Snowy
         }
     }
 
-    class Step(string phrase, float delay = 0.4f, float confidence = 0.6f)
+    class Step(string phrase, float confidence = 0.6f)
     {
         public string phrase = phrase;
-        public float delay = delay;
         public float confidence = confidence;
     }
 
@@ -232,7 +322,7 @@ namespace ItemSCPs.Items.Snowy
         {
             new("happy"),
             new("birthday"),
-            new("to"),
+            new("to", 0.5f),
             new("you"),
             new("happy"),
             new("birthday"),

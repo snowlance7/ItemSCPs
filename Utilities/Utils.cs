@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Events;
+using UnityEngine.InputSystem.Utilities;
 
 public static class Utils
 {
@@ -63,6 +64,8 @@ public static class Utils
     public static Terminal? terminal;
 
     public static System.Random randomLocal = new();
+
+    public static UnityEvent OnFinishGeneratingLevel = new();
 
     public static bool SmartCanPathToPoint(Vector3 startPos, Vector3 endPos, bool isOutside)
     {
@@ -625,6 +628,43 @@ public static class Utils
         }
     }
 
+    public static bool TryForceLocalPlayerGrabItem(GrabbableObject item, bool makeRoomToGrab = false)
+    {
+        if (item.playerHeldBy != null)
+        {
+            if (item.playerHeldBy != localPlayer)
+                return false;
+
+            int index = localPlayer.ItemSlots.IndexOf(item);
+            localPlayer.SwitchToItemSlot(index, item);
+            return IsHeldByLocalPlayer(item);
+        }
+
+        for (int i = 0; i < localPlayer.ItemSlots.Length; i++)
+        {
+            if (localPlayer.ItemSlots[i] == null)
+            {
+                localPlayer.SwitchToItemSlot(i, item);
+                return IsHeldByLocalPlayer(item);
+            }
+        }
+
+        if (makeRoomToGrab)
+        {
+            localPlayer.DiscardHeldObject();
+            localPlayer.SwitchToItemSlot(localPlayer.currentItemSlot, item);
+            return IsHeldByLocalPlayer(item);
+        }
+
+        return false;
+    }
+
+    private static bool IsHeldByLocalPlayer(GrabbableObject item)
+    {
+        return item.playerHeldBy == localPlayer && !item.isPocketed;
+    }
+
+
     public static EntranceTeleport? GetClosestExitFromPosition(Vector3 position, bool checkForPath = false)
     {
         EntranceTeleport? closestExit = null;
@@ -720,6 +760,8 @@ public class UtilsPatches
             Utils.elevator = GameObject.FindObjectOfType<MineshaftElevatorController>();
 
             Utils.randomLocal = new System.Random(StartOfRound.Instance.randomMapSeed);
+
+            Utils.OnFinishGeneratingLevel.Invoke();
         }
         catch
         {

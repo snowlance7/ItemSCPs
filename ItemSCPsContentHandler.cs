@@ -36,9 +36,6 @@ namespace ItemSCPs
         }
         public SCP1079Assets? SCP1079;
 
-        public class SCP2536Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP2536Assets>(mod, filePath) { }
-        public SCP2536Assets? SCP2536;
-
         public class SCP983Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP983Assets>(mod, filePath) { }
         public SCP983Assets? SCP983;
 
@@ -75,15 +72,14 @@ namespace ItemSCPs
 
             // Snowy
             RegisterContent("scp1079", out SCP1079);
-            RegisterContent("scp2536", out SCP2536);
             RegisterContent("scp983", out SCP983);
             RegisterContent("scp012", out SCP012);
-            RegisterContent("scp1025", out SCP1025);
-            RegisterContent("scp268", out SCP268);
-            RegisterContent("scp3482", out SCP3482);
-            RegisterContent("scp420", out SCP420);
-            RegisterContent("scp498", out SCP498);
-            RegisterContent("scp735", out SCP735);
+            //RegisterContent("scp1025", out SCP1025);
+            //RegisterContent("scp268", out SCP268);
+            //RegisterContent("scp3482", out SCP3482);
+            //RegisterContent("scp420", out SCP420);
+            //RegisterContent("scp498", out SCP498);
+            //RegisterContent("scp735", out SCP735);
         }
     }
 
