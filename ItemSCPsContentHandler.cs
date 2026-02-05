@@ -5,6 +5,13 @@ namespace ItemSCPs
 {
     public class ItemSCPsContentHandler : ContentHandler<ItemSCPsContentHandler>
     {
+        public class NetworkHandlerAssets(DuskMod mod, string filePath) : AssetBundleLoader<NetworkHandlerAssets>(mod, filePath)
+        {
+            [LoadFromBundle("ItemSCPsNetworkHandler.prefab")]
+            public GameObject NetworkHandlerPrefab { get; private set; } = null!;
+        }
+        public NetworkHandlerAssets? NetworkHandler;
+
         // Rat
         /*
         public class SCP018Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP018Assets>(mod, filePath) { }
@@ -62,6 +69,7 @@ namespace ItemSCPs
 
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)
         {
+            RegisterContent("networkhandler", out NetworkHandler);
             // Rat
             /*RegisterContent("scp018", out SCP018);
             RegisterContent("scp207", out SCP207);

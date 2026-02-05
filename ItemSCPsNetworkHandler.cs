@@ -1,8 +1,5 @@
-﻿using BepInEx.Logging;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
@@ -13,16 +10,32 @@ namespace ItemSCPs
     {
 #pragma warning disable CS8618
         public static ItemSCPsNetworkHandler Instance { get; private set; }
+        public GameObject TestingHUDOverlayPrefab;
 #pragma warning restore CS8618
 
-        public NetworkList<ulong> PlayersEffectedBy201 = new NetworkList<ulong>();
+        //public NetworkList<ulong> PlayersEffectedBy201 = new NetworkList<ulong>();
 
         public override void OnNetworkSpawn()
         {
             if (IsServer)
                 Instance?.gameObject.GetComponent<NetworkObject>().Despawn(destroy: true);
             Instance = this;
+            logger.LogDebug("NetworkHandler spawned");
             base.OnNetworkSpawn();
+        }
+
+        public void Start()
+        {
+            StatusEffectController.Init();
+            TestingHUDOverlay.Init(TestingHUDOverlayPrefab);
+        }
+
+        public void Update()
+        {
+            var ui = TestingHUDOverlay.Instance;
+            ui.SetLabel1("SprintMeter: " + localPlayer.sprintMeter);
+            ui.SetLabel2("SprintTime: " + localPlayer.sprintTime);
+            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -63,8 +76,9 @@ namespace ItemSCPs
     }
 
     [HarmonyPatch]
-    public class NetworkObjectManager
+    public class NetworkHandlerPatches
     {
+        /*
 #pragma warning disable CS8618
         static GameObject networkPrefab;
 #pragma warning restore CS8618
@@ -80,16 +94,14 @@ namespace ItemSCPs
             //networkPrefab.AddComponent<NetworkHandler>();
 
             NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
-        }
+        }*/
 
         [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
-        static void SpawnNetworkHandler()
+        static void AwakePostFix()
         {
-            if (IsServerOrHost)
-            {
-                var networkHandlerHost = UnityEngine.Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
-                networkHandlerHost.GetComponent<NetworkObject>().Spawn();
-            }
+            if (!IsServerOrHost) { return; }
+            var networkHandlerHost = UnityEngine.Object.Instantiate(ItemSCPsContentHandler.Instance.NetworkHandler?.NetworkHandlerPrefab, Vector3.zero, Quaternion.identity);
+            networkHandlerHost?.GetComponent<NetworkObject>().Spawn();
         }
     }
 }

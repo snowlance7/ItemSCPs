@@ -20,7 +20,6 @@ namespace ItemSCPs.Items.Snowy
         public override void Start()
         {
             base.Start();
-            logger.LogDebug("Starting 1025 behavior");
         }
 
         public override void Update()
