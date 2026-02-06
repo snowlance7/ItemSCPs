@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using VoiceRecognitionAPI;
+﻿using HarmonyLib;
+using ItemSCPs.Items.Snowy;
+using System;
+using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
@@ -9,7 +9,24 @@ namespace ItemSCPs
     {
         public static void RegisterPhrases()
         {
+            SCP983Behavior.RegisterPhrases();
+        }
+    }
 
+    [HarmonyPatch]
+    public static class VoiceRecognitionPatches
+    {
+        [HarmonyPrefix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
+        public static void PingScan_performedPostFix()
+        {
+            try
+            {
+                VoiceRecognition.RegisterPhrases();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e);
+            }
         }
     }
 }

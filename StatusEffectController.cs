@@ -18,7 +18,7 @@ namespace ItemSCPs
         {
             if (Instance == null)
             {
-                Instance = Instantiate(new StatusEffectController(), localPlayer.transform);
+                Instance = Instantiate(new GameObject("StatusEffectController"), localPlayer.transform).AddComponent<StatusEffectController>();
             }
         }
         public void Update()

@@ -71,14 +71,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="VoiceRecognitionAPI">
-        <HintPath>..\1Assemblies\VoiceRecognitionAPI-1.2.0\build\loaforc-VoiceRecognitionAPI-1.2.0\VoiceRecognitionAPI.dll</HintPath>
-      </Reference>
+      <Folder Include="Assets\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\Rat\" />
-      <Folder Include="Assets\Snowy\" />
+      <Reference Include="PySpeech">
+        <HintPath>..\1Assemblies\JS03-PySpeech\PySpeech.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
   <!-- Netcode Patcher Post-Build Event -->

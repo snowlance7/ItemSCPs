@@ -9,7 +9,7 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Events;
-using VoiceRecognitionAPI;
+using PySpeech;
 using static ItemSCPs.Items.Snowy.SCP9831Behavior;
 using static ItemSCPs.Plugin;
 
@@ -18,7 +18,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    internal class SCP983Behavior : PhysicsProp
+    public class SCP983Behavior : PhysicsProp
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;
@@ -35,10 +35,7 @@ namespace ItemSCPs.Items.Snowy
         PlayerControllerB targetPlayer;
 #pragma warning restore CS8618
 
-        static UnityEvent<string, float> onPhraseSpoken = new UnityEvent<string, float>();
-        Step[] steps => Steps.steps;
-
-        List<Step> spoken = [];
+        static UnityEvent<string> onPhraseSpoken = new UnityEvent<string>();
 
         bool activated;
         bool songPlaying;
@@ -46,20 +43,24 @@ namespace ItemSCPs.Items.Snowy
 
         int timesPlayed;
 
-        static readonly string[] acceptedWords = { "happy", "birthday", "to", "you", "dear", "player", "bad", "luck", "go", "with", "ding", "its", "your" };
+        static readonly string[] acceptedPhrases = { "happy birthday", "to you", "happy birthday dear", "go with you", "ding ding ding", "its your birthday" };
+        string[] acceptedPhrasesInOrder = { "happy birthday", "to you", "happy birthday", "to you", "happy birthday dear", "bad luck", "go with you", "ding ding ding", "its your birthday" };
+
+        List<string> spoken = [];
 
         // Configs
         const float distanceToActivate = 5f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
 
-        const float minAccuracyRequired = 0.6f;
+        const float minAccuracyRequired = 0.5f;
         const int maxPlays = 10;
 
         public static void RegisterPhrases()
         {
             if (ItemSCPsContentHandler.Instance.SCP983 == null) { return; }
             // happy birthday to you, happy birthday to you, happy birthday dear player, bad luck go with you! A ding ding ding its your birthday!
-            Voice.CustomListenForPhrases(acceptedWords, (obj, recognized) => { onPhraseSpoken.Invoke(recognized.Message, recognized.Confidence); });
+            Speech.RegisterPhrases(acceptedPhrases);
+            Speech.RegisterCustomHandler((obj, recognized) => { onPhraseSpoken?.Invoke(recognized.Text); });
         }
 
         public override void Start()
@@ -78,88 +79,85 @@ namespace ItemSCPs.Items.Snowy
             if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
                 activated = true;
-                PlaySongClientRpc();
+                DoAnimationClientRpc("flip");
             }
 
             if (songPlaying && !audioSource.isPlaying)
             {
                 songPlaying = false;
-                CalculateResult();
-            }
-        }
+                float score = CalculateResult();
+                logger.LogDebug("Score: " + score);
 
-        void OnPhraseSpoken(string phrase, float confidence)
-        {
-            if (!songPlaying || !acceptedWords.Contains(phrase))
-                return;
-
-            spoken.Add(new(phrase, confidence));
-
-            logger.LogDebug($"{phrase}, {confidence}");
-        }
-
-        void CalculateResult()
-        {
-            // TODO
-            Dictionary<string, int> expectedCounts = new();
-            foreach (var step in steps)
-            {
-                expectedCounts.TryAdd(step.phrase, 0);
-                expectedCounts[step.phrase]++;
-            }
-
-            Dictionary<string, List<float>> spokenConfidences = new();
-            foreach (var s in spoken)
-            {
-                if (!spokenConfidences.ContainsKey(s.phrase))
-                    spokenConfidences[s.phrase] = new List<float>();
-
-                spokenConfidences[s.phrase].Add(s.confidence);
-            }
-
-            float score = 0f;
-            float maxScore = steps.Length;
-
-            foreach (var kvp in expectedCounts)
-            {
-                string word = kvp.Key;
-                int expected = kvp.Value;
-
-                if (!spokenConfidences.TryGetValue(word, out var confidences))
-                    continue;
-
-                // Sort highest confidence first
-                confidences.Sort((a, b) => b.CompareTo(a));
-
-                int matches = Mathf.Min(expected, confidences.Count);
-
-                for (int i = 0; i < matches; i++)
+                if (score >= 1f)
                 {
-                    float c = confidences[i];
+                    DispenseCandyServerRpc(CandyType.Perfect);
+                }
+                else if (score >= minAccuracyRequired)
+                {
+                    DispenseCandyServerRpc(CandyType.Good);
+                }
+                else
+                {
+                    PlaySongServerRpc();
+                }
+            }
+        }
 
-                    // Confidence-weighted credit
-                    float confidenceScore = Mathf.Clamp01(
-                        (c - minAccuracyRequired) / (1f - minAccuracyRequired)
-                    );
+        void OnPhraseSpoken(string phrase) // Event // TODO: Continue here
+        {
+            if (!songPlaying) { return; }
+            bool accepted = Speech.IsAboveThreshold(acceptedPhrases, minAccuracyRequired);
 
-                    score += confidenceScore;
+            if (accepted)
+                spoken.Add(phrase);
+
+            logger.LogDebug($"{(accepted ? "\u2714" : "\u2718")} {phrase}"); // TODO: Test this
+        }
+
+        public void OnFinishFlip() // Animation
+        {
+            PlaySong();
+        }
+
+        public float CalculateResult()
+        {
+            if (spoken.Count == 0)
+                return 0f;
+
+            int total = acceptedPhrasesInOrder.Length;
+            int correctInOrder = 0;
+            int correctAnywhere = 0;
+
+            // Count exact matches in order
+            int minLength = Mathf.Min(spoken.Count, total);
+            for (int i = 0; i < minLength; i++)
+            {
+                if (spoken[i].ToLower().Trim() == acceptedPhrasesInOrder[i].ToLower())
+                {
+                    correctInOrder++;
                 }
             }
 
-            float accuracy = Mathf.Clamp01(score / maxScore);
+            // Count matches ignoring order
+            List<string> acceptedList = acceptedPhrasesInOrder.Select(x => x.ToLower()).ToList();
+            foreach (var phrase in spoken)
+            {
+                string p = phrase.ToLower().Trim();
+                if (acceptedList.Contains(p))
+                {
+                    correctAnywhere++;
+                    acceptedList.Remove(p); // remove to avoid double-counting
+                }
+            }
 
-            if (accuracy >= 1f)
-            {
-                DispenseCandyServerRpc(CandyType.Perfect);
-            }
-            else if (accuracy >= minAccuracyRequired)
-            {
-                DispenseCandyServerRpc(CandyType.Good);
-            }
-            else
-            {
-                PlaySongServerRpc();
-            }
+            // Combine scores: exact in-order counts more (70%), anywhere matches less (30%)
+            float inOrderScore = (float)correctInOrder / total;
+            float anywhereScore = (float)correctAnywhere / total;
+
+            float finalScore = inOrderScore * 0.7f + anywhereScore * 0.3f;
+
+            // Clamp to 0-1
+            return Mathf.Clamp01(finalScore);
         }
 
         void DoStatusEffects(int songIndex)
@@ -180,6 +178,39 @@ namespace ItemSCPs.Items.Snowy
                 default:
                     break;
             }
+        }
+
+        void PlaySong()
+        {
+            activated = true;
+
+            if (timesPlayed >= maxPlays)
+            {
+                targetPlayer.KillPlayer(Vector3.zero);
+                DispenseCandy(CandyType.Bad);
+                return;
+            }
+
+            int songIndex = GetSongIndex(timesPlayed);
+
+            DoStatusEffects(songIndex);
+
+            spoken.Clear();
+            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
+            audioSource.clip = birthdaySongsSFX[songIndex];
+            audioSource.Play();
+            songPlaying = true;
+            timesPlayed++;
+        }
+
+        void DispenseCandy(CandyType candyType)
+        {
+            if (!IsServer) { return; }
+            var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
+            (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
+            candyDispensed = true;
+            spoken.Clear();
+            songPlaying = false;
         }
 
         int GetSongIndex(int playCount)
@@ -228,35 +259,14 @@ namespace ItemSCPs.Items.Snowy
         [ClientRpc]
         private void PlaySongClientRpc()
         {
-            activated = true;
-
-            if (timesPlayed >= maxPlays)
-            {
-                targetPlayer.KillPlayer(Vector3.zero);
-                return;
-            }
-
-            int songIndex = GetSongIndex(timesPlayed);
-
-            DoStatusEffects(songIndex);
-
-            spoken.Clear();
-            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
-            audioSource.clip = birthdaySongsSFX[songIndex];
-            audioSource.Play();
-            songPlaying = true;
-            timesPlayed++;
+            PlaySong();
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void DispenseCandyServerRpc(CandyType candyType)
         {
             if (!IsServer) { return; }
-            var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
-            (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
-            candyDispensed = true;
-            spoken.Clear();
-            songPlaying = false;
+            DispenseCandy(candyType);
         }
     }
 
@@ -308,41 +318,5 @@ namespace ItemSCPs.Items.Snowy
                 renderer.material = materials[(int)candyType];
             }
         }
-    }
-
-    class Step(string phrase, float confidence = 0.6f)
-    {
-        public string phrase = phrase;
-        public float confidence = confidence;
-    }
-
-    static class Steps
-    {
-        public static Step[] steps =
-        {
-            new("happy"),
-            new("birthday"),
-            new("to", 0.5f),
-            new("you"),
-            new("happy"),
-            new("birthday"),
-            new("to"),
-            new("you"),
-            new("happy"),
-            new("birthday"),
-            new("dear"),
-            new("player"),
-            new("bad"),
-            new("luck"),
-            new("go"),
-            new("with"),
-            new("you"),
-            new("ding"),
-            new("ding"),
-            new("ding"),
-            new("its"),
-            new("your"),
-            new("birthday")
-        };
     }
 }

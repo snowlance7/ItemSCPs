@@ -26,8 +26,8 @@ namespace ItemSCPs
 
         public void Start()
         {
-            StatusEffectController.Init();
-            TestingHUDOverlay.Init(TestingHUDOverlayPrefab);
+            if (Utils.isBeta)
+                TestingHUDOverlay.Init(TestingHUDOverlayPrefab);
         }
 
         public void Update()

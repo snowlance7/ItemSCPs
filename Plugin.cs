@@ -9,13 +9,12 @@ using System.Linq;
 using System.Reflection;
 using Unity.Netcode;
 using UnityEngine;
-using VoiceRecognitionAPI;
 
 namespace ItemSCPs
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(DawnLib.PLUGIN_GUID)]
-    [BepInDependency(VoiceRecognitionAPI.Plugin.modGUID)]
+    [BepInDependency("JS03.PySpeech")]
     [BepInDependency("SCP500", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
@@ -50,11 +49,9 @@ namespace ItemSCPs
 
             harmony.PatchAll();
 
-            AssetBundle? mainBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), "scpitems_mainassets"));
+            AssetBundle? mainBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), "itemscps_mainassets"));
             Mod = DuskMod.RegisterMod(this, mainBundle);
             Mod.RegisterContentHandlers();
-
-            VoiceRecognition.RegisterPhrases();
 
             InitializeNetworkBehaviours();
 
