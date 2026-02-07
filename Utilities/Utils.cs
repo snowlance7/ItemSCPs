@@ -199,10 +199,39 @@ public static class Utils
                     logger.LogDebug(dungeon.dungeonFlow.name);
                 }
                 break;
+            case "/animations":
+                LogAnimatorParameters(localPlayer.playerBodyAnimator);
+                break;
             default:
                 break;
         }
     }
+
+    public static void LogAnimatorParameters(Animator animator)
+    {
+        foreach (var param in animator.parameters)
+        {
+            switch (param.type)
+            {
+                case AnimatorControllerParameterType.Bool:
+                    logger.LogDebug($"{param.name} (Bool) = {animator.GetBool(param.name)}");
+                    break;
+
+                case AnimatorControllerParameterType.Float:
+                    logger.LogDebug($"{param.name} (Float) = {animator.GetFloat(param.name)}");
+                    break;
+
+                case AnimatorControllerParameterType.Int:
+                    logger.LogDebug($"{param.name} (Int) = {animator.GetInteger(param.name)}");
+                    break;
+
+                case AnimatorControllerParameterType.Trigger:
+                    logger.LogDebug($"{param.name} (Trigger)");
+                    break;
+            }
+        }
+    }
+
 
     public static void LogChat(string msg)
     {
@@ -594,13 +623,13 @@ public static class Utils
         PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance);
     }
 
-    public static PlayerControllerB? GetRandomPlayer()
+    public static PlayerControllerB? GetRandomPlayer(System.Random? random = null)
     {
-        PlayerControllerB[] players = StartOfRound.Instance.allPlayerScripts.Where(x => x != null && x.isPlayerControlled).ToArray();
-        if (players.Length <= 0) { return null; }
-        int index = UnityEngine.Random.Range(0, players.Length);
-        return players[index];
+        random ??= randomLocal;
+        var players = StartOfRound.Instance.allPlayerScripts.Where(p => p != null && p.isPlayerControlled).ToArray();
+        return players.Length == 0 ? null : players[random.Next(players.Length)];
     }
+
 
     public static GrabbableObject? SpawnItem(NamespacedKey<DawnItemInfo> key, Vector3 position, Quaternion rotation = default, Transform? parentTo = null, float fallTime = 0f)
     {

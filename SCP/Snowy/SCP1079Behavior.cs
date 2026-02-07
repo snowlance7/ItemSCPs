@@ -22,6 +22,13 @@ namespace ItemSCPs.Items.Snowy
 
         const float candyResetCooldown = 120f;
 
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(0.05f, 0.11f, -0.05f);
+            itemProperties.rotationOffset = new Vector3(180f, 90f, -15f);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void Update()
         {
             base.Update();
@@ -59,6 +66,7 @@ namespace ItemSCPs.Items.Snowy
             int amount = 3 * candiesEaten * candiesEaten;
             float interval = 1.2f / Mathf.Pow(1.35f, candiesEaten - 1);
 
+            logger.LogDebug("Dropping pink blood");
             PinkBloodManager.Instance(player)?.DropPinkBlood(amount, interval, candiesEaten <= 1 ? 0 : damage);
         }
     }

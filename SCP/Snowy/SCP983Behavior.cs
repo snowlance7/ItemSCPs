@@ -12,6 +12,7 @@ using UnityEngine.Events;
 using PySpeech;
 using static ItemSCPs.Items.Snowy.SCP9831Behavior;
 using static ItemSCPs.Plugin;
+using System.Collections;
 
 // SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
 // TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand
@@ -27,33 +28,31 @@ namespace ItemSCPs.Items.Snowy
 
         public Animator animator;
         public Transform candyDropPosition;
-        public GameObject eyes;
-
-        public Collider collider;
-
 
         PlayerControllerB targetPlayer;
 #pragma warning restore CS8618
+
+        bool isTargetPlayer => targetPlayer == localPlayer;
 
         static UnityEvent<string> onPhraseSpoken = new UnityEvent<string>();
 
         bool activated;
         bool songPlaying;
-        bool candyDispensed;
 
         int timesPlayed;
 
-        static readonly string[] acceptedPhrases = { "happy birthday", "to you", "happy birthday dear", "go with you", "ding ding ding", "its your birthday" };
-        string[] acceptedPhrasesInOrder = { "happy birthday", "to you", "happy birthday", "to you", "happy birthday dear", "bad luck", "go with you", "ding ding ding", "its your birthday" };
+        static readonly string[] acceptedPhrases = { "happy birthday to you", "happy birthday dear", "ding ding ding its your birthday" };
+        string[] acceptedPhrasesInOrder = { "happy birthday to you", "happy birthday to you", "happy birthday dear", "ding ding ding its your birthday" };
 
         List<string> spoken = [];
 
         // Configs
-        const float distanceToActivate = 5f;
+        const float distanceToActivate = 2f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
 
         const float minAccuracyRequired = 0.5f;
         const int maxPlays = 10;
+        const float calculateTime = 2.5f;
 
         public static void RegisterPhrases()
         {
@@ -63,13 +62,18 @@ namespace ItemSCPs.Items.Snowy
             Speech.RegisterCustomHandler((obj, recognized) => { onPhraseSpoken?.Invoke(recognized.Text); });
         }
 
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(-0.13f, 0.01f, -0.15f);
+            itemProperties.rotationOffset = new Vector3(120f, 0f, -90f);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void Start()
         {
             base.Start();
-            if (candyDispensed) { return; }
-            targetPlayer = StartOfRound.Instance.allPlayerScripts[Utils.randomLocal.Next(0, StartOfRound.Instance.allPlayerScripts.Length)];
-            if (targetPlayer == localPlayer)
-                onPhraseSpoken.AddListener(OnPhraseSpoken);
+            targetPlayer = Utils.GetRandomPlayer()!;
+            onPhraseSpoken.AddListener(OnPhraseSpoken);
         }
 
         public override void Update()
@@ -79,12 +83,31 @@ namespace ItemSCPs.Items.Snowy
             if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
                 activated = true;
-                DoAnimationClientRpc("flip");
+                ActivateClientRpc();
             }
+        }
 
-            if (songPlaying && !audioSource.isPlaying)
+        void OnPhraseSpoken(string phrase) // Event
+        {
+            if (!songPlaying || targetPlayer != localPlayer) { return; }
+            bool accepted = Speech.IsAboveThreshold(acceptedPhrases, minAccuracyRequired);
+
+            if (accepted)
+                spoken.Add(phrase);
+
+            logger.LogDebug($"{(accepted ? "" : "X ")}{phrase}");
+        }
+
+        public void OnFinishSong() // Animation
+        {
+            if (!isTargetPlayer) { return; }
+            logger.LogDebug("Getting result");
+
+            IEnumerator GetResultRoutine()
             {
-                songPlaying = false;
+                yield return null;
+                yield return new WaitForSeconds(calculateTime);
+
                 float score = CalculateResult();
                 logger.LogDebug("Score: " + score);
 
@@ -101,22 +124,35 @@ namespace ItemSCPs.Items.Snowy
                     PlaySongServerRpc();
                 }
             }
+
+            StartCoroutine(GetResultRoutine());
         }
 
-        void OnPhraseSpoken(string phrase) // Event // TODO: Continue here
+        public void OnStartSong() // Animation
         {
-            if (!songPlaying) { return; }
-            bool accepted = Speech.IsAboveThreshold(acceptedPhrases, minAccuracyRequired);
+            grabbable = true;
+            int songIndex = GetSongIndex(timesPlayed);
 
-            if (accepted)
-                spoken.Add(phrase);
-
-            logger.LogDebug($"{(accepted ? "\u2714" : "\u2718")} {phrase}"); // TODO: Test this
+            DoStatusEffects(songIndex);
+            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
+            audioSource.clip = birthdaySongsSFX[songIndex];
+            audioSource.Play();
+            songPlaying = true;
+            timesPlayed++;
         }
 
-        public void OnFinishFlip() // Animation
+        public void PlaySong()
         {
-            PlaySong();
+            if (timesPlayed >= maxPlays)
+            {
+                targetPlayer.KillPlayer(Vector3.zero);
+                DispenseCandy(CandyType.Bad);
+                return;
+            }
+
+            spoken.Clear();
+            logger.LogDebug("Animation: song");
+            animator.SetTrigger("song");
         }
 
         public float CalculateResult()
@@ -180,35 +216,12 @@ namespace ItemSCPs.Items.Snowy
             }
         }
 
-        void PlaySong()
-        {
-            activated = true;
-
-            if (timesPlayed >= maxPlays)
-            {
-                targetPlayer.KillPlayer(Vector3.zero);
-                DispenseCandy(CandyType.Bad);
-                return;
-            }
-
-            int songIndex = GetSongIndex(timesPlayed);
-
-            DoStatusEffects(songIndex);
-
-            spoken.Clear();
-            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
-            audioSource.clip = birthdaySongsSFX[songIndex];
-            audioSource.Play();
-            songPlaying = true;
-            timesPlayed++;
-        }
-
         void DispenseCandy(CandyType candyType)
         {
             if (!IsServer) { return; }
+            logger.LogDebug("Dispensing candy " + candyType.ToString());
             var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
             (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
-            candyDispensed = true;
             spoken.Clear();
             songPlaying = false;
         }
@@ -237,16 +250,19 @@ namespace ItemSCPs.Items.Snowy
             return numSongs - 1; // fallback
         }
 
-        public override int GetItemDataToSave() => candyDispensed ? 1 : 0;
-        public override void LoadItemSaveData(int saveData) => candyDispensed = saveData == 1;
+        public override int GetItemDataToSave() => activated ? 1 : 0;
+        public override void LoadItemSaveData(int saveData) => activated = saveData == 1;
 
         // RPCs
 
         [ClientRpc]
-        private void DoAnimationClientRpc(string animName)
+        private void ActivateClientRpc()
         {
-            logger.LogDebug("DoAnimationClientRpc: " + animName);
-            animator.SetTrigger(animName);
+            activated = true;
+            grabbable = false;
+            logger.LogDebug("Animation: flip");
+            animator.SetTrigger("flip");
+            audioSource.PlayOneShot(monkeyFlipSFX, 1f);
         }
 
         [ServerRpc(RequireOwnership = false)]

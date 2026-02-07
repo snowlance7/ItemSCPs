@@ -1,0 +1,60 @@
+Walking (Bool) = False
+Sprinting (Bool) = False
+Sideways (Bool) = True
+animationSpeed (Float) = -1
+Grab (Bool) = False
+Jumping (Bool) = False
+GrabInvalidated (Bool) = False
+SA_PullLever (Trigger)
+crouching (Bool) = False
+startCrouching (Trigger)
+FallNoJump (Bool) = False
+ShortFallLanding (Trigger)
+ClimbingLadder (Bool) = False
+EnterLadder (Trigger)
+HandsOnWall (Bool) = False
+GrabValidated (Bool) = False
+GrabClipboard (Bool) = False
+Throw (Trigger)
+SwitchHoldAnimation (Trigger)
+SpawnPlayer (Trigger)
+HoldLung (Bool) = False
+cancelHold (Trigger)
+Limp (Bool) = False
+Damage (Trigger)
+HoldPatcherTool (Bool) = False
+PullingCameraRight (Bool) = False
+PullingCameraLeft (Bool) = False
+Overheat (Trigger)
+cancelHolding (Bool) = True
+SA_Typing (Trigger)
+SA_stopAnimation (Trigger)
+SA_ChargeItem (Trigger)
+reelingUp (Bool) = False
+SwitchHoldAnimationTwoHanded (Trigger)
+SA_PushLeverBack (Trigger)
+tiredAmount (Float) = 0
+walkieTalkie (Bool) = False
+PullGrenadePin (Trigger)
+hinderedMovement (Bool) = False
+emoteNumber (Int) = 0
+HoldJetpack (Bool) = False
+useTZPItem (Bool) = False
+shakeItem (Trigger)
+shovelHit (Trigger)
+HoldShotgun (Bool) = False
+ReloadShotgun (Bool) = False
+ReloadShotgun2 (Bool) = False
+ShootShotgun (Trigger)
+PullGrenadePin2 (Trigger)
+HoldMask (Bool) = False
+UseHeldItem1 (Trigger)
+HoldKnife (Bool) = False
+SA_Truck (Trigger)
+SA_CarAnim (Int) = 0
+SA_CarMotionTime (Float) = 0
+SA_JumpInCar (Trigger)
+HoldForward (Bool) = False
+RockBaby (Int) = 0
+SA_SitOnCouch (Trigger)
+SA_SitOnElectricChair (Trigger)

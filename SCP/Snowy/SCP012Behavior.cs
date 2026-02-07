@@ -47,6 +47,13 @@ namespace ItemSCPs.SCPs.Snowy
         const float lightThreshold = 0.4f;
         const int speechDamage = 5;
 
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.19f);
+            itemProperties.rotationOffset = new Vector3(170f, 90f, 0f);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void Start()
         {
             base.Start();
