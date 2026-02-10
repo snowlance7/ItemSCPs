@@ -14,6 +14,7 @@ namespace ItemSCPs
         public static readonly NamespacedKey<DawnItemInfo> SCP1079 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp1079");
         public static readonly NamespacedKey<DawnItemInfo> SCP2536 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp2536");
         public static readonly NamespacedKey<DawnItemInfo> SCP983 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp983");
+        public static readonly NamespacedKey<DawnItemInfo> SCP9831 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp9831");
         public static readonly NamespacedKey<DawnItemInfo> SCP012 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp012");
         public static readonly NamespacedKey<DawnItemInfo> SCP1025 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp1025");
         public static readonly NamespacedKey<DawnItemInfo> SCP268 = NamespacedKey<DawnItemInfo>.From("itemscps", "scp268");

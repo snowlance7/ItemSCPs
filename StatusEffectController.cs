@@ -44,7 +44,7 @@ namespace ItemSCPs
             {
                 if (existing.CanStack)
                 {
-                    existing.OnStackAdded();
+                    existing.OnStackAdded(effect);
                     return;
                 }
 
@@ -151,6 +151,9 @@ namespace ItemSCPs
         public virtual bool IsPermanent => false;
         public virtual bool CanStack => false;
 
+        public Coroutine? effectRoutine;
+        public float effectTime;
+
         protected int stacks = 1;
 
         public void Initialize(StatusEffectController controller)
@@ -159,9 +162,26 @@ namespace ItemSCPs
             OnApply();
         }
 
+        public virtual void Update()
+        {
+            if (effectTime > 0)
+            {
+                effectTime -= Time.deltaTime;
+                if (effectTime <= 0)
+                {
+                    OnRemove();
+                }
+            }
+        }
+
         public virtual void OnApply() { }
-        public virtual void OnRemove() { }
-        public virtual void OnStackAdded() { }
+        public virtual void OnRemove()
+        {
+            if (effectRoutine != null)
+                controller.StopCoroutine(effectRoutine);
+            controller.RemoveEffect(this);
+        }
+        public virtual void OnStackAdded(StatusEffect effect) { }
         public virtual void Tick() { }
     }
 }

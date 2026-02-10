@@ -220,7 +220,7 @@ namespace ItemSCPs.Items.Snowy
         {
             if (!IsServer) { return; }
             logger.LogDebug("Dispensing candy " + candyType.ToString());
-            var candy = Utils.SpawnItem(ItemSCPsKeys.SCP983, candyDropPosition.position);
+            var candy = Utils.SpawnItem(ItemSCPsKeys.SCP9831, candyDropPosition.position);
             (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
             spoken.Clear();
             songPlaying = false;

@@ -73,6 +73,21 @@ namespace ItemSCPs
             if (playerHeldBy == null) { return; }
             playerHeldBy.thisPlayerBody.localScale = new Vector3(size, size, size);
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void MufflePlayerServerRpc(ulong clientId, bool value)
+        {
+            if (!IsServer) { return; }
+            MufflePlayerClientRpc(clientId, value);
+        }
+
+        [ClientRpc]
+        void MufflePlayerClientRpc(ulong clientId, bool value)
+        {
+            PlayerControllerB? player = PlayerFromId(clientId);
+            if (player == null) { return; }
+            Utils.MufflePlayer(player, value);
+        }
     }
 
     [HarmonyPatch]

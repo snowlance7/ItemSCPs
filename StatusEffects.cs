@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ItemSCPs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,6 @@ namespace ItemSCPs
         float interval = interval;
         int damage = damage;
 
-        Coroutine? bleedRoutine;
-
         public override void OnApply()
         {
             IEnumerator BleedRoutine(int amount, float interval, int damage)
@@ -31,20 +30,11 @@ namespace ItemSCPs
                         localPlayer.DamagePlayer(damage);
                 }
 
-                bleedRoutine = null;
+                effectRoutine = null;
                 controller.RemoveEffect(this);
             }
 
-            bleedRoutine = controller.StartCoroutine(BleedRoutine(amount, interval, damage));
-        }
-
-        public override void OnRemove()
-        {
-            base.OnRemove();
-            if (bleedRoutine != null)
-                controller.StopCoroutine(bleedRoutine);
+            effectRoutine = controller.StartCoroutine(BleedRoutine(amount, interval, damage));
         }
     }
-
-
 }
