@@ -623,11 +623,11 @@ public static class Utils
         PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance);
     }
 
-    public static PlayerControllerB? GetRandomPlayer(System.Random? random = null)
+    public static PlayerControllerB GetRandomPlayer(System.Random? random = null)
     {
         random ??= randomLocal;
         var players = StartOfRound.Instance.allPlayerScripts.Where(p => p != null && p.isPlayerControlled).ToArray();
-        return players.Length == 0 ? null : players[random.Next(players.Length)];
+        return players.Length == 0 ? StartOfRound.Instance.allPlayerScripts[random.Next(StartOfRound.Instance.allPlayerScripts.Length)] : players[random.Next(players.Length)];
     }
 
 

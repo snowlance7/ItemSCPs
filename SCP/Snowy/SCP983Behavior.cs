@@ -25,25 +25,34 @@ namespace ItemSCPs.Items.Snowy
 
         public Animator animator;
         public Transform candyDropPosition;
+        public MeshRenderer eyesRenderer;
 
         PlayerControllerB targetPlayer;
 #pragma warning restore CS8618
+
+        string defaultNoteTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
         bool isTargetPlayer => targetPlayer == localPlayer;
 
         bool activated;
         bool songPlaying;
 
+        bool isHolding;
+        bool inWindow;
+
         int timesPlayed;
+
+        Note[] notes = [];
 
         // Configs
         const float distanceToActivate = 2f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
 
         const float minAccuracyRequired = 0.5f;
-        const int maxPlays = 10;
+        const int maxPlays = 5;
         const float calculateTime = 2.5f;
         const float grace = 0.1f;
+        const string cfgNoteHoldTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
         public override void Start()
         {
@@ -53,9 +62,41 @@ namespace ItemSCPs.Items.Snowy
             itemProperties.rotationOffset = new Vector3(120f, 0f, -90f);
             itemProperties.floorYOffset = 90;
 
-            targetPlayer = Utils.GetRandomPlayer()!;
+            targetPlayer = Utils.GetRandomPlayer();
+            notes = ParseNoteTimesConfig(cfgNoteHoldTimes).ToArray();
         }
 
+        List<Note> ParseNoteTimesConfig(string cfg)
+        {
+            var result = new List<Note>();
+
+            foreach (var note in cfg.Replace(" ", "").Split(','))
+            {
+                var parts = note.Split('-');
+                if (parts.Length > 2)
+                {
+                    logger.LogWarning($"Error parsing config string for SCP-983 NoteHoldTimes. `{note}` should have at most one dash, skipping...");
+                    continue;
+                }
+
+                if (float.TryParse(parts[0], out float start))
+                {
+                    float end = start;
+                    if (parts.Length == 2 && !float.TryParse(parts[1], out end))
+                    {
+                        logger.LogWarning($"Invalid end time in `{note}`, skipping...");
+                        continue;
+                    }
+                    result.Add(new Note(start, end));
+                }
+                else
+                {
+                    logger.LogWarning($"Invalid start time in `{note}`, skipping...");
+                }
+            }
+
+            return result;
+        }
         public override void Update()
         {
             base.Update();
@@ -66,7 +107,37 @@ namespace ItemSCPs.Items.Snowy
                 ActivateClientRpc();
             }
 
+            if (!songPlaying || !isTargetPlayer) { return; }
 
+            float songTime = audioSource.time;
+
+            for (int i = 0; i < notes.Length; i++)
+            {
+                Note note = notes[i];
+
+                inWindow = songTime >= note.startTime - grace && songTime <= note.endTime + grace;
+
+                if (inWindow && isHolding)
+                {
+                    note.heldTime += Time.deltaTime;
+                }
+            }
+
+            SetEyes();
+        }
+
+        void SetEyes() // TODO: Get eyes working and make sure score is actually getting calculated, 'NaN' error?
+        {
+            Material eyeMat = eyesRenderer.material;
+
+            Color color = (inWindow && isHolding) ? Color.green : Color.red;
+
+            if (inWindow)
+                eyeMat.EnableKeyword("_EMISSION");
+            else
+                eyeMat.DisableKeyword("_EMISSION");
+
+            eyeMat.SetColor("_EmissionColor", color * 2f);
         }
 
         public override int GetItemDataToSave() => activated ? 1 : 0;
@@ -75,8 +146,7 @@ namespace ItemSCPs.Items.Snowy
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-
-
+            isHolding = buttonDown;
         }
 
         public void PlaySongOnLocalClient()
@@ -147,7 +217,28 @@ namespace ItemSCPs.Items.Snowy
 
         float CalculateResult()
         {
-            throw new System.NotImplementedException();
+            float totalScore = 0f;
+
+            foreach (var note in notes)
+            {
+                float accuracy = note.heldTime / note.duration;
+                accuracy = Mathf.Clamp01(accuracy);
+
+                totalScore += accuracy;
+            }
+
+            float averageScore = totalScore / notes.Length;
+
+            logger.LogInfo("Score: " + averageScore);
+            return averageScore;
+        }
+
+        void ResetHoldTimes()
+        {
+            for (int i = 0; i < notes.Length; i++)
+            {
+                notes[i].heldTime = 0f;
+            }
         }
 
         public void OnFinishSong() // Animation
@@ -184,8 +275,10 @@ namespace ItemSCPs.Items.Snowy
         {
             grabbable = true;
             int songIndex = GetSongIndex(timesPlayed);
+            logger.LogDebug("SongIndex: " + songIndex);
 
             DoStatusEffects(songIndex);
+            ResetHoldTimes();
             audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
             audioSource.clip = birthdaySongsSFX[songIndex];
             audioSource.Play();
@@ -227,9 +320,12 @@ namespace ItemSCPs.Items.Snowy
     }
 
     [Serializable]
-    public struct Note
+    public struct Note(float startTime, float endTime)
     {
-        public float startTime;
+        public float startTime = startTime;
+        public float endTime = endTime;
+        public float duration => endTime - startTime;
+        public float heldTime;
     }
 
     internal class SCP9831Behavior : PhysicsProp
