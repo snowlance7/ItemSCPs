@@ -23,7 +23,7 @@ namespace ItemSCPs.SCPs.Snowy
 
         bool isLit => GetLightAt(transform.position, range) > lightThreshold;
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
-        AudioSource? playerVoice => playerHeldBy?.currentVoiceChatAudioSource;
+        AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
         float timeSinceLastSpeech;
         float timeSinceIntervalUpdate;
@@ -39,7 +39,7 @@ namespace ItemSCPs.SCPs.Snowy
 
         // Configs
         public static bool configEnabled => ItemSCPsContentHandler.Instance.SCP012 != null; // TODO: Test this
-        readonly BoundedRange speechInterval = new BoundedRange(5f, 15f);
+        readonly BoundedRange speechInterval = new BoundedRange(10f, 15f);
         const float activationRange = 10f;
         const float forceLookIntensity = 0.25f;
         const float forceWalkIntensity = 1f;
@@ -47,16 +47,14 @@ namespace ItemSCPs.SCPs.Snowy
         const float lightThreshold = 0.4f;
         const int speechDamage = 5;
 
-        public void Awake()
-        {
-            itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.19f);
-            itemProperties.rotationOffset = new Vector3(170f, 90f, 0f);
-            itemProperties.floorYOffset = 90;
-        }
-
         public override void Start()
         {
             base.Start();
+
+            itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.19f);
+            itemProperties.rotationOffset = new Vector3(170f, 90f, 0f);
+            itemProperties.floorYOffset = 90;
+
             GetLights();
             Utils.OnFinishGeneratingLevel.AddListener(GetLights);
         }
@@ -95,6 +93,7 @@ namespace ItemSCPs.SCPs.Snowy
             audioSource.maxDistance = range;
 
             bool affected = CanAffectPlayer();
+            TestingHUDOverlay.Instance?.SetToggle1("Affected", affected);
             audioSource.volume = affected ? 1f : 0f;
             if (!affected)
             {
@@ -130,7 +129,8 @@ namespace ItemSCPs.SCPs.Snowy
                 {
                     RoundManager.PlayRandomClip(audioSource, stabSFX);
                     localPlayer.KillPlayer(Vector3.zero, causeOfDeath: CauseOfDeath.Stabbing);
-
+                    localPlayer.activatingItem = false;
+                    // TODO: ???
                 }
                 return;
             }
@@ -165,7 +165,9 @@ namespace ItemSCPs.SCPs.Snowy
             }
 
             RoundManager.PlayRandomClip(audioSource, stabSFX);
+            localPlayer.inSpecialInteractAnimation = true;
             localPlayer.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Stabbing);
+            localPlayer.inSpecialInteractAnimation = false;
             PlaySpeechServerRpc();
         }
 
@@ -187,13 +189,12 @@ namespace ItemSCPs.SCPs.Snowy
         bool CanAffectPlayer()
         {
             if (localPlayerPlayingFinalSpeech) { return true; }
-            if (StartOfRound.Instance.inShipPhase) { return false; }
+            if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
-            if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
+            //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
             distance = Vector3.Distance(transform.position, localPlayer.transform.position);
             if (distance > range) { return false; }
-            if (!localPlayer.HasLineOfSightToPosition(transform.position)) { return false; }
-            if (!isLit) { return false; }
+            //if (!isLit) { return false; }
             return true;
         }
 
@@ -275,7 +276,7 @@ namespace ItemSCPs.SCPs.Snowy
         [ClientRpc]
         public void PlayFinalSpeechClientRpc()
         {
-            if (playerVoice == null) { return; }
+            if (playerVoice == null) { logger.LogWarning("PlayerVoice is null"); return; }
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
             playerVoice.PlayOneShot(finalSpeechSFX);
         }

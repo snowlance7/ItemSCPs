@@ -32,10 +32,10 @@ namespace ItemSCPs
 
         public void Update()
         {
-            var ui = TestingHUDOverlay.Instance;
+            /*var ui = TestingHUDOverlay.Instance;
             ui.SetLabel1("SprintMeter: " + localPlayer.sprintMeter);
             ui.SetLabel2("SprintTime: " + localPlayer.sprintTime);
-            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier);
+            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier);*/
         }
 
         [ServerRpc(RequireOwnership = false)]

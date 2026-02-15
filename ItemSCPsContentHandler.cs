@@ -58,8 +58,8 @@ namespace ItemSCPs
         public class SCP3482Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP3482Assets>(mod, filePath) { }
         public SCP3482Assets? SCP3482;
 
-        public class SCP420Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP420Assets>(mod, filePath) { }
-        public SCP420Assets? SCP420;
+        public class SCP420JAssets(DuskMod mod, string filePath) : AssetBundleLoader<SCP420JAssets>(mod, filePath) { }
+        public SCP420JAssets? SCP420J;
 
         public class SCP498Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP498Assets>(mod, filePath) { }
         public SCP498Assets? SCP498;
@@ -70,6 +70,7 @@ namespace ItemSCPs
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)
         {
             RegisterContent("networkhandler", out NetworkHandler);
+
             // Rat
             /*RegisterContent("scp018", out SCP018);
             RegisterContent("scp207", out SCP207);
@@ -79,15 +80,15 @@ namespace ItemSCPs
             RegisterContent("scp714", out SCP714);*/
 
             // Snowy
-            RegisterContent("scp1079", out SCP1079);
-            RegisterContent("scp983", out SCP983);
             RegisterContent("scp012", out SCP012);
             //RegisterContent("scp1025", out SCP1025);
+            //RegisterContent("scp1079", out SCP1079);
             //RegisterContent("scp268", out SCP268);
             //RegisterContent("scp3482", out SCP3482);
-            //RegisterContent("scp420", out SCP420);
+            //RegisterContent("scp420J", out SCP420J);
             //RegisterContent("scp498", out SCP498);
             //RegisterContent("scp735", out SCP735);
+            RegisterContent("scp983", out SCP983);
         }
     }
 
