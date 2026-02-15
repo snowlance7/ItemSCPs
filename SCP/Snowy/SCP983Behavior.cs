@@ -61,6 +61,9 @@ namespace ItemSCPs.Items.Snowy
             itemProperties.positionOffset = new Vector3(-0.13f, 0.01f, -0.15f);
             itemProperties.rotationOffset = new Vector3(120f, 0f, -90f);
             itemProperties.floorYOffset = 90;
+            
+            Material mat = eyesRenderer.material;
+            mat.SetFloat("_EmissiveIntensity", 1f);
 
             targetPlayer = Utils.GetRandomPlayer();
             notes = ParseNoteTimesConfig(cfgNoteHoldTimes).ToArray();
@@ -87,7 +90,7 @@ namespace ItemSCPs.Items.Snowy
                         logger.LogWarning($"Invalid end time in `{note}`, skipping...");
                         continue;
                     }
-                    result.Add(new Note(start, end));
+                    result.Add(new Note(start, end, grace));
                 }
                 else
                 {
@@ -110,34 +113,35 @@ namespace ItemSCPs.Items.Snowy
             if (!songPlaying || !isTargetPlayer) { return; }
 
             float songTime = audioSource.time;
+            inWindow = false;
 
             for (int i = 0; i < notes.Length; i++)
             {
-                Note note = notes[i];
+                inWindow = songTime >= notes[i].startTime - grace && songTime <= notes[i].endTime;
 
-                inWindow = songTime >= note.startTime - grace && songTime <= note.endTime + grace;
-
-                if (inWindow && isHolding)
+                if (inWindow)
                 {
-                    note.heldTime += Time.deltaTime;
+                    if (isHolding)
+                        notes[i].heldTime += Time.deltaTime;
+                    break;
                 }
             }
 
             SetEyes();
         }
 
-        void SetEyes() // TODO: Get eyes working and make sure score is actually getting calculated, 'NaN' error?
+        void SetEyes()
         {
-            Material eyeMat = eyesRenderer.material;
+            Material mat = eyesRenderer.material;
 
-            Color color = (inWindow && isHolding) ? Color.green : Color.red;
+            Color emissiveColor = Color.black;
 
             if (inWindow)
-                eyeMat.EnableKeyword("_EMISSION");
-            else
-                eyeMat.DisableKeyword("_EMISSION");
+                emissiveColor = isHolding ? Color.green : Color.white;
+            else if (isHolding)
+                emissiveColor = Color.red;
 
-            eyeMat.SetColor("_EmissionColor", color * 2f);
+            mat.SetColor("_EmissiveColor", emissiveColor);
         }
 
         public override int GetItemDataToSave() => activated ? 1 : 0;
@@ -221,6 +225,7 @@ namespace ItemSCPs.Items.Snowy
 
             foreach (var note in notes)
             {
+                if (note.duration <= 0f) continue;
                 float accuracy = note.heldTime / note.duration;
                 accuracy = Mathf.Clamp01(accuracy);
 
@@ -320,10 +325,10 @@ namespace ItemSCPs.Items.Snowy
     }
 
     [Serializable]
-    public struct Note(float startTime, float endTime)
+    public struct Note(float startTime, float endTime, float grace)
     {
-        public float startTime = startTime;
-        public float endTime = endTime;
+        public float startTime = startTime/* - grace*/;
+        public float endTime = endTime + grace;
         public float duration => endTime - startTime;
         public float heldTime;
     }
