@@ -20,6 +20,8 @@ namespace ItemSCPs
     [HarmonyPatch]
     public class TESTING : MonoBehaviour
     {
+        public static bool localPlayerImmune = false;
+
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
         {
@@ -38,6 +40,10 @@ namespace ItemSCPs
 
             switch (args[0])
             {
+                case "/immune":
+                    localPlayerImmune = !localPlayerImmune;
+                    HUDManager.Instance.DisplayTip("ItemSCPs", "localPlayerImmune: " + localPlayerImmune);
+                    break;
                 default:
                     Utils.ChatCommand(args);
                     break;

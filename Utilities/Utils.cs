@@ -16,7 +16,7 @@ public static class Utils
 {
     public static bool isBeta = true;
     public static bool testing => _testing && isBeta;
-    public static bool _testing = false;
+    private static bool _testing = false;
 
     public static bool trailerMode = false;
 
@@ -656,43 +656,6 @@ public static class Utils
             player.voiceMuffledByEnemy = muffle;
         }
     }
-
-    public static bool TryForceLocalPlayerGrabItem(GrabbableObject item, bool makeRoomToGrab = false)
-    {
-        if (item.playerHeldBy != null)
-        {
-            if (item.playerHeldBy != localPlayer)
-                return false;
-
-            int index = localPlayer.ItemSlots.IndexOf(item);
-            localPlayer.SwitchToItemSlot(index, item);
-            return IsHeldByLocalPlayer(item);
-        }
-
-        for (int i = 0; i < localPlayer.ItemSlots.Length; i++)
-        {
-            if (localPlayer.ItemSlots[i] == null)
-            {
-                localPlayer.SwitchToItemSlot(i, item);
-                return IsHeldByLocalPlayer(item);
-            }
-        }
-
-        if (makeRoomToGrab)
-        {
-            localPlayer.DiscardHeldObject();
-            localPlayer.SwitchToItemSlot(localPlayer.currentItemSlot, item);
-            return IsHeldByLocalPlayer(item);
-        }
-
-        return false;
-    }
-
-    private static bool IsHeldByLocalPlayer(GrabbableObject item)
-    {
-        return item.playerHeldBy == localPlayer && !item.isPocketed;
-    }
-
 
     public static EntranceTeleport? GetClosestExitFromPosition(Vector3 position, bool checkForPath = false)
     {
