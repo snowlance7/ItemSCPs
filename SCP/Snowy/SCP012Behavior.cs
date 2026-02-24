@@ -2,6 +2,7 @@
 using DunGen;
 using GameNetcodeStuff;
 using HarmonyLib;
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
@@ -46,9 +47,6 @@ namespace ItemSCPs.SCPs.Snowy
         public static bool configEnabled => ItemSCPsContentHandler.Instance.SCP012 != null; // TODO: Test this
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
-        const float yawForce = 2200f;
-        const float forceLookIntensity = 0.25f;
-        const float forceWalkIntensity = 1f;
         const float lightThreshold = 0.4f;
         const int speechDamage = 5;
 
@@ -83,14 +81,13 @@ namespace ItemSCPs.SCPs.Snowy
                 IntervalUpdate();
             }
 
-            localPlayer.turnCompass.LookAt(transform);
-            localPlayer.transform.rotation = Quaternion.Lerp(localPlayer.transform.rotation, localPlayer.turnCompass.rotation, forceLookIntensity * Time.deltaTime);
-
-            MovePlayerTowardsPosition(transform.position, forceWalkIntensity);
+            if (localPlayerAffected && playerHeldBy == null)
+                ForcePlayerMovementUpdate();
         }
 
         void IntervalUpdate()
         {
+            distance = Vector3.Distance(transform.position, localPlayer.transform.position);
             if (!localPlayer.criticallyInjured) { localPlayerStabAmount = 0; }
 
             bool foggy = isOutside && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy;
@@ -117,9 +114,10 @@ namespace ItemSCPs.SCPs.Snowy
 
             if (!heldByLocalPlayer)
             {
-                if (distance < 1f)
+                if (distance <= 1f && !localPlayer.isGrabbingObjectAnimation && !localPlayer.isTypingChat && !localPlayer.inTerminalMenu && !localPlayer.throwingObject && !localPlayer.IsInspectingItem && !(localPlayer.inAnimationWithEnemy != null) && !localPlayer.jetpackControls && !localPlayer.disablingJetpackControls && !StartOfRound.Instance.suckingPlayersOutOfShip && !localPlayer.activatingItem && !localPlayer.waitingToDropItem)
                 {
-                    //Utils.TryForceLocalPlayerGrabItem(this, makeRoomToGrab: true); // TODO
+                    if (IsInventoryFull(localPlayer)) { localPlayer.DiscardHeldObject(); }
+                    localPlayer.BeginGrabObject();
                 }
                 return;
             }
@@ -133,7 +131,6 @@ namespace ItemSCPs.SCPs.Snowy
                     RoundManager.PlayRandomClip(audioSource, stabSFX);
                     localPlayer.KillPlayer(Vector3.zero, causeOfDeath: CauseOfDeath.Stabbing);
                     localPlayer.activatingItem = false;
-                    // TODO: ???
                 }
                 return;
             }
@@ -146,6 +143,15 @@ namespace ItemSCPs.SCPs.Snowy
                 nextSpeechTime = speechInterval.GetRandomInRange(Utils.randomLocal);
                 DamageSelf();
             }
+        }
+
+        bool IsInventoryFull(PlayerControllerB player)
+        {
+            foreach (var slot in player.ItemSlots)
+            {
+                if (slot == null) { return false; }
+            }
+            return true;
         }
 
         public override void EquipItem()
@@ -171,11 +177,17 @@ namespace ItemSCPs.SCPs.Snowy
             localPlayer.inSpecialInteractAnimation = true;
             localPlayer.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Stabbing);
             localPlayer.inSpecialInteractAnimation = false;
+            HUDManager.Instance.ShakeCamera(ScreenShakeType.Big);
+
+            if (!localPlayer.criticallyInjured)
+                localPlayer.MakeCriticallyInjured(true);
+
             PlaySpeechServerRpc();
         }
 
         void MovePlayerTowardsPosition(Vector3 targetPosition, float force)
         {
+            if (distance <= 1f) { return; }
             Vector3 direction = (targetPosition - localPlayer.playerCollider.transform.position).normalized;
             float step = force * Time.fixedDeltaTime;
 
@@ -192,61 +204,48 @@ namespace ItemSCPs.SCPs.Snowy
         void ForcePlayerMovementUpdate()
         {
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
-            // 0 = far, 1 = very close
-
-            float pullStrength = pullCurve.Evaluate(normalized);
+            float pullStrength = normalized * normalized;
 
             MovePlayerTowardsPosition(transform.position, normalized);
 
-            Vector3 screenPos = localPlayer.gameplayCamera.WorldToViewportPoint(transform.position);
-
-            float horizontalOffset = screenPos.x - 0.5f;
-            float verticalOffset = screenPos.y - 0.5f;
-
             float dt = Mathf.Clamp(Time.deltaTime, 0f, 0.1f);
 
-            localPlayer.turnCompass.Rotate(Vector3.up * horizontalOffset * yawForce * pullStrength * dt);
-            localPlayer.cameraUp = Mathf.Clamp(Mathf.Lerp(localPlayer.cameraUp, localPlayer.cameraUp - verticalOffset * pitchForce * pullStrength, pitchLerpSpeed * dt), -89f, 89f);
+            // ----- YAW -----
 
-            gameplayCamera.transform.localEulerAngles = new Vector3(localPlayer.cameraUp, gameplayCamera.transform.localEulerAngles.y, 0f);
+            Vector3 flatDir = transform.position - localPlayer.thisPlayerBody.position;
+            flatDir.y = 0f;
+
+            if (flatDir.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetYaw = Quaternion.LookRotation(flatDir.normalized);
+
+                localPlayer.thisPlayerBody.rotation = Quaternion.Slerp(
+                    localPlayer.thisPlayerBody.rotation,
+                    targetYaw,
+                    pullStrength * dt
+                );
+            }
+
+            // ----- PITCH -----
+
+            Vector3 dir = (transform.position - localPlayer.gameplayCamera.transform.position).normalized;
+            float targetPitch = -Mathf.Asin(dir.y) * Mathf.Rad2Deg;
+
+            localPlayer.cameraUp = Mathf.Lerp(
+                localPlayer.cameraUp,
+                targetPitch,
+                pullStrength * dt
+            );
+
+            localPlayer.cameraUp = Mathf.Clamp(localPlayer.cameraUp, -89f, 89f);
+
+            localPlayer.gameplayCamera.transform.localEulerAngles =
+                new Vector3(
+                    localPlayer.cameraUp,
+                    localPlayer.gameplayCamera.transform.localEulerAngles.y,
+                    0f
+                );
         }
-
-        /*public void ForceTurnTowardsTarget()
-        {
-            localPlayer.targetScreenPos = localPlayer.turnCompassCamera.WorldToViewportPoint(transform.position);
-            shockMinigamePullPosition = targetScreenPos.x - 0.5f;
-            float num = Mathf.Clamp(Time.deltaTime, 0f, 0.1f);
-            if (targetScreenPos.x > 0.54f)
-            {
-                turnCompass.Rotate(Vector3.up * 2000f * num * Mathf.Abs(shockMinigamePullPosition));
-                playerBodyAnimator.SetBool("PullingCameraRight", value: false);
-                playerBodyAnimator.SetBool("PullingCameraLeft", value: true);
-            }
-            else if (targetScreenPos.x < 0.46f)
-            {
-                turnCompass.Rotate(Vector3.up * -2000f * num * Mathf.Abs(shockMinigamePullPosition));
-                playerBodyAnimator.SetBool("PullingCameraLeft", value: false);
-                playerBodyAnimator.SetBool("PullingCameraRight", value: true);
-            }
-            else
-            {
-                playerBodyAnimator.SetBool("PullingCameraLeft", value: false);
-                playerBodyAnimator.SetBool("PullingCameraRight", value: false);
-            }
-            targetScreenPos = gameplayCamera.WorldToViewportPoint(shockingTarget.position + Vector3.up * 0.35f);
-            if (targetScreenPos.y > 0.6f)
-            {
-                cameraUp = Mathf.Clamp(Mathf.Lerp(cameraUp, cameraUp - 25f, 25f * num * Mathf.Abs(targetScreenPos.y - 0.5f)), -89f, 89f);
-            }
-            else if (targetScreenPos.y < 0.35f)
-            {
-                cameraUp = Mathf.Clamp(Mathf.Lerp(cameraUp, cameraUp + 25f, 25f * num * Mathf.Abs(targetScreenPos.y - 0.5f)), -89f, 89f);
-            }
-            gameplayCamera.transform.localEulerAngles = new Vector3(cameraUp, gameplayCamera.transform.localEulerAngles.y, gameplayCamera.transform.localEulerAngles.z);
-            Vector3 zero = Vector3.zero;
-            zero.y = turnCompass.eulerAngles.y;
-            thisPlayerBody.rotation = Quaternion.Lerp(thisPlayerBody.rotation, Quaternion.Euler(zero), Time.deltaTime * 20f * (1f - Mathf.Abs(shockMinigamePullPosition)));
-        }*/
 
         bool CanAffectPlayer()
         {
@@ -258,7 +257,6 @@ namespace ItemSCPs.SCPs.Snowy
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
             //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
-            distance = Vector3.Distance(transform.position, localPlayer.transform.position);
             if (distance > maxRange) { return false; }
             //if (!isLit) { return false; }
             return true;
