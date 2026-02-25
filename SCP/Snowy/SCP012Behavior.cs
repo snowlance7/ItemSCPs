@@ -5,6 +5,7 @@ using HarmonyLib;
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCPs.Snowy
@@ -18,6 +19,18 @@ namespace ItemSCPs.SCPs.Snowy
         public AudioClip[] stabSFX;
         public AnimationCurve pullCurve;
 #pragma warning restore CS8618
+
+        SCP012Vignette? vignetteLocal
+        {
+            get
+            {
+                if (!localPlayer.gameObject.TryGetComponent<SCP012Vignette>(out SCP012Vignette vignette))
+                {
+                    vignette = localPlayer.gameObject.AddComponent<SCP012Vignette>();
+                }
+                return vignette;
+            }
+        }
 
         int localPlayerStabAmount;
 
@@ -123,6 +136,7 @@ namespace ItemSCPs.SCPs.Snowy
             }
 
             localPlayer.activatingItem = true;
+            vignetteLocal?.SetIntensity(1f);
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -158,7 +172,8 @@ namespace ItemSCPs.SCPs.Snowy
         {
             base.EquipItem();
             timeSinceLastSpeechStart = 0f;
-            nextSpeechTime = speechInterval.GetRandomInRange(Utils.randomLocal);
+            //nextSpeechTime = speechInterval.GetRandomInRange(Utils.randomLocal);
+            nextSpeechTime = 3f;
             localPlayer.activatingItem = CanAffectPlayer();
         }
 
@@ -181,6 +196,9 @@ namespace ItemSCPs.SCPs.Snowy
 
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
+
+            localPlayer.drunkness = 0.3f; // TODO: Test this
+            localPlayer.sprintMeter = 0f;
 
             PlaySpeechServerRpc();
         }
@@ -205,6 +223,8 @@ namespace ItemSCPs.SCPs.Snowy
         {
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
+
+            vignetteLocal?.SetIntensity(normalized);
 
             MovePlayerTowardsPosition(transform.position, normalized);
 
@@ -325,6 +345,7 @@ namespace ItemSCPs.SCPs.Snowy
             if (playerVoice == null) { return; }
             Utils.MufflePlayer(playerHeldBy, true);
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
+            playerVoice.volume = 1f;
 
             int index = Utils.randomLocal.Next(0, speechSFX.Length);
             playerVoice.PlayOneShot(speechSFX[index]);
@@ -342,7 +363,82 @@ namespace ItemSCPs.SCPs.Snowy
         {
             if (playerVoice == null) { logger.LogWarning("PlayerVoice is null"); return; }
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
+            playerVoice.volume = 1f;
             playerVoice.PlayOneShot(finalSpeechSFX);
+        }
+    }
+
+    public class SCP012Vignette : MonoBehaviour
+    {
+        private Image vignetteImage;
+        private Canvas canvas;
+
+        public void Start()
+        {
+            CreateVignette();
+        }
+
+        public void CreateVignette()
+        {
+            if (canvas != null) return;
+
+            GameObject canvasObj = new GameObject("SCP012_Vignette");
+            canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 999; // above everything
+
+            canvasObj.AddComponent<CanvasScaler>();
+            canvasObj.AddComponent<GraphicRaycaster>();
+
+            GameObject imageObj = new GameObject("VignetteImage");
+            imageObj.transform.SetParent(canvasObj.transform, false);
+
+            vignetteImage = imageObj.AddComponent<Image>();
+            vignetteImage.color = new Color(0f, 0f, 0f, 0f);
+
+            RectTransform rt = vignetteImage.rectTransform;
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+
+            vignetteImage.sprite = CreateRadialSprite();
+        }
+
+        private Sprite CreateRadialSprite()
+        {
+            int size = 512;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+
+            Vector2 center = new Vector2(size / 2f, size / 2f);
+            float maxDist = size / 2f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), center);
+                    float alpha = Mathf.InverseLerp(maxDist * 0.5f, maxDist, dist);
+                    alpha = Mathf.Clamp01(alpha);
+
+                    tex.SetPixel(x, y, new Color(0f, 0f, 0f, alpha));
+                }
+            }
+
+            tex.Apply();
+
+            return Sprite.Create(
+                tex,
+                new Rect(0, 0, size, size),
+                new Vector2(0.5f, 0.5f)
+            );
+        }
+        public void SetIntensity(float normalized)
+        {
+            if (vignetteImage == null) return;
+
+            float alpha = Mathf.Lerp(0f, 0.8f, normalized * normalized);
+            vignetteImage.color = new Color(0f, 0f, 0f, alpha);
         }
     }
 
