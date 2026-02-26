@@ -40,6 +40,10 @@ namespace ItemSCPs
 
             switch (args[0])
             {
+                case "/overlay": // TODO: Test this
+                    StatusEffectController.Instance.vignetteOverlay.SetIntensity(float.Parse(args[1]));
+                    HUDManager.Instance.DisplayTip("ItemSCPs", "VignetteOverlay: " + args[1]);
+                    break;
                 case "/immune":
                     localPlayerImmune = !localPlayerImmune;
                     HUDManager.Instance.DisplayTip("ItemSCPs", "localPlayerImmune: " + localPlayerImmune);

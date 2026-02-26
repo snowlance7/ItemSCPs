@@ -767,7 +767,6 @@ public class UtilsPatches
         try
         {
             Utils.terminal = GameObject.FindObjectOfType<Terminal>();
-            StatusEffectController.Init();
         }
         catch
         {

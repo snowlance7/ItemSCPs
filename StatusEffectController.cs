@@ -3,24 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
     public class StatusEffectController : MonoBehaviour
     {
-        public static StatusEffectController? Instance { get; private set; }
+        private static StatusEffectController? _instance;
+        public static StatusEffectController Instance
+        {
+            get
+            {
+                if (_instance  == null)
+                    _instance = Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController.StatusEffectControllerPrefab, localPlayer.transform).GetComponent<StatusEffectController>();
+                return _instance;
+            }
+        }
+        public VignetteOverlay vignetteOverlay { get { return gameObject.GetComponent<VignetteOverlay>(); } }
 
         private Dictionary<Type, StatusEffect> singletonEffects = new();
         private List<StatusEffect> multiInstanceEffects = new();
 
-        public static void Init()
-        {
-            if (Instance == null)
-            {
-                Instance = Instantiate(new GameObject("StatusEffectController"), localPlayer.transform).AddComponent<StatusEffectController>();
-            }
-        }
         public void Update()
         {
             foreach (var effect in singletonEffects.Values)
@@ -183,5 +187,23 @@ namespace ItemSCPs
         }
         public virtual void OnStackAdded(StatusEffect effect) { }
         public virtual void Tick() { }
+    }
+
+    public class VignetteOverlay : MonoBehaviour
+    {
+#pragma warning disable CS8618
+        public Image visual;
+#pragma warning restore CS8618
+
+        static readonly int LightSizeId = Shader.PropertyToID("_Inset");
+
+        const float min = -0.5f;
+        const float max = 0.15f;
+
+        public void SetIntensity(float intensity)
+        {
+            Material material = visual.material;
+            material.SetFloat(LightSizeId, intensity);
+        }
     }
 }

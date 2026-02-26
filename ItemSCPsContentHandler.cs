@@ -12,6 +12,13 @@ namespace ItemSCPs
         }
         public NetworkHandlerAssets? NetworkHandler;
 
+        public class StatusEffectControllerAssets(DuskMod mod, string filePath) : AssetBundleLoader<StatusEffectControllerAssets>(mod, filePath)
+        {
+            [LoadFromBundle("StatusEffectController.prefab")]
+            public GameObject StatusEffectControllerPrefab { get; private set; } = null!;
+        }
+        public StatusEffectControllerAssets StatusEffectController;
+
         // Rat
         /*
         public class SCP018Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP018Assets>(mod, filePath) { }
