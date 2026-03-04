@@ -17,7 +17,7 @@ namespace ItemSCPs
             [LoadFromBundle("StatusEffectController.prefab")]
             public GameObject StatusEffectControllerPrefab { get; private set; } = null!;
         }
-        public StatusEffectControllerAssets StatusEffectController;
+        public StatusEffectControllerAssets? StatusEffectController;
 
         // Rat
         /*
@@ -77,6 +77,7 @@ namespace ItemSCPs
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)
         {
             RegisterContent("networkhandler", out NetworkHandler);
+            RegisterContent("statuseffectcontroller", out StatusEffectController);
 
             // Rat
             /*RegisterContent("scp018", out SCP018);

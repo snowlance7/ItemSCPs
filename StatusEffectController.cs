@@ -16,7 +16,7 @@ namespace ItemSCPs
             get
             {
                 if (_instance  == null)
-                    _instance = Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController.StatusEffectControllerPrefab, localPlayer.transform).GetComponent<StatusEffectController>();
+                    _instance = Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController!.StatusEffectControllerPrefab, localPlayer.transform).GetComponent<StatusEffectController>();
                 return _instance;
             }
         }
@@ -197,13 +197,10 @@ namespace ItemSCPs
 
         static readonly int LightSizeId = Shader.PropertyToID("_Inset");
 
-        const float min = -0.5f;
-        const float max = 0.15f;
-
         public void SetIntensity(float intensity)
         {
             Material material = visual.material;
-            material.SetFloat(LightSizeId, intensity);
+            material.SetFloat(LightSizeId, Mathf.Clamp01(intensity));
         }
     }
 }
