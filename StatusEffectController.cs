@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,187 +18,132 @@ namespace ItemSCPs
                 return _instance;
             }
         }
+
         public VignetteOverlay vignetteOverlay { get { return gameObject.GetComponent<VignetteOverlay>(); } }
 
-        private Dictionary<Type, StatusEffect> singletonEffects = new();
-        private List<StatusEffect> multiInstanceEffects = new();
+        private readonly List<StatusEffect> effects = new();
 
-        public void Update()
+        private void Update()
         {
-            foreach (var effect in singletonEffects.Values)
-                effect.Tick();
-            foreach (var effect in multiInstanceEffects.ToList())
-                effect.Tick();
-        }
-
-        public void ApplyEffect<T>(T effect) where T : StatusEffect
-        {
-            var type = typeof(T);
-
-            if (effect.AllowMultipleInstances)
+            for (int i = effects.Count - 1; i >= 0; i--)
             {
-                multiInstanceEffects.Add(effect);
-                effect.Initialize(this);
-                return;
-            }
+                var effect = effects[i];
+                effect.Tick(Time.deltaTime);
 
-            if (singletonEffects.TryGetValue(type, out var existing))
-            {
-                if (existing.CanStack)
+                if (effect.IsFinished)
                 {
-                    existing.OnStackAdded(effect);
-                    return;
+                    effect.OnRemove();
+                    effects.RemoveAt(i);
                 }
-
-                if (!existing.Overridable) { return; }
-
-                existing.OnRemove();
-                singletonEffects.Remove(type);
             }
-
-            singletonEffects[type] = effect;
-            effect.Initialize(this);
         }
 
-        public void RemoveEffect(StatusEffect effect)
+        public void ApplyEffect(StatusEffect effect)
         {
-            if (effect.AllowMultipleInstances)
+            var existing = effects.FirstOrDefault(e => e.GetType() == effect.GetType());
+
+            if (existing != null)
             {
-                if (!multiInstanceEffects.Remove(effect)) return;
-                effect.OnRemove();
+                existing.OnReapply(effect);
                 return;
             }
 
-            var type = effect.GetType();
-
-            if (!singletonEffects.TryGetValue(type, out var existing)) return;
-            if (existing != effect) return;
-
-            existing.OnRemove();
-            singletonEffects.Remove(type);
+            effect.Initialize();
+            effects.Add(effect);
         }
 
         public void RemoveEffect<T>() where T : StatusEffect
         {
-            multiInstanceEffects.RemoveAll(e =>
+            effects.RemoveAll(e =>
             {
-                if (e is T typed)
+                if (e is T effect)
                 {
-                    typed.OnRemove();
+                    effect.OnRemove();
                     return true;
                 }
                 return false;
             });
-
-            if (singletonEffects.TryGetValue(typeof(T), out var singleton))
-            {
-                singleton.OnRemove();
-                singletonEffects.Remove(typeof(T));
-            }
-        }
-
-        public void RemoveEffects(params Type[] effectTypes)
-        {
-            foreach (var type in effectTypes)
-            {
-                multiInstanceEffects.RemoveAll(e =>
-                {
-                    if (type.IsAssignableFrom(e.GetType()))
-                    {
-                        e.OnRemove();
-                        return true;
-                    }
-                    return false;
-                });
-
-                if (singletonEffects.TryGetValue(type, out var singleton))
-                {
-                    singleton.OnRemove();
-                    singletonEffects.Remove(type);
-                }
-            }
         }
 
         public bool HasEffect<T>() where T : StatusEffect
         {
-            return singletonEffects.ContainsKey(typeof(T)) ||
-                   multiInstanceEffects.Any(e => e is T);
+            return effects.Any(e => e is T);
         }
 
-        public void Reset(bool overridePermanent = false)
+        public void ClearAll()
         {
-            foreach (var effect in singletonEffects.ToList())
-            {
-                if (effect.Value.IsPermanent && !overridePermanent) { continue; }
-                effect.Value.OnRemove();
-                singletonEffects.Remove(effect.Key);
-            }
-            foreach (var effect in multiInstanceEffects.ToList())
-            {
-                if (effect.IsPermanent && !overridePermanent) continue;
+            foreach (var effect in effects)
                 effect.OnRemove();
-                multiInstanceEffects.Remove(effect);
-            }
+
+            effects.Clear();
         }
     }
 
-    public abstract class StatusEffect
+    public abstract class StatusEffect(float duration = 0f)
     {
-#pragma warning disable CS8618
-        protected StatusEffectController controller;
-#pragma warning restore CS8618
+        protected StatusEffectController controller => StatusEffectController.Instance;
 
-        public virtual bool AllowMultipleInstances => false;
-        public virtual bool Overridable => false;
-        public virtual bool IsPermanent => false;
-        public virtual bool CanStack => false;
+        public float duration = duration;
+        protected float timeRemaining;
 
-        public Coroutine? effectRoutine;
-        public float effectTime;
+        public bool IsFinished => duration > 0 && timeRemaining <= 0;
 
-        protected int stacks = 1;
-
-        public void Initialize(StatusEffectController controller)
+        public void Initialize()
         {
-            this.controller = controller;
+            timeRemaining = duration;
             OnApply();
         }
 
-        public virtual void Update()
+        public void Tick(float deltaTime)
         {
-            if (effectTime > 0)
-            {
-                effectTime -= Time.deltaTime;
-                if (effectTime <= 0)
-                {
-                    OnRemove();
-                }
-            }
+            OnTick(deltaTime);
+
+            if (duration > 0)
+                timeRemaining -= deltaTime;
         }
 
         public virtual void OnApply() { }
-        public virtual void OnRemove()
+        public virtual void OnTick(float deltaTime) { }
+        public virtual void OnRemove() { }
+
+        public virtual void OnReapply(StatusEffect newEffect)
         {
-            if (effectRoutine != null)
-                controller.StopCoroutine(effectRoutine);
-            controller.RemoveEffect(this);
+            timeRemaining = newEffect.duration;
         }
-        public virtual void OnStackAdded(StatusEffect effect) { }
-        public virtual void Tick() { }
     }
 
     public class VignetteOverlay : MonoBehaviour
     {
 #pragma warning disable CS8618
         public Image visual;
+        Material material;
 #pragma warning restore CS8618
 
-        static readonly int LightSizeId = Shader.PropertyToID("_Inset");
+        static readonly int InsetId = Shader.PropertyToID("_Inset");
+
+        public float intensityDecreasePerSecond = 0.05f;
+
+        float currentIntensity;
+
+        void Awake()
+        {
+            material = visual.material;
+        }
+
+        void Update()
+        {
+            if (currentIntensity <= 0f) return;
+
+            currentIntensity = Mathf.Max(0f,
+                currentIntensity - intensityDecreasePerSecond * Time.deltaTime);
+
+            material.SetFloat(InsetId, currentIntensity);
+        }
 
         public void SetIntensity(float intensity)
         {
-            Material material = visual.material;
-            material.SetFloat(LightSizeId, Mathf.Clamp01(intensity));
+            currentIntensity = Mathf.Clamp01(intensity);
+            material.SetFloat(InsetId, currentIntensity);
         }
     }
 }

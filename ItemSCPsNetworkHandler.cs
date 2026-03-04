@@ -33,9 +33,9 @@ namespace ItemSCPs
         public void Update()
         {
             /*var ui = TestingHUDOverlay.Instance;
-            ui.SetLabel1("SprintMeter: " + localPlayer.sprintMeter);
-            ui.SetLabel2("SprintTime: " + localPlayer.sprintTime);
-            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier);*/
+            ui.SetLabel1("SprintMeter: " + localPlayer.sprintMeter); // 0-1
+            ui.SetLabel2("SprintTime: " + localPlayer.sprintTime); // 11, idk what this does
+            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier); // 1-2.5, controls sprint speed */
         }
 
         [ServerRpc(RequireOwnership = false)]

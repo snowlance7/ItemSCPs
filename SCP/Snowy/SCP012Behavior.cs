@@ -109,7 +109,7 @@ namespace ItemSCPs.SCPs.Snowy
 
             localPlayerAffected = CanAffectPlayer();
 
-            TestingHUDOverlay.Instance?.SetToggle1("Affected", localPlayerAffected);
+            //TestingHUDOverlay.Instance?.SetToggle1("Affected", localPlayerAffected);
 
             audioSource.maxDistance = maxRange;
             //audioSource.volume = localPlayerAffected ? 1f : 0f;
@@ -148,8 +148,6 @@ namespace ItemSCPs.SCPs.Snowy
                 }
                 return;
             }
-
-            // TODO: Bleed status effect here???
 
             if (timeSinceLastSpeechStart > nextSpeechTime)
             {
@@ -193,12 +191,13 @@ namespace ItemSCPs.SCPs.Snowy
             localPlayer.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Stabbing);
             localPlayer.inSpecialInteractAnimation = false;
             HUDManager.Instance.ShakeCamera(ScreenShakeType.Big);
+            StatusEffectController.Instance.vignetteOverlay.SetIntensity(localPlayer.health / 100f);
 
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
 
             localPlayer.drunkness = 0.3f; // TODO: Test this
-            localPlayer.sprintMeter = 0f;
+            localPlayer.sprintMeter = 0f; // TODO: Test this
 
             PlaySpeechServerRpc();
         }
