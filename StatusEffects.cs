@@ -49,4 +49,9 @@ namespace ItemSCPs
             localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
         }
     }
+
+    public class SprintSpeedReduction(float sprintSpeedCap, float duration) : StatusEffect(duration)
+    {
+        // TODO
+    }
 }
