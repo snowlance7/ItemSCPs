@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Dawn.Utils;
+using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    public class StatusEffectController : MonoBehaviour
+    public class StatusEffectController : NetworkBehaviour
     {
         private static StatusEffectController? _instance;
         public static StatusEffectController Instance
@@ -20,6 +22,8 @@ namespace ItemSCPs
         }
 
         public VignetteOverlay vignetteOverlay { get { return gameObject.GetComponent<VignetteOverlay>(); } }
+
+        public NetworkAudioSource networkAudioSource { get { return gameObject.GetComponent<NetworkAudioSource>(); } }
 
         private readonly List<StatusEffect> effects = new();
 

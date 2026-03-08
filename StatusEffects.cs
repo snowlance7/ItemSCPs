@@ -1,4 +1,5 @@
-﻿using ItemSCPs;
+﻿using Dawn.Utils;
+using ItemSCPs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace ItemSCPs
         }
     }
 
-    public class StaminaCapReductionEffect(float sprintCap, float duration) : StatusEffect(duration)
+    public class MaxSprintCapEffect(float sprintCap, float duration) : StatusEffect(duration)
     {
         float sprintCap = sprintCap;
 
@@ -50,8 +51,45 @@ namespace ItemSCPs
         }
     }
 
-    public class SprintSpeedReduction(float sprintSpeedCap, float duration) : StatusEffect(duration)
+    public class SprintSpeedCapEffect(float sprintSpeedCap, float duration) : StatusEffect(duration)
     {
-        // TODO
+        float sprintSpeedCap = sprintSpeedCap;
+
+        const float minRange = 1f;
+        const float maxRange = 2.5f;
+
+        public override void OnTick(float deltaTime)
+        {
+            float cap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
+            localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
+        }
+    }
+
+    public class RandomInterruptEffect(BoundedRange randomInterval, AudioClip[] audioClips, string animationName = "", float duration = 0f) : StatusEffect(duration)
+    {
+        BoundedRange randomInterval = randomInterval;
+        AudioClip[] audioClips = audioClips;
+        string animationName = animationName;
+
+        float timeSinceLastInterrupt;
+        float nextInterruptTime;
+
+        public override void OnApply()
+        {
+            nextInterruptTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            timeSinceLastInterrupt += deltaTime;
+
+            if (timeSinceLastInterrupt > nextInterruptTime)
+            {
+                timeSinceLastInterrupt = 0f;
+                nextInterruptTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+
+                controller.networkAudioSource.PlayOneShot(audioClips[Utils.randomLocal.Next(0, audioClips.Length)]); // TODO: Test this
+            }
+        }
     }
 }

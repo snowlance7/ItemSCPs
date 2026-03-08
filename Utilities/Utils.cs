@@ -64,6 +64,7 @@ public static class Utils
     public static Terminal? terminal;
 
     public static System.Random randomLocal = new();
+    public static System.Random randomGlobal = new();
 
     public static UnityEvent OnFinishGeneratingLevel = new();
 
@@ -623,9 +624,8 @@ public static class Utils
         PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance);
     }
 
-    public static PlayerControllerB GetRandomPlayer(System.Random? random = null)
+    public static PlayerControllerB GetRandomPlayer(System.Random random)
     {
-        random ??= randomLocal;
         var players = StartOfRound.Instance.allPlayerScripts.Where(p => p != null && p.isPlayerControlled).ToArray();
         return players.Length == 0 ? StartOfRound.Instance.allPlayerScripts[random.Next(StartOfRound.Instance.allPlayerScripts.Length)] : players[random.Next(players.Length)];
     }
@@ -752,6 +752,7 @@ public class UtilsPatches
             Utils.elevator = GameObject.FindObjectOfType<MineshaftElevatorController>();
 
             Utils.randomLocal = new System.Random(StartOfRound.Instance.randomMapSeed);
+            Utils.randomGlobal = new System.Random(StartOfRound.Instance.randomMapSeed);
 
             Utils.OnFinishGeneratingLevel.Invoke();
         }

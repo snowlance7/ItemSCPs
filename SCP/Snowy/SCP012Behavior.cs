@@ -346,7 +346,7 @@ namespace ItemSCPs.SCPs.Snowy
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
             playerVoice.volume = 1f;
 
-            int index = Utils.randomLocal.Next(0, speechSFX.Length);
+            int index = Utils.randomGlobal.Next(0, speechSFX.Length);
             playerVoice.PlayOneShot(speechSFX[index]);
         }
 

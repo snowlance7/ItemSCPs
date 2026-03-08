@@ -284,7 +284,7 @@ namespace ItemSCPs.Items.Snowy
 
             DoStatusEffects(songIndex);
             ResetHoldTimes();
-            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomLocal);
+            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomGlobal);
             audioSource.clip = birthdaySongsSFX[songIndex];
             audioSource.Play();
             songPlaying = true;
