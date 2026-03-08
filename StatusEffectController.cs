@@ -1,4 +1,6 @@
 ﻿using Dawn.Utils;
+using GameNetcodeStuff;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -10,20 +12,14 @@ namespace ItemSCPs
 {
     public class StatusEffectController : NetworkBehaviour
     {
-        private static StatusEffectController? _instance;
-        public static StatusEffectController Instance
-        {
-            get
-            {
-                if (_instance  == null)
-                    _instance = Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController!.StatusEffectControllerPrefab, localPlayer.transform).GetComponent<StatusEffectController>();
-                return _instance;
-            }
-        }
+#pragma warning disable CS8618
+        public VignetteOverlay vignetteOverlay;
+        public NetworkAudioSource networkAudioSource;
+        public AudioSource audioSource;
+        public AudioClip[] audioClips;
 
-        public VignetteOverlay vignetteOverlay { get { return gameObject.GetComponent<VignetteOverlay>(); } }
-
-        public NetworkAudioSource networkAudioSource { get { return gameObject.GetComponent<NetworkAudioSource>(); } }
+        public static StatusEffectController Instance;
+#pragma warning restore CS8618
 
         private readonly List<StatusEffect> effects = new();
 
@@ -80,6 +76,21 @@ namespace ItemSCPs
                 effect.OnRemove();
 
             effects.Clear();
+        }
+
+        public void PlayOneShot(AudioClip audioClip, float volume = 1f, float pitch = 1f) // TODO: Figure out why this isnt working
+        {
+            audioSource.volume = volume;
+            audioSource.pitch = pitch;
+            audioSource.PlayOneShot(audioClip);
+            networkAudioSource.PlayOneShot(audioClip);
+        }
+
+        public void TestAudio()
+        {
+            int index = Utils.randomLocal.Next(0, audioClips.Length);
+            logger.LogDebug("Playing audio at index: " + index);
+            PlayOneShot(audioClips[index]);
         }
     }
 
@@ -148,6 +159,30 @@ namespace ItemSCPs
         {
             currentIntensity = Mathf.Clamp01(intensity);
             material.SetFloat(InsetId, currentIntensity);
+        }
+    }
+
+    [HarmonyPatch]
+    public class StatusEffectControllerPatches
+    {
+
+        [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ConnectClientToPlayerObject))]
+        public static void ConnectClientToPlayerObjectPostfix(PlayerControllerB __instance)
+        {
+            try
+            {
+                StatusEffectController _instance = GameObject.Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController!.StatusEffectControllerPrefab, __instance.transform).GetComponent<StatusEffectController>();
+
+                if (IsServerOrHost)
+                    _instance.NetworkObject.Spawn();
+
+                if (__instance == localPlayer)
+                    StatusEffectController.Instance = _instance;
+            }
+            catch
+            {
+                return;
+            }
         }
     }
 }

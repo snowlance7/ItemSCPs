@@ -6,7 +6,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    internal class ItemSCPsNetworkHandler : NetworkBehaviour
+    internal class ItemSCPsNetworkHandler : NetworkBehaviour // TODO: Test to make sure network handler even works without the gamenetworkmanager start patch???
     {
 #pragma warning disable CS8618
         public static ItemSCPsNetworkHandler Instance { get; private set; }
@@ -95,24 +95,6 @@ namespace ItemSCPs
     [HarmonyPatch]
     public class NetworkHandlerPatches
     {
-        /*
-#pragma warning disable CS8618
-        static GameObject networkPrefab;
-#pragma warning restore CS8618
-
-        [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
-        public static void StartPostfix()
-        {
-            logger.LogDebug("Initializing network prefab...");
-            if (networkPrefab != null)
-                return;
-
-            networkPrefab = (GameObject)Plugin.SnowyModAssets.LoadAsset("Assets/ModAssets/SharedAssets/NetworkHandlerSCPItems.prefab");
-            //networkPrefab.AddComponent<NetworkHandler>();
-
-            NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
-        }*/
-
         [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
         static void AwakePostFix()
         {

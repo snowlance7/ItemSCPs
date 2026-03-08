@@ -27,6 +27,7 @@ namespace ItemSCPs
         {
             if (!Utils.isBeta) { return; }
             if (!Utils.testing) { return; }
+            StatusEffectController.Instance.TestAudio();
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]

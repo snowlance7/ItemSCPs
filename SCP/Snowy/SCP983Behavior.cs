@@ -65,7 +65,7 @@ namespace ItemSCPs.Items.Snowy
             Material mat = eyesRenderer.material;
             mat.SetFloat("_EmissiveIntensity", 1f);
 
-            targetPlayer = Utils.GetRandomPlayer();
+            targetPlayer = Utils.GetRandomPlayer(Utils.randomGlobal);
             notes = ParseNoteTimesConfig(cfgNoteHoldTimes).ToArray();
         }
 

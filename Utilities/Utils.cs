@@ -763,7 +763,7 @@ public class UtilsPatches
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ConnectClientToPlayerObject))]
-    public static void ConnectClientToPlayerObjectPostfix()
+    public static void ConnectClientToPlayerObjectPostfix(PlayerControllerB __instance)
     {
         try
         {

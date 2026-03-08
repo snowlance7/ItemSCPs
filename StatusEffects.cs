@@ -88,7 +88,7 @@ namespace ItemSCPs
                 timeSinceLastInterrupt = 0f;
                 nextInterruptTime = randomInterval.GetRandomInRange(Utils.randomLocal);
 
-                controller.networkAudioSource.PlayOneShot(audioClips[Utils.randomLocal.Next(0, audioClips.Length)]); // TODO: Test this
+                //controller.networkAudioSource.PlayOneShot(audioClips[Utils.randomLocal.Next(0, audioClips.Length)]); // TODO: Test this
             }
         }
     }
