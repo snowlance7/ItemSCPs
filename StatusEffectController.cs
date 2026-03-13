@@ -8,20 +8,46 @@ using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 
+/* bodyparts
+ * 0 head
+ * 1 right arm
+ * 2 left arm
+ * 3 right leg
+ * 4 left leg
+ * 5 chest
+ * 6 feet
+ * 7 right hip
+ * 8 crotch
+ * 9 left shoulder
+ * 10 right shoulder */
+
 namespace ItemSCPs
 {
     public class StatusEffectController : NetworkBehaviour
     {
 #pragma warning disable CS8618
         public VignetteOverlay vignetteOverlay;
-        public NetworkAudioSource networkAudioSource;
-        public AudioSource audioSource;
-        public AudioClip[] audioClips;
+        public StatusEffectAudioLibrary audioLibrary;
 
         public static StatusEffectController Instance;
+
+        public PlayerControllerB playerAttachedTo;
 #pragma warning restore CS8618
 
         private readonly List<StatusEffect> effects = new();
+
+        public static void Init(PlayerControllerB player)
+        {
+            StatusEffectController _instance = GameObject.Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController!.StatusEffectControllerPrefab, player.transform).GetComponent<StatusEffectController>();
+
+            if (IsServerOrHost)
+                _instance.NetworkObject.Spawn();
+
+            _instance.playerAttachedTo = player;
+
+            if (player == localPlayer)
+                StatusEffectController.Instance = _instance;
+        }
 
         private void Update()
         {
@@ -78,19 +104,27 @@ namespace ItemSCPs
             effects.Clear();
         }
 
-        public void PlayOneShot(AudioClip audioClip, float volume = 1f, float pitch = 1f) // TODO: Figure out why this isnt working
+        [ServerRpc(RequireOwnership = false)]
+        public void PlayRandomClipServerRpc(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
         {
-            audioSource.volume = volume;
-            audioSource.pitch = pitch;
-            audioSource.PlayOneShot(audioClip);
-            networkAudioSource.PlayOneShot(audioClip);
+            if (!IsServer) { return; }
+            PlayRandomClipClientRpc(id, bodyPartIndex, volume, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
+        }
+
+        [ClientRpc]
+        public void PlayRandomClipClientRpc(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+        {
+            AudioGroup group = audioLibrary.groups.Where(x => x.id == id).FirstOrDefault();
+            if (group == null) return;
+            int index = Utils.randomGlobal.Next(0, group.clips.Length);
+            AudioClip clip = group.clips[index];
+            logger.LogDebug($"Playing sound effect {id}, index {index}, volume {volume}, minMaxDistance {min3DDistance}-{max3DDistance}, cutoffFrequency {cutoffFrequency}");
+            Utils.PlaySoundAtPosition(playerAttachedTo.bodyParts[bodyPartIndex], clip, volume, min3DDistance: min3DDistance, max3DDistance: max3DDistance, cutoffFrequency: cutoffFrequency, audibleNoiseID: audibleNoiseID);
         }
 
         public void TestAudio()
         {
-            int index = Utils.randomLocal.Next(0, audioClips.Length);
-            logger.LogDebug("Playing audio at index: " + index);
-            PlayOneShot(audioClips[index]);
+            PlayRandomClipServerRpc("cough", 0, 0.6f, 2, 10, 1500);
         }
     }
 
@@ -162,6 +196,19 @@ namespace ItemSCPs
         }
     }
 
+    [CreateAssetMenu]
+    public class StatusEffectAudioLibrary : ScriptableObject
+    {
+        public AudioGroup[] groups;
+    }
+
+    [System.Serializable]
+    public class AudioGroup
+    {
+        public string id;
+        public AudioClip[] clips;
+    }
+
     [HarmonyPatch]
     public class StatusEffectControllerPatches
     {
@@ -171,13 +218,7 @@ namespace ItemSCPs
         {
             try
             {
-                StatusEffectController _instance = GameObject.Instantiate(ItemSCPsContentHandler.Instance.StatusEffectController!.StatusEffectControllerPrefab, __instance.transform).GetComponent<StatusEffectController>();
-
-                if (IsServerOrHost)
-                    _instance.NetworkObject.Spawn();
-
-                if (__instance == localPlayer)
-                    StatusEffectController.Instance = _instance;
+                StatusEffectController.Init(__instance);
             }
             catch
             {

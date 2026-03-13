@@ -65,30 +65,69 @@ namespace ItemSCPs
         }
     }
 
-    public class RandomInterruptEffect(BoundedRange randomInterval, AudioClip[] audioClips, string animationName = "", float duration = 0f) : StatusEffect(duration)
+    public class RandomAudioEffect(string audioLibraryId, BoundedRange randomInterval, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, bool interruptActions = false, string animationName = "", float duration = 0f) : StatusEffect(duration)
     {
+        string audioLibraryId = audioLibraryId;
         BoundedRange randomInterval = randomInterval;
-        AudioClip[] audioClips = audioClips;
+        int bodyPartIndex = bodyPartIndex;
+        float volume = volume;
+        float min3DDistance = min3DDistance;
+        float max3DDistance = max3DDistance;
+        float cutoffFrequency = cutoffFrequency;
+        bool interruptActions = interruptActions;
         string animationName = animationName;
 
-        float timeSinceLastInterrupt;
-        float nextInterruptTime;
+        float timeSinceLastPlayback;
+        float nextPlaybackTime;
 
         public override void OnApply()
         {
-            nextInterruptTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+            nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
         }
 
         public override void OnTick(float deltaTime)
         {
-            timeSinceLastInterrupt += deltaTime;
+            timeSinceLastPlayback += deltaTime;
 
-            if (timeSinceLastInterrupt > nextInterruptTime)
+            if (timeSinceLastPlayback > nextPlaybackTime)
             {
-                timeSinceLastInterrupt = 0f;
-                nextInterruptTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+                timeSinceLastPlayback = 0f;
+                nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
 
-                //controller.networkAudioSource.PlayOneShot(audioClips[Utils.randomLocal.Next(0, audioClips.Length)]); // TODO: Test this
+                if (animationName != "")
+                    localPlayer.playerBodyAnimator.SetTrigger(animationName);
+
+                if (interruptActions && animationName == "")
+                    localPlayer.playerBodyAnimator.SetTrigger("Damage");
+
+                controller.PlayRandomClipServerRpc(audioLibraryId, bodyPartIndex, volume, cutoffFrequency);
+            }
+        }
+    }
+
+    public class CustomRandomIntervalActionEffect(BoundedRange randomInterval, Action action, float duration = 0) : StatusEffect(duration)
+    {
+        BoundedRange randomInterval = randomInterval;
+        Action action = action;
+
+        float timeSinceLastInterval;
+        float nextInterval;
+
+        public override void OnApply()
+        {
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            timeSinceLastInterval += deltaTime;
+
+            if (timeSinceLastInterval > nextInterval)
+            {
+                timeSinceLastInterval = 0f;
+                nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+
+                action.Invoke();
             }
         }
     }

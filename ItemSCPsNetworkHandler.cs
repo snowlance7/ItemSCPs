@@ -88,8 +88,6 @@ namespace ItemSCPs
             if (player == null) { return; }
             Utils.MufflePlayer(player, value);
         }
-
-
     }
 
     [HarmonyPatch]

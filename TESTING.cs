@@ -27,7 +27,8 @@ namespace ItemSCPs
         {
             if (!Utils.isBeta) { return; }
             if (!Utils.testing) { return; }
-            StatusEffectController.Instance.TestAudio();
+            //StatusEffectController.Instance.TestAudio();
+            localPlayer.playerBodyAnimator.SetTrigger("SpawnPlayer");
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
@@ -41,7 +42,7 @@ namespace ItemSCPs
 
             switch (args[0])
             {
-                case "/overlay": // TODO: Test this
+                case "/overlay":
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(float.Parse(args[1]));
                     HUDManager.Instance.DisplayTip("ItemSCPs", "VignetteOverlay: " + args[1]);
                     break;

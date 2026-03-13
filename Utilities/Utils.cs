@@ -596,13 +596,16 @@ public static class Utils
         return pathDistance > 0;
     }
 
-    public static void PlaySoundAtPosition(Vector3 pos, AudioClip clip, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f)
+    public static void PlaySoundAtPosition(Transform pos, AudioClip clip, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
     {
-        GameObject soundObj = GameObject.Instantiate(new GameObject("TempSoundEffectObj"), pos, Quaternion.identity);
+        GameObject soundObj = GameObject.Instantiate(new GameObject("TempSoundEffectObj"), pos);
         AudioSource source = soundObj.AddComponent<AudioSource>();
 
         OccludeAudio occlude = soundObj.AddComponent<OccludeAudio>();
         occlude.lowPassOverride = 20000f;
+
+        AudioLowPassFilter filter = soundObj.AddComponent<AudioLowPassFilter>();
+        filter.cutoffFrequency = cutoffFrequency;
 
         source.rolloffMode = AudioRolloffMode.Linear;
 
@@ -616,12 +619,51 @@ public static class Utils
         source.maxDistance = max3DDistance;
         source.Play();
         GameObject.Destroy(soundObj, source.clip.length);
+
+        WalkieTalkie.TransmitOneShotAudio(source, clip, 0.85f);
+        if (spatial3D && audibleNoiseID >= 0)
+            RoundManager.Instance.PlayAudibleNoise(source.transform.position, 4f * volume, volume / 2f, 0, noiseIsInsideClosedShip: true, audibleNoiseID);
     }
 
-    public static void PlaySoundAtPosition(Vector3 pos, AudioClip[] clips, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f)
+    public static void PlaySoundAtPosition(Vector3 pos, AudioClip clip, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+    {
+        GameObject soundObj = GameObject.Instantiate(new GameObject("TempSoundEffectObj"), pos, Quaternion.identity);
+        AudioSource source = soundObj.AddComponent<AudioSource>();
+
+        OccludeAudio occlude = soundObj.AddComponent<OccludeAudio>();
+        occlude.lowPassOverride = 20000f;
+
+        AudioLowPassFilter filter = soundObj.AddComponent<AudioLowPassFilter>();
+        filter.cutoffFrequency = cutoffFrequency;
+
+        source.rolloffMode = AudioRolloffMode.Linear;
+
+        if (randomizePitch)
+            source.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
+
+        source.clip = clip;
+        source.volume = volume;
+        source.spatialBlend = spatial3D ? 1 : 0;
+        source.minDistance = min3DDistance;
+        source.maxDistance = max3DDistance;
+        source.Play();
+        GameObject.Destroy(soundObj, source.clip.length);
+
+        WalkieTalkie.TransmitOneShotAudio(source, clip, 0.85f);
+        if (spatial3D && audibleNoiseID >= 0)
+            RoundManager.Instance.PlayAudibleNoise(source.transform.position, 4f * volume, volume / 2f, 0, noiseIsInsideClosedShip: true, audibleNoiseID);
+    }
+
+    public static void PlaySoundAtPosition(Transform pos, AudioClip[] clips, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
     {
         int index = UnityEngine.Random.Range(0, clips.Length);
-        PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance);
+        PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
+    }
+
+    public static void PlaySoundAtPosition(Vector3 pos, AudioClip[] clips, float volume = 1f, bool randomizePitch = true, bool spatial3D = true, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+    {
+        int index = UnityEngine.Random.Range(0, clips.Length);
+        PlaySoundAtPosition(pos, clips[index], volume, randomizePitch, spatial3D, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
     }
 
     public static PlayerControllerB GetRandomPlayer(System.Random random)
