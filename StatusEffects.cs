@@ -11,6 +11,18 @@ using static ItemSCPs.Plugin;
 //localPlayer.sprintTime 11, idk what this does
 //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
 
+/*
+ShortFallLanding (Trigger) - coughing small motion
+SpawnPlayer (Trigger) - puking
+startCrouching (Trigger) - force crouch, specialanimation time for duration
+Damage (Trigger) - hands in air
+Overheat (Trigger) - hands in air lower
+SA_Typing (Trigger) - puking motion, head forward?
+SA_stopAnimation (Trigger)
+SA_ChargeItem (Trigger) - hand out
+SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation
+*/
+
 namespace ItemSCPs
 {
     public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)

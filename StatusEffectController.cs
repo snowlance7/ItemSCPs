@@ -173,7 +173,7 @@ namespace ItemSCPs
         }
     }
 
-    public class VignetteOverlay : MonoBehaviour
+    public class VignetteOverlay : MonoBehaviour // TODO: Test this
     {
 #pragma warning disable CS8618
         public Image visual;
@@ -181,6 +181,7 @@ namespace ItemSCPs
 #pragma warning restore CS8618
 
         static readonly int InsetId = Shader.PropertyToID("_Inset");
+        //static readonly int IntensityId = Shader.PropertyToID("_Intensity");
 
         public float intensityDecreasePerSecond = 0.05f;
 
@@ -199,12 +200,14 @@ namespace ItemSCPs
                 currentIntensity - intensityDecreasePerSecond * Time.deltaTime);
 
             material.SetFloat(InsetId, currentIntensity);
+            //material.SetFloat(IntensityId, currentIntensity);
         }
 
         public void SetIntensity(float intensity)
         {
             currentIntensity = Mathf.Clamp01(intensity);
             material.SetFloat(InsetId, currentIntensity);
+            //material.SetFloat(IntensityId, currentIntensity);
         }
     }
 
