@@ -56,7 +56,7 @@ namespace ItemSCPs
                 var effect = effects[i];
                 effect.Tick(Time.deltaTime);
 
-                if (effect.IsFinished)
+                if (effect.IsFinished || (playerAttachedTo.isPlayerDead && effect.removeOnDeath))
                 {
                     effect.OnRemove();
                     effects.RemoveAt(i);
@@ -128,11 +128,13 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(float duration = 0f)
+    public abstract class StatusEffect(bool removeOnDeath, float duration)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
         public float duration = duration;
+        public bool removeOnDeath = removeOnDeath;
+
         protected float timeRemaining;
 
         public bool IsFinished => duration > 0 && timeRemaining <= 0;
@@ -153,6 +155,10 @@ namespace ItemSCPs
 
         public virtual void OnApply() { }
         public virtual void OnTick(float deltaTime) { }
+        public void Remove()
+        {
+            throw new System.NotImplementedException(); // TODO
+        }
         public virtual void OnRemove() { }
 
         public virtual void OnReapply(StatusEffect newEffect)

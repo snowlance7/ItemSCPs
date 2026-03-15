@@ -21,6 +21,7 @@ namespace ItemSCPs
     public class TESTING : MonoBehaviour
     {
         public static bool localPlayerImmune = false;
+        public static string currentAnim = "";
 
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
@@ -28,7 +29,9 @@ namespace ItemSCPs
             if (!Utils.isBeta) { return; }
             if (!Utils.testing) { return; }
             //StatusEffectController.Instance.TestAudio();
-            localPlayer.playerBodyAnimator.SetTrigger("SpawnPlayer");
+            localPlayer.PlayQuickSpecialAnimation(1);
+            localPlayer.playerBodyAnimator.SetTrigger(currentAnim);
+            logger.LogDebug("PingScanTestPerformed");
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
@@ -49,6 +52,15 @@ namespace ItemSCPs
                 case "/immune":
                     localPlayerImmune = !localPlayerImmune;
                     HUDManager.Instance.DisplayTip("ItemSCPs", "localPlayerImmune: " + localPlayerImmune);
+                    break;
+                case "/anim":
+                    localPlayer.playerBodyAnimator.SetTrigger(args[1]);
+                    currentAnim = args[1];
+                    break;
+                case "/qanim":
+                    localPlayer.PlayQuickSpecialAnimation(1);
+                    localPlayer.playerBodyAnimator.SetTrigger(args[1]);
+                    currentAnim = args[1];
                     break;
                 default:
                     Utils.ChatCommand(args);

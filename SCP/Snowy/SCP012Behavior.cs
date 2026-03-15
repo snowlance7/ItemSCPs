@@ -10,7 +10,7 @@ using static ItemSCPs.Plugin;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCPs.Snowy
 {
-    internal class SCP012Behavior : PhysicsProp // TODO: Make this work with SCP-714
+    internal class SCP012Behavior : PhysicsProp // TODO: Make this work with SCP-714 // Set up light functionality
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;

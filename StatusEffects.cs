@@ -13,99 +13,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    public class BleedingEffect(int amount, float interval, int damage) : StatusEffect
-    {
-        private readonly int amount = amount;
-        private readonly float interval = interval;
-        private readonly int damage = damage;
-
-        public override void OnApply()
-        {
-            /*IEnumerator BleedRoutine(int amount, float interval, int damage)
-            {
-                yield return null;
-
-                for (int i = 0; i < amount; i++)
-                {
-                    yield return new WaitForSeconds(interval);
-                    localPlayer.DropBlood();
-                    if (damage > 0)
-                        localPlayer.DamagePlayer(damage);
-                }
-
-                effectRoutine = null;
-                controller.RemoveEffect(this);
-            }
-
-            effectRoutine = controller.StartCoroutine(BleedRoutine(amount, interval, damage));*/
-        }
-    }
-
-    public class MaxSprintCapEffect(float sprintCap, float duration) : StatusEffect(duration)
-    {
-        float sprintCap = sprintCap;
-
-        public override void OnTick(float deltaTime)
-        {
-            localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
-        }
-    }
-
-    public class SprintSpeedCapEffect(float sprintSpeedCap, float duration) : StatusEffect(duration)
-    {
-        float sprintSpeedCap = sprintSpeedCap;
-
-        const float minRange = 1f;
-        const float maxRange = 2.5f;
-
-        public override void OnTick(float deltaTime)
-        {
-            float cap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
-            localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
-        }
-    }
-
-    public class RandomAudioEffect(string audioLibraryId, BoundedRange randomInterval, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, bool interruptActions = false, string animationName = "", float duration = 0f) : StatusEffect(duration)
-    {
-        string audioLibraryId = audioLibraryId;
-        BoundedRange randomInterval = randomInterval;
-        int bodyPartIndex = bodyPartIndex;
-        float volume = volume;
-        float min3DDistance = min3DDistance;
-        float max3DDistance = max3DDistance;
-        float cutoffFrequency = cutoffFrequency;
-        bool interruptActions = interruptActions;
-        string animationName = animationName;
-
-        float timeSinceLastPlayback;
-        float nextPlaybackTime;
-
-        public override void OnApply()
-        {
-            nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
-        }
-
-        public override void OnTick(float deltaTime)
-        {
-            timeSinceLastPlayback += deltaTime;
-
-            if (timeSinceLastPlayback > nextPlaybackTime)
-            {
-                timeSinceLastPlayback = 0f;
-                nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
-
-                if (animationName != "")
-                    localPlayer.playerBodyAnimator.SetTrigger(animationName);
-
-                if (interruptActions && animationName == "")
-                    localPlayer.playerBodyAnimator.SetTrigger("Damage");
-
-                controller.PlayRandomClipServerRpc(audioLibraryId, bodyPartIndex, volume, cutoffFrequency);
-            }
-        }
-    }
-
-    public class CustomRandomIntervalActionEffect(BoundedRange randomInterval, Action action, float duration = 0) : StatusEffect(duration)
+    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
     {
         BoundedRange randomInterval = randomInterval;
         Action action = action;
@@ -129,6 +37,143 @@ namespace ItemSCPs
 
                 action.Invoke();
             }
+        }
+    }
+
+    public class IntervalActionEffect(float interval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        float interval = interval;
+        Action action = action;
+
+        float timeSinceLastInterval;
+
+        public override void OnTick(float deltaTime)
+        {
+            timeSinceLastInterval += deltaTime;
+
+            if (timeSinceLastInterval > interval)
+            {
+                timeSinceLastInterval = 0f;
+                action.Invoke();
+            }
+        }
+    }
+
+    public class OnRemoveActionEffect(Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        Action action = action;
+
+        public override void OnRemove()
+        {
+            action.Invoke();
+        }
+    }
+
+    public class TickActionEffect(Action<float> action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        Action<float> action = action;
+
+        public override void OnTick(float deltaTime)
+        {
+            action.Invoke(deltaTime);
+        }
+    }
+
+    public class ChanceTickActionEffect(float chancePerSecond, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        float chance = chancePerSecond;
+        Action action = action;
+
+        public override void OnTick(float deltaTime)
+        {
+            if (Utils.randomLocal.NextFloat(0f, 1f) < Mathf.Clamp01(chance) * deltaTime)
+                action.Invoke();
+        }
+    }
+
+    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, float cooldown = 0f, int maxTriggerCount = 0, bool removeOnDeath = true, float duration = 0)
+    : StatusEffect(removeOnDeath, duration)
+    {
+        Func<bool> condition = condition;
+        Action action = action;
+        int triggerCount;
+
+        public override void OnTick(float deltaTime)
+        {
+            if (condition())
+            {
+                // TODO
+                triggerCount++;
+                action.Invoke();
+
+                if (removeOnTrigger)
+                    Remove();
+            }
+        }
+    }
+
+    public class RandomAudioEffect(string audioLibraryId, BoundedRange randomInterval, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0, string animationName = "", float animationTime = 0, bool removeOnDeath = true, float duration = 0f) : StatusEffect(removeOnDeath, duration)
+    {
+        string audioLibraryId = audioLibraryId;
+        BoundedRange randomInterval = randomInterval;
+        int bodyPartIndex = bodyPartIndex;
+        float volume = volume;
+        float min3DDistance = min3DDistance;
+        float max3DDistance = max3DDistance;
+        float cutoffFrequency = cutoffFrequency;
+        int audibleNoiseID = audibleNoiseID;
+        string animationName = animationName;
+        float animationTime = animationTime;
+
+        float timeSinceLastPlayback;
+        float nextPlaybackTime;
+
+        public override void OnApply()
+        {
+            nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            timeSinceLastPlayback += deltaTime;
+
+            if (timeSinceLastPlayback > nextPlaybackTime)
+            {
+                timeSinceLastPlayback = 0f;
+                nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+
+                if (animationName != "" && animationTime > 0)
+                {
+                    localPlayer.PlayQuickSpecialAnimation(animationTime);
+                    localPlayer.playerBodyAnimator.SetTrigger(animationName);
+                }
+
+                controller.PlayRandomClipServerRpc(audioLibraryId, bodyPartIndex, volume, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
+            }
+        }
+    }
+
+    public class MaxSprintCapEffect(float sprintCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        float sprintCap = sprintCap;
+
+        public override void OnTick(float deltaTime)
+        {
+            localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
+        }
+    }
+
+    public class SprintSpeedCapEffect(float sprintSpeedCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    {
+        float sprintSpeedCap = sprintSpeedCap;
+
+        const float minRange = 1f;
+        const float maxRange = 2.5f;
+
+        public override void OnTick(float deltaTime)
+        {
+            float cap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
+            localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
         }
     }
 }
