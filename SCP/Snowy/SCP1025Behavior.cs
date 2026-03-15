@@ -17,6 +17,16 @@ namespace ItemSCPs.Items.Snowy
 {
     internal class SCP1025Behavior : PhysicsProp // TODO: Make this work with SCP-714
     {
+        Action[] diseases = new Action[]
+        {
+            () => {
+
+            },
+            () => {
+                
+            }
+        };
+
         public override void Start()
         {
             base.Start();
