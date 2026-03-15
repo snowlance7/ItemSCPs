@@ -172,6 +172,36 @@ namespace ItemSCPs
         }
     }
 
+    public class LerpValueEffect(Func<float> getter, Action<float> setter, float startValue, float endValue, bool removeOnDeath = true, float duration = 1f) : StatusEffect(removeOnDeath, duration)
+    {
+        Func<float> getter = getter;
+        Action<float> setter = setter;
+
+        float startValue = startValue;
+        float endValue = endValue;
+
+        public override void OnApply()
+        {
+            setter.Invoke(startValue);
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            elapsedTime += deltaTime;
+
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            float value = Mathf.Lerp(startValue, endValue, t);
+
+            setter.Invoke(value);
+        }
+
+        public override void OnRemove()
+        {
+            setter.Invoke(endValue);
+        }
+    }
+
     public class MaxSprintCapEffect(float sprintCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
     {
         float sprintCap = sprintCap;

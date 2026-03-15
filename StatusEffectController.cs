@@ -74,7 +74,7 @@ namespace ItemSCPs
                 return;
             }
 
-            effect.Initialize();
+            effect.OnApply();
             effects.Add(effect);
         }
 
@@ -141,22 +141,16 @@ namespace ItemSCPs
         public float duration = duration;
         public bool removeOnDeath = removeOnDeath;
 
-        protected float timeRemaining;
+        protected float elapsedTime;
 
-        public bool IsFinished => duration > 0 && timeRemaining <= 0;
-
-        public void Initialize()
-        {
-            timeRemaining = duration;
-            OnApply();
-        }
+        public bool IsFinished => duration > 0 && elapsedTime >= duration;
 
         public void Tick(float deltaTime)
         {
             OnTick(deltaTime);
 
             if (duration > 0)
-                timeRemaining -= deltaTime;
+                elapsedTime += deltaTime;
         }
 
         public virtual void OnApply() { }
@@ -169,7 +163,8 @@ namespace ItemSCPs
 
         public virtual void OnReapply(StatusEffect newEffect)
         {
-            timeRemaining = newEffect.duration;
+            duration = newEffect.duration;
+            elapsedTime = 0f;
         }
     }
 
@@ -181,7 +176,6 @@ namespace ItemSCPs
 #pragma warning restore CS8618
 
         static readonly int InsetId = Shader.PropertyToID("_Inset");
-        //static readonly int IntensityId = Shader.PropertyToID("_Intensity");
 
         public float intensityDecreasePerSecond = 0.05f;
 
@@ -200,14 +194,12 @@ namespace ItemSCPs
                 currentIntensity - intensityDecreasePerSecond * Time.deltaTime);
 
             material.SetFloat(InsetId, currentIntensity);
-            //material.SetFloat(IntensityId, currentIntensity);
         }
 
         public void SetIntensity(float intensity)
         {
             currentIntensity = Mathf.Clamp01(intensity);
             material.SetFloat(InsetId, currentIntensity);
-            //material.SetFloat(IntensityId, currentIntensity);
         }
     }
 

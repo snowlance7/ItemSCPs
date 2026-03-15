@@ -17,10 +17,14 @@ namespace ItemSCPs.Items.Snowy
 {
     internal class SCP1025Behavior : PhysicsProp // TODO: Make this work with SCP-714
     {
+        //localPlayer.sprintMeter 0-1
+        //localPlayer.sprintTime 11, idk what this does
+        //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
         Action[] diseases = new Action[]
         {
             () => {
-
+                // Common Cold
+                StatusEffectController.Instance.ApplyEffect(new SprintSpeedCapEffect(0.8f, duration: ))
             },
             () => {
                 
@@ -44,7 +48,7 @@ namespace ItemSCPs.Items.Snowy
     }
 }
 
-/* use coroutines for these, make a manager
+/*
 Cold
 
     Status Effects: Decreased movement speed, occasional sneezing that interrupts actions, reduced stamina.
