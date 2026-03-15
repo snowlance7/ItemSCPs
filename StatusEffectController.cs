@@ -91,6 +91,12 @@ namespace ItemSCPs
             });
         }
 
+        public void RemoveEffect(StatusEffect effect)
+        {
+            effect.OnRemove();
+            effects.Remove(effect);
+        }
+
         public bool HasEffect<T>() where T : StatusEffect
         {
             return effects.Any(e => e is T);
@@ -157,7 +163,7 @@ namespace ItemSCPs
         public virtual void OnTick(float deltaTime) { }
         public void Remove()
         {
-            throw new System.NotImplementedException(); // TODO
+            controller?.RemoveEffect(this);
         }
         public virtual void OnRemove() { }
 
@@ -205,14 +211,18 @@ namespace ItemSCPs
     [CreateAssetMenu]
     public class StatusEffectAudioLibrary : ScriptableObject
     {
+#pragma warning disable CS8618
         public AudioGroup[] groups;
+#pragma warning restore CS8618
     }
 
     [System.Serializable]
     public class AudioGroup
     {
+#pragma warning disable CS8618
         public string id;
         public AudioClip[] clips;
+#pragma warning restore CS8618
     }
 
     [HarmonyPatch]

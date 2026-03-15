@@ -96,17 +96,24 @@ namespace ItemSCPs
     {
         Func<bool> condition = condition;
         Action action = action;
+        bool removeOnTrigger = removeOnTrigger;
+        float cooldown = cooldown;
+        int maxTriggerCount = maxTriggerCount;
+
+        float timeSinceLastTrigger;
         int triggerCount;
 
         public override void OnTick(float deltaTime)
         {
-            if (condition())
+            timeSinceLastTrigger += deltaTime;
+
+            if (condition() && timeSinceLastTrigger > cooldown)
             {
-                // TODO
+                timeSinceLastTrigger = 0f;
                 triggerCount++;
                 action.Invoke();
 
-                if (removeOnTrigger)
+                if (removeOnTrigger || (maxTriggerCount > 0 && triggerCount >= maxTriggerCount))
                     Remove();
             }
         }
