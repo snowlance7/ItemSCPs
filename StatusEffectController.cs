@@ -66,12 +66,15 @@ namespace ItemSCPs
 
         public void ApplyEffect(StatusEffect effect)
         {
-            var existing = effects.FirstOrDefault(e => e.GetType() == effect.GetType());
-
-            if (existing != null)
+            if (effect.id != "")
             {
-                existing.OnReapply(effect);
-                return;
+                var existing = effects.FirstOrDefault(e => e.id == effect.id);
+
+                if (existing != null)
+                {
+                    existing.OnReapply(effect);
+                    return;
+                }
             }
 
             effect.OnApply();
@@ -134,12 +137,13 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(bool removeOnDeath, float duration)
+    public abstract class StatusEffect(string id, bool removeOnDeath, float duration)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
-        public float duration = duration;
+        public string id = id;
         public bool removeOnDeath = removeOnDeath;
+        public float duration = duration;
 
         protected float elapsedTime;
 
@@ -154,18 +158,13 @@ namespace ItemSCPs
         }
 
         public virtual void OnApply() { }
+        public abstract void OnReapply(StatusEffect effect);
         public virtual void OnTick(float deltaTime) { }
         public void Remove()
         {
             controller?.RemoveEffect(this);
         }
         public virtual void OnRemove() { }
-
-        public virtual void OnReapply(StatusEffect newEffect)
-        {
-            duration = newEffect.duration;
-            elapsedTime = 0f;
-        }
     }
 
     public class VignetteOverlay : MonoBehaviour // TODO: Test this

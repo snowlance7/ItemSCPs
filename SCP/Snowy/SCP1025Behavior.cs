@@ -20,16 +20,114 @@ namespace ItemSCPs.Items.Snowy
         //localPlayer.sprintMeter 0-1
         //localPlayer.sprintTime 11, idk what this does
         //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
-        Action[] diseases = new Action[]
-        {
-            () => {
-                // Common Cold
-                StatusEffectController.Instance.ApplyEffect(new SprintSpeedCapEffect(0.8f, duration: ))
-            },
-            () => {
-                
-            }
-        };
+        Disease[] diseases = new Disease[]
+{
+    new Disease("Common Cold", () =>
+    {
+        // Decreased movement speed
+        // Occasional sneezing that interrupts actions
+        // Reduced stamina
+
+    }),
+
+    new Disease("Flu", () =>
+    {
+        // Reduced health regeneration
+        // Periodic coughing fits that make noise
+        // Slight reduction in strength
+    }),
+
+    new Disease("Food Poisoning", () =>
+    {
+        // Decreased stamina
+        // Random vomiting that interrupts actions
+        // Health degeneration over time
+    }),
+
+    new Disease("Malaria", () =>
+    {
+        // Periodic high fevers causing temporary disorientation
+        // Reduced stamina
+        // Increased need for hydration
+    }),
+
+    new Disease("Chickenpox", () =>
+    {
+        // Reduced stamina
+        // Itchy skin causing random interruptions
+        // Minor health degeneration
+    }),
+
+    new Disease("Measles", () =>
+    {
+        // Decreased vision clarity
+        // Reduced stamina
+        // Health degeneration over time
+    }),
+
+    new Disease("Tuberculosis", () =>
+    {
+        // Severe coughing fits causing noise
+        // Reduced stamina
+        // Health degeneration over time
+    }),
+
+    new Disease("Asthma", () =>
+    {
+        // Reduced stamina
+        // Random asthma attacks causing temporary inability to move
+        // Requires "inhaler" item
+    }),
+
+    new Disease("Bronchitis", () =>
+    {
+        // Persistent coughing causing noise
+        // Reduced stamina
+        // Minor health regeneration penalty
+    }),
+
+    new Disease("Diabetes", () =>
+    {
+        // Requires "insulin" item
+        // Reduced stamina if not managed
+        // Occasional fatigue
+    }),
+
+    new Disease("Hypertension", () =>
+    {
+        // Increased damage taken from physical exertion
+        // Periodic dizziness
+        // Reduced stamina
+    }),
+
+    new Disease("Pneumonia", () =>
+    {
+        // Decreased movement speed
+        // Severe coughing fits causing noise
+        // Significant health regeneration penalty
+    }),
+
+    new Disease("Migraine", () =>
+    {
+        // Decreased vision clarity
+        // Random severe headaches causing temporary disorientation
+        // Reduced stamina
+    }),
+
+    new Disease("Appendicitis", () =>
+    {
+        // Severe pain causing random interruptions
+        // Reduced movement speed
+        // Health degeneration requiring "surgery" item
+    }),
+
+    new Disease("Sinus Infection", () =>
+    {
+        // Reduced vision clarity
+        // Persistent headache causing random interruptions
+        // Reduced stamina
+    }),
+};
 
         public override void Start()
         {
@@ -46,10 +144,17 @@ namespace ItemSCPs.Items.Snowy
             base.ItemActivate(used, buttonDown);
         }
     }
+
+    [Serializable]
+    public class Disease(string name, Action action)
+    {
+        public string name = name;
+        public Action action = action;
+    }
 }
 
 /*
-Cold
+Common Cold
 
     Status Effects: Decreased movement speed, occasional sneezing that interrupts actions, reduced stamina.
 

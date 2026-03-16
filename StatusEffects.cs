@@ -25,7 +25,7 @@ SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation
 
 namespace ItemSCPs
 {
-    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
         BoundedRange randomInterval = randomInterval;
         Action action = action;
@@ -36,6 +36,11 @@ namespace ItemSCPs
         public override void OnApply()
         {
             nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnReapply(StatusEffect effect)
+        {
+            throw new NotImplementedException();
         }
 
         public override void OnTick(float deltaTime)
@@ -52,7 +57,7 @@ namespace ItemSCPs
         }
     }
 
-    public class IntervalActionEffect(float interval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    public class IntervalActionEffect(float interval, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
         float interval = interval;
         Action action = action;
@@ -71,7 +76,7 @@ namespace ItemSCPs
         }
     }
 
-    public class OnRemoveActionEffect(Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    public class OnRemoveActionEffect(Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
         Action action = action;
 
@@ -81,7 +86,7 @@ namespace ItemSCPs
         }
     }
 
-    public class TickActionEffect(Action<float> action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    public class TickActionEffect(Action<float> action, bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
         Action<float> action = action;
 
@@ -91,7 +96,7 @@ namespace ItemSCPs
         }
     }
 
-    public class ChanceTickActionEffect(float chancePerSecond, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
+    public class ChanceTickActionEffect(float chancePerSecond, Action action, bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
         float chance = chancePerSecond;
         Action action = action;
@@ -104,7 +109,7 @@ namespace ItemSCPs
     }
 
     public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, float cooldown = 0f, int maxTriggerCount = 0, bool removeOnDeath = true, float duration = 0)
-    : StatusEffect(removeOnDeath, duration)
+    : StatusEffect(id, removeOnDeath, duration)
     {
         Func<bool> condition = condition;
         Action action = action;
@@ -172,9 +177,8 @@ namespace ItemSCPs
         }
     }
 
-    public class LerpValueEffect(Func<float> getter, Action<float> setter, float startValue, float endValue, bool removeOnDeath = true, float duration = 1f) : StatusEffect(removeOnDeath, duration)
+    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, string id = "", bool removeOnDeath = true, float duration = 1f) : StatusEffect(id, removeOnDeath, duration)
     {
-        Func<float> getter = getter;
         Action<float> setter = setter;
 
         float startValue = startValue;
@@ -200,11 +204,26 @@ namespace ItemSCPs
         {
             setter.Invoke(endValue);
         }
+
+        public override void OnReapply(StatusEffect effect)
+        {
+            LerpValueEffect? e = effect as LerpValueEffect;
+            if (e == null) { return; }
+            setter = e.setter;
+            startValue = e.startValue;
+            endValue = e.endValue;
+            setter.Invoke(startValue);
+        }
     }
 
     public class MaxSprintCapEffect(float sprintCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
     {
         float sprintCap = sprintCap;
+
+        public override void OnReapply(StatusEffect effect)
+        {
+            throw new NotImplementedException();
+        }
 
         public override void OnTick(float deltaTime)
         {
