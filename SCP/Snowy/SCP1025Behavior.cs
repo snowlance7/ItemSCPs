@@ -11,6 +11,7 @@ using UnityEngine.UIElements;
 using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
 using System.Net;
+using Dawn.Utils;
 using System;
 
 namespace ItemSCPs.Items.Snowy
@@ -38,14 +39,27 @@ namespace ItemSCPs.Items.Snowy
         // Decreased movement speed
         // Occasional sneezing that interrupts actions
         // Reduced stamina
-        StatusEffectController.Instance.ApplyEffect(new SprintSpeedCapEffect(1.8f, ))
+        StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 250), () =>
+        {
+            StatusEffectController.Instance.PlayRandomClipServerRpc("sneeze", 0, 0.5f, 1, 10, 1500);
+            localPlayer.playQuickSpecialAnimation(1f);
+            localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
+        }, "sneeze", true, 1200, true));
+        StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, "sprintMeter", true, 1200f, true));
+        StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.8f, 2.5f, "sprintMultiplier", true, 1200f, true));
     }),
 
     new Disease("Flu", () =>
     {
         // Reduced health regeneration
         // Periodic coughing fits that make noise
-        // Slight reduction in strength
+        StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1f, "healthRegenerateTimer", duration: 1800, pauseInOrbit: true));
+        StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 120), () =>
+        {
+            StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, 1, 10, 1500);
+            localPlayer.playQuickSpecialAnimation(1f);
+            localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
+        }, "coughHeavy", true, 1800, true));
     }),
 
     new Disease("Food Poisoning", () =>
@@ -53,6 +67,12 @@ namespace ItemSCPs.Items.Snowy
         // Decreased stamina
         // Random vomiting that interrupts actions
         // Health degeneration over time
+        StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, "sprintMeter", true, 1200f, true));StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 120), () =>
+        {
+            StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, 1, 10, 1500);
+            localPlayer.playQuickSpecialAnimation(1f);
+            localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
+        }, "coughHeavy", true, 1800, true));
     }),
 
     new Disease("Malaria", () =>

@@ -142,7 +142,7 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(string id, bool removeOnDeath, float duration)
+    public abstract class StatusEffect(string id, bool removeOnDeath, float duration, bool pauseInOrbit)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
@@ -151,6 +151,7 @@ namespace ItemSCPs
         public string id = id;
         public bool removeOnDeath = removeOnDeath;
         public float duration = duration;
+        public bool pauseInOrbit = pauseInOrbit;
 
         protected float elapsedTime;
 
@@ -160,7 +161,7 @@ namespace ItemSCPs
         {
             OnTick(deltaTime);
 
-            if (duration > 0)
+            if (duration > 0 && !(pauseInOrbit && StartOfRound.Instance.inShipPhase))
                 elapsedTime += deltaTime;
         }
 
