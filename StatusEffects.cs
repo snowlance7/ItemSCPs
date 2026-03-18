@@ -38,9 +38,17 @@ namespace ItemSCPs
             nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
         }
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override bool OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as RandomIntervalActionEffect;
+            if (e == null) { return; }
+            randomInterval = e.randomInterval;
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            timeSinceLastInterval = 0f;
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+            elapsedTime = 0f;
         }
 
         public override void OnTick(float deltaTime)
@@ -64,9 +72,16 @@ namespace ItemSCPs
 
         float timeSinceLastInterval;
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as IntervalActionEffect;
+            if (e == null) { return; }
+            interval = e.interval;
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            timeSinceLastInterval = 0f;
+            elapsedTime = 0f;
         }
 
         public override void OnTick(float deltaTime)
@@ -85,9 +100,14 @@ namespace ItemSCPs
     {
         Action action = action;
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as OnRemoveActionEffect;
+            if (e == null) { return; }
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            elapsedTime = 0f;
         }
 
         public override void OnRemove()
@@ -100,9 +120,14 @@ namespace ItemSCPs
     {
         Action<float> action = action;
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as TickActionEffect;
+            if (e == null) { return; }
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            elapsedTime = 0f;
         }
 
         public override void OnTick(float deltaTime)
@@ -116,9 +141,15 @@ namespace ItemSCPs
         float chance = chancePerSecond;
         Action action = action;
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as ChanceTickActionEffect;
+            if (e == null) { return; }
+            chance = e.chance;
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            elapsedTime = 0f;
         }
 
         public override void OnTick(float deltaTime)
@@ -140,9 +171,22 @@ namespace ItemSCPs
         float timeSinceLastTrigger;
         int triggerCount;
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            var e = effect as ConditionalActionEffect;
+            if (e == null) return;
+
+            condition = e.condition;
+            action = e.action;
+            removeOnTrigger = e.removeOnTrigger;
+            cooldown = e.cooldown;
+            maxTriggerCount = e.maxTriggerCount;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+
+            timeSinceLastTrigger = 0f;
+            triggerCount = 0;
+            elapsedTime = 0f;
         }
 
         public override void OnTick(float deltaTime)
@@ -182,9 +226,27 @@ namespace ItemSCPs
             nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
         }
 
-        public override void OnReapply(StatusEffect effect) // TODO
+        public override void OnReapply(StatusEffect effect)
         {
-            throw new NotImplementedException();
+            RandomAudioEffect? e = effect as RandomAudioEffect;
+            if (e == null) return;
+
+            audioLibraryId = e.audioLibraryId;
+            randomInterval = e.randomInterval;
+            bodyPartIndex = e.bodyPartIndex;
+            volume = e.volume;
+            min3DDistance = e.min3DDistance;
+            max3DDistance = e.max3DDistance;
+            cutoffFrequency = e.cutoffFrequency;
+            audibleNoiseID = e.audibleNoiseID;
+            animationName = e.animationName;
+            animationTime = e.animationTime;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            elapsedTime = 0f;
+
+            timeSinceLastPlayback = 0f;
+            nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
         }
 
         public override void OnTick(float deltaTime)
@@ -242,36 +304,65 @@ namespace ItemSCPs
             setter = e.setter;
             startValue = e.startValue;
             endValue = e.endValue;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
             setter.Invoke(startValue);
+            elapsedTime = 0f;
         }
     }
 
-    //public class MaxSprintCapEffect(float sprintCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
-    //{
-    //    float sprintCap = sprintCap;
+    public class MaxSprintCapEffect(float sprintCap, string id = "", bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
+    {
+        float sprintCap = sprintCap;
 
-    //    public override void OnReapply(StatusEffect effect)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
+        public override void OnApply()
+        {
+            sprintCap = Mathf.Clamp01(sprintCap);
+        }
 
-    //    public override void OnTick(float deltaTime)
-    //    {
-    //        localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
-    //    }
-    //}
+        public override void OnTick(float deltaTime)
+        {
+            localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
+        }
 
-    //public class SprintSpeedCapEffect(float sprintSpeedCap, bool removeOnDeath = true, float duration = 0) : StatusEffect(removeOnDeath, duration)
-    //{
-    //    float sprintSpeedCap = sprintSpeedCap;
+        public override void OnReapply(StatusEffect effect)
+        {
+            MaxSprintCapEffect? e = effect as MaxSprintCapEffect;
+            if (e == null) { return; }
+            sprintCap = Mathf.Min(sprintCap, e.sprintCap);
+            sprintCap = Mathf.Clamp01(sprintCap);
+            removeOnDeath = e.removeOnDeath;
+            duration = Mathf.Max(duration, e.duration);
+            elapsedTime = 0f;
+        }
+    }
 
-    //    const float minRange = 1f;
-    //    const float maxRange = 2.5f;
+    public class SprintSpeedCapEffect(float sprintSpeedCap, string id = "", bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
+    {
+        float sprintSpeedCap = sprintSpeedCap;
 
-    //    public override void OnTick(float deltaTime)
-    //    {
-    //        float cap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
-    //        localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
-    //    }
-    //}
+        const float minRange = 1f;
+        const float maxRange = 2.5f;
+
+        public override void OnApply()
+        {
+            sprintSpeedCap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
+        }
+
+        public override void OnReapply(StatusEffect effect)
+        {
+            SprintSpeedCapEffect? e = effect as SprintSpeedCapEffect;
+            if (e == null) { return; }
+            sprintSpeedCap = Mathf.Min(sprintSpeedCap, e.sprintSpeedCap);
+            sprintSpeedCap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
+            removeOnDeath = e.removeOnDeath;
+            duration = Mathf.Max(duration, e.duration);
+            elapsedTime = 0f;
+        }
+    }
 }

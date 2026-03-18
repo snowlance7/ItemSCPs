@@ -17,6 +17,17 @@ namespace ItemSCPs.Items.Snowy
 {
     internal class SCP1025Behavior : PhysicsProp // TODO: Make this work with SCP-714
     {
+        /*
+        ShortFallLanding (Trigger) - coughing small motion
+        SpawnPlayer (Trigger) - puking
+        startCrouching (Trigger) - force crouch, specialanimation time for duration
+        Damage (Trigger) - hands in air
+        Overheat (Trigger) - hands in air lower
+        SA_Typing (Trigger) - puking motion, head forward?
+        SA_stopAnimation (Trigger)
+        SA_ChargeItem (Trigger) - hand out
+        SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation
+        */
         //localPlayer.sprintMeter 0-1
         //localPlayer.sprintTime 11, idk what this does
         //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
@@ -27,7 +38,7 @@ namespace ItemSCPs.Items.Snowy
         // Decreased movement speed
         // Occasional sneezing that interrupts actions
         // Reduced stamina
-
+        StatusEffectController.Instance.ApplyEffect(new SprintSpeedCapEffect(1.8f, ))
     }),
 
     new Disease("Flu", () =>

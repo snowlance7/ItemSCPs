@@ -149,6 +149,13 @@ namespace ItemSCPs
 
         public bool IsFinished => duration > 0 && elapsedTime >= duration;
 
+        public enum ReapplyResult
+        {
+            Reapplied,
+            Replace,
+            Reject
+        }
+
         public void Tick(float deltaTime)
         {
             OnTick(deltaTime);
@@ -158,7 +165,7 @@ namespace ItemSCPs
         }
 
         public virtual void OnApply() { }
-        public abstract void OnReapply(StatusEffect effect);
+        public abstract ReapplyResult OnReapply(StatusEffect effect);
         public virtual void OnTick(float deltaTime) { }
         public void Remove()
         {
