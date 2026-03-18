@@ -34,7 +34,7 @@ namespace ItemSCPs
         public PlayerControllerB playerAttachedTo;
 #pragma warning restore CS8618
 
-        private readonly List<StatusEffect> effects = new();
+        readonly List<StatusEffect> effects = new();
 
         public static void Init(PlayerControllerB player)
         {
@@ -49,7 +49,7 @@ namespace ItemSCPs
                 StatusEffectController.Instance = _instance;
         }
 
-        private void Update()
+        void Update()
         {
             for (int i = effects.Count - 1; i >= 0; i--)
             {
@@ -66,15 +66,20 @@ namespace ItemSCPs
 
         public void ApplyEffect(StatusEffect effect)
         {
-            if (effect.id != "")
-            {
-                var existing = effects.FirstOrDefault(e => e.id == effect.id);
+            StatusEffect? existing = null;
 
-                if (existing != null)
-                {
-                    existing.OnReapply(effect);
+            if (!effect.AllowMultipleInstances)
+                existing = effects.FirstOrDefault(e => e.GetType() == effect.GetType());
+            else if (!string.IsNullOrEmpty(effect.id))
+                existing = effects.FirstOrDefault(e => e.id == effect.id);
+
+            if (existing != null)
+            {
+                if (existing.OnReapply(effect))
                     return;
-                }
+
+                existing.OnRemove();
+                effects.Remove(existing);
             }
 
             effect.OnApply();
@@ -141,6 +146,8 @@ namespace ItemSCPs
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
+        public virtual bool AllowMultipleInstances { get; } = true;
+
         public string id = id;
         public bool removeOnDeath = removeOnDeath;
         public float duration = duration;
@@ -148,13 +155,6 @@ namespace ItemSCPs
         protected float elapsedTime;
 
         public bool IsFinished => duration > 0 && elapsedTime >= duration;
-
-        public enum ReapplyResult
-        {
-            Reapplied,
-            Replace,
-            Reject
-        }
 
         public void Tick(float deltaTime)
         {
@@ -165,7 +165,7 @@ namespace ItemSCPs
         }
 
         public virtual void OnApply() { }
-        public abstract ReapplyResult OnReapply(StatusEffect effect);
+        public abstract bool OnReapply(StatusEffect effect);
         public virtual void OnTick(float deltaTime) { }
         public void Remove()
         {

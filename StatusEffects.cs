@@ -40,8 +40,7 @@ namespace ItemSCPs
 
         public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as RandomIntervalActionEffect;
-            if (e == null) { return; }
+            var e = (RandomIntervalActionEffect)effect;
             randomInterval = e.randomInterval;
             action = e.action;
             removeOnDeath = e.removeOnDeath;
@@ -49,6 +48,7 @@ namespace ItemSCPs
             timeSinceLastInterval = 0f;
             nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -72,16 +72,16 @@ namespace ItemSCPs
 
         float timeSinceLastInterval;
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as IntervalActionEffect;
-            if (e == null) { return; }
+            var e = (IntervalActionEffect)effect;
             interval = e.interval;
             action = e.action;
             removeOnDeath = e.removeOnDeath;
             duration = e.duration;
             timeSinceLastInterval = 0f;
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -100,14 +100,14 @@ namespace ItemSCPs
     {
         Action action = action;
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as OnRemoveActionEffect;
-            if (e == null) { return; }
+            var e = (OnRemoveActionEffect)effect;
             action = e.action;
             removeOnDeath = e.removeOnDeath;
             duration = e.duration;
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnRemove()
@@ -120,14 +120,14 @@ namespace ItemSCPs
     {
         Action<float> action = action;
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as TickActionEffect;
-            if (e == null) { return; }
+            var e = (TickActionEffect)effect;
             action = e.action;
             removeOnDeath = e.removeOnDeath;
             duration = e.duration;
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -141,15 +141,15 @@ namespace ItemSCPs
         float chance = chancePerSecond;
         Action action = action;
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as ChanceTickActionEffect;
-            if (e == null) { return; }
+            var e = (ChanceTickActionEffect)effect;
             chance = e.chance;
             action = e.action;
             removeOnDeath = e.removeOnDeath;
             duration = e.duration;
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -171,10 +171,9 @@ namespace ItemSCPs
         float timeSinceLastTrigger;
         int triggerCount;
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            var e = effect as ConditionalActionEffect;
-            if (e == null) return;
+            var e = (ConditionalActionEffect)effect;
 
             condition = e.condition;
             action = e.action;
@@ -187,6 +186,7 @@ namespace ItemSCPs
             timeSinceLastTrigger = 0f;
             triggerCount = 0;
             elapsedTime = 0f;
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -205,7 +205,7 @@ namespace ItemSCPs
         }
     }
 
-    public class RandomAudioEffect(string audioLibraryId, BoundedRange randomInterval, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0, string animationName = "", float animationTime = 0, string id = "", bool removeOnDeath = true, float duration = 0f) : StatusEffect(id, removeOnDeath, duration)
+    public class RandomIntervalAudioEffect(string audioLibraryId, BoundedRange randomInterval, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0, string animationName = "", float animationTime = 0, string id = "", bool removeOnDeath = true, float duration = 0f) : StatusEffect(id, removeOnDeath, duration)
     {
         string audioLibraryId = audioLibraryId;
         BoundedRange randomInterval = randomInterval;
@@ -226,10 +226,9 @@ namespace ItemSCPs
             nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
         }
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            RandomAudioEffect? e = effect as RandomAudioEffect;
-            if (e == null) return;
+            var e = (RandomIntervalAudioEffect)effect;
 
             audioLibraryId = e.audioLibraryId;
             randomInterval = e.randomInterval;
@@ -247,6 +246,7 @@ namespace ItemSCPs
 
             timeSinceLastPlayback = 0f;
             nextPlaybackTime = randomInterval.GetRandomInRange(Utils.randomLocal);
+            return true;
         }
 
         public override void OnTick(float deltaTime)
@@ -297,10 +297,9 @@ namespace ItemSCPs
             setter.Invoke(endValue);
         }
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            LerpValueEffect? e = effect as LerpValueEffect;
-            if (e == null) { return; }
+            var e = (LerpValueEffect)effect;
             setter = e.setter;
             startValue = e.startValue;
             endValue = e.endValue;
@@ -308,6 +307,7 @@ namespace ItemSCPs
             duration = e.duration;
             setter.Invoke(startValue);
             elapsedTime = 0f;
+            return true;
         }
     }
 
@@ -325,20 +325,21 @@ namespace ItemSCPs
             localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, sprintCap);
         }
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            MaxSprintCapEffect? e = effect as MaxSprintCapEffect;
-            if (e == null) { return; }
+            var e = (MaxSprintCapEffect)effect;
             sprintCap = Mathf.Min(sprintCap, e.sprintCap);
             sprintCap = Mathf.Clamp01(sprintCap);
             removeOnDeath = e.removeOnDeath;
             duration = Mathf.Max(duration, e.duration);
             elapsedTime = 0f;
+            return true;
         }
     }
 
     public class SprintSpeedCapEffect(float sprintSpeedCap, string id = "", bool removeOnDeath = true, float duration = 0) : StatusEffect(id, removeOnDeath, duration)
     {
+        public override bool AllowMultipleInstances => false;
         float sprintSpeedCap = sprintSpeedCap;
 
         const float minRange = 1f;
@@ -354,15 +355,15 @@ namespace ItemSCPs
             localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, sprintSpeedCap);
         }
 
-        public override void OnReapply(StatusEffect effect)
+        public override bool OnReapply(StatusEffect effect)
         {
-            SprintSpeedCapEffect? e = effect as SprintSpeedCapEffect;
-            if (e == null) { return; }
+            var e = (SprintSpeedCapEffect)effect;
             sprintSpeedCap = Mathf.Min(sprintSpeedCap, e.sprintSpeedCap);
             sprintSpeedCap = Mathf.Clamp(sprintSpeedCap, minRange, maxRange);
             removeOnDeath = e.removeOnDeath;
             duration = Mathf.Max(duration, e.duration);
             elapsedTime = 0f;
+            return true;
         }
     }
 }
