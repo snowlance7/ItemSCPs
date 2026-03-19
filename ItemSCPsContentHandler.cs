@@ -56,7 +56,11 @@ namespace ItemSCPs
         public class SCP012Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP012Assets>(mod, filePath) { }
         public SCP012Assets? SCP012;
 
-        public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath) { }
+        public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath)
+        {
+            [LoadFromBundle("pukeSplatter.mat")]
+            public Material PukeSplatterDecal { get; private set; } = null!;
+        }
         public SCP1025Assets? SCP1025;
 
         public class SCP268Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP268Assets>(mod, filePath) { }
