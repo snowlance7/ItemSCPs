@@ -46,9 +46,9 @@ namespace ItemSCPs.Items.Snowy
                     StatusEffectController.Instance.PlayRandomClipServerRpc("sneeze", 0, 0.5f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
-                }, "sneeze", true, time, true));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, "sprintMeter", true, time, true));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.8f, 2.5f, "sprintMultiplier", true, time, true));
+                }, "sneeze", time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.8f, 2.5f, time, "sprintMultiplier"));
             }),
 
             new Disease("Flu", () =>
@@ -56,13 +56,13 @@ namespace ItemSCPs.Items.Snowy
                 // Reduced health regeneration
                 // Periodic coughing fits that make noise
                 float time = UnityEngine.Random.Range(1800, 3000);
-                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1f, "healthRegenerateTimer", duration: time, pauseInOrbit: true));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1f, "healthRegenerateTimer", duration: time));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 120), () =>
                 {
                     StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
-                }, "coughHeavy", true, time, true));
+                }, "coughHeavy", time));
             }),
 
             new Disease("Food Poisoning", () =>
@@ -71,20 +71,20 @@ namespace ItemSCPs.Items.Snowy
                 // Random vomiting that interrupts actions
                 // Health degeneration over time
                 float time = UnityEngine.Random.Range(300, 1200);
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, "sprintMeter", true, time, true));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter", true, true));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 300), () =>
                 {
                     StatusEffectController.Instance.PlayRandomClipServerRpc("puke", 0, 0.6f, 1, 5, 1500);
                     localPlayer.playQuickSpecialAnimation(2f);
                     localPlayer.playerBodyAnimator.SetTrigger("SpawnPlayer");
                     SpawnPuke(ItemSCPsContentHandler.Instance.SCP1025.PukeSplatterDecal, Utils.GetFloorPosition(localPlayer.bodyParts[0].position), Vector3.up); // TODO: Test this
-                }, "puke", true, time, true));
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 500), () =>
+                }, "puke", time));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 400), () =>
                 {
                     localPlayer.inSpecialInteractAnimation = true;
                     localPlayer.DamagePlayer(1, false);
                     localPlayer.inSpecialInteractAnimation = false;
-                }, duration: time, pauseInOrbit: true));
+                }, duration: time));
             }),
 
             new Disease("Malaria", () =>
@@ -92,6 +92,8 @@ namespace ItemSCPs.Items.Snowy
                 // Periodic high fevers causing temporary disorientation
                 // Reduced stamina
                 float time = UnityEngine.Random.Range(3000, 4800);
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalPhaseActionEffect(new BoundedRange(300, 1000), new BoundedRange(30, 60), () => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, 0.3f), "migraine", time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.55f, 1f, time, "sprintMeter"));
             }),
 
             new Disease("Chickenpox", () =>
@@ -100,6 +102,18 @@ namespace ItemSCPs.Items.Snowy
                 // Itchy skin causing random interruptions
                 // Minor health degeneration
                 float time = UnityEngine.Random.Range(1800, 3000);
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.5f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 200), () =>
+                {
+                    localPlayer.playQuickSpecialAnimation(2f);
+                    localPlayer.playerBodyAnimator.SetTrigger("Overheat");
+                }, "itch", time));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(120, 500), () =>
+                {
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(2, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                }, duration: time));
             }),
 
             new Disease("Measles", () =>
@@ -108,6 +122,15 @@ namespace ItemSCPs.Items.Snowy
                 // Reduced stamina
                 // Health degeneration over time
                 float time = UnityEngine.Random.Range(1800, 2400);
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0f, 1f, time, "vignette"));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, x), 0, 0.4f, time, "drunkness"));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.6f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 90), () =>
+                {
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(1, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                }, duration: time));
             }),
 
             new Disease("Tuberculosis", () =>
@@ -116,6 +139,19 @@ namespace ItemSCPs.Items.Snowy
                 // Reduced stamina
                 // Health degeneration over time
                 float time = UnityEngine.Random.Range(4800, 7200);
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 120), () =>
+                {
+                    StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, 1, 10, 1500);
+                    localPlayer.playQuickSpecialAnimation(1f);
+                    localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
+                }, "coughHeavy", duration: time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.6f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 90), () =>
+                {
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(1, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                }, duration: time));
             }),
 
             new Disease("Bronchitis", () =>
@@ -124,6 +160,14 @@ namespace ItemSCPs.Items.Snowy
                 // Reduced stamina
                 // Minor health regeneration penalty
                 float time = UnityEngine.Random.Range(2400, 3600);
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 30), () =>
+                {
+                    StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.5f, 1, 10, 1500);
+                    localPlayer.playQuickSpecialAnimation(1f);
+                    localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
+                }, "cough", duration: time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1f, "healthRegenerateTimer", duration: time));
             }),
 
             new Disease("Hypertension", () =>
@@ -131,6 +175,15 @@ namespace ItemSCPs.Items.Snowy
                 // Increased damage taken from physical exertion
                 // Periodic dizziness
                 // Reduced stamina
+                StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.2f, () =>
+                {
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(1, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                    localPlayer.drunkness = 0.2f;
+                }, false, 1));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 90), () => localPlayer.drunkness = 0.2f, "dizziness"));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0, 0.75f), "sprintMeter"));
             }),
 
             new Disease("Pneumonia", () =>
@@ -139,6 +192,17 @@ namespace ItemSCPs.Items.Snowy
                 // Severe coughing fits causing noise
                 // Significant health regeneration penalty
                 float time = UnityEngine.Random.Range(3000, 4200);
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.5f, 2.5f, time, "sprintMultiplier"));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 90), () =>
+                {
+                    StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.75f, 1, 10, 1500);
+                    localPlayer.playQuickSpecialAnimation(1f);
+                    localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(2, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                    localPlayer.drunkness = 0.2f;
+                }, "coughHeavy", duration: time));
             }),
 
             new Disease("Migraine", () =>
@@ -147,6 +211,7 @@ namespace ItemSCPs.Items.Snowy
                 // Random severe headaches causing temporary disorientation
                 // Reduced stamina
                 float time = UnityEngine.Random.Range(300, 600);
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, 0.15f), ));
             }),
 
             new Disease("Appendicitis", () =>
@@ -165,21 +230,6 @@ namespace ItemSCPs.Items.Snowy
                 float time = UnityEngine.Random.Range(1200, 2400);
             }),
         };
-
-        public override void Start()
-        {
-            base.Start();
-        }
-
-        public override void Update()
-        {
-            base.Update();
-        }
-
-        public override void ItemActivate(bool used, bool buttonDown = true)
-        {
-            base.ItemActivate(used, buttonDown);
-        }
 
         public static void SpawnPuke(Material pukeMaterial, Vector3 position, Vector3 normal)
         {

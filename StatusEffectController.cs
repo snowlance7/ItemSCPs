@@ -71,7 +71,7 @@ namespace ItemSCPs
             if (!effect.AllowMultipleInstances)
                 existing = effects.FirstOrDefault(e => e.GetType() == effect.GetType());
             else if (!string.IsNullOrEmpty(effect.id))
-                existing = effects.FirstOrDefault(e => e.id == effect.id);
+                existing = effects.FirstOrDefault(e => e.id == effect.id && e.GetType() == effect.GetType());
 
             if (existing != null)
             {
@@ -142,15 +142,15 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(string id, bool removeOnDeath, float duration, bool pauseInOrbit)
+    public abstract class StatusEffect(string id, float duration, bool removeOnDeath, bool pauseInOrbit)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
         public virtual bool AllowMultipleInstances { get; } = true;
 
         public string id = id;
-        public bool removeOnDeath = removeOnDeath;
         public float duration = duration;
+        public bool removeOnDeath = removeOnDeath;
         public bool pauseInOrbit = pauseInOrbit;
 
         protected float elapsedTime;

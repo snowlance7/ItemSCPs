@@ -25,7 +25,7 @@ SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation
 
 namespace ItemSCPs
 {
-    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         BoundedRange randomInterval = randomInterval;
         Action action = action;
@@ -65,7 +65,7 @@ namespace ItemSCPs
         }
     }
 
-    public class IntervalActionEffect(float interval, Action action, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class IntervalActionEffect(float interval, Action action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         float interval = interval;
         Action action = action;
@@ -96,7 +96,7 @@ namespace ItemSCPs
         }
     }
 
-    public class OnRemoveActionEffect(Action action, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class OnRemoveActionEffect(Action action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         Action action = action;
 
@@ -116,7 +116,7 @@ namespace ItemSCPs
         }
     }
 
-    public class TickActionEffect(Action<float> action, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class TickActionEffect(Action<float> action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         Action<float> action = action;
 
@@ -136,7 +136,7 @@ namespace ItemSCPs
         }
     }
 
-    public class ChanceTickActionEffect(float chancePerSecond, Action action, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class ChanceTickActionEffect(float chancePerSecond, Action action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         float chance = chancePerSecond;
         Action action = action;
@@ -159,8 +159,7 @@ namespace ItemSCPs
         }
     }
 
-    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, float cooldown = 0f, int maxTriggerCount = 0, string id = "", bool removeOnDeath = true, float duration = 0, bool pauseInOrbit = false)
-    : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, float cooldown = 0f, int maxTriggerCount = 0, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         Func<bool> condition = condition;
         Action action = action;
@@ -205,7 +204,7 @@ namespace ItemSCPs
         }
     }
 
-    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, string id = "", bool removeOnDeath = true, float duration = 1f, bool pauseInOrbit = false) : StatusEffect(id, removeOnDeath, duration, pauseInOrbit)
+    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, float duration, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
     {
         Action<float> setter = setter;
 
@@ -244,6 +243,55 @@ namespace ItemSCPs
             setter.Invoke(startValue);
             elapsedTime = 0f;
             return true;
+        }
+    }
+    public class RandomIntervalPhaseActionEffect(BoundedRange randomInterval, BoundedRange randomPhaseDuration, Action action, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true) : StatusEffect(id, duration, removeOnDeath, pauseInOrbit)
+    {
+        BoundedRange randomInterval = randomInterval;
+        BoundedRange randomPhaseDuration = randomPhaseDuration;
+        Action action = action;
+
+        float timeSinceLastInterval;
+        float nextInterval;
+
+        float phaseTimer;
+
+        public override void OnApply()
+        {
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override bool OnReapply(StatusEffect effect)
+        {
+            var e = (RandomIntervalPhaseActionEffect)effect;
+            randomInterval = e.randomInterval;
+            randomPhaseDuration = e.randomPhaseDuration;
+            action = e.action;
+            removeOnDeath = e.removeOnDeath;
+            duration = e.duration;
+            timeSinceLastInterval = 0f;
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+            elapsedTime = 0f;
+            return true;
+        }
+
+        public override void OnTick(float deltaTime)
+        {
+            if (phaseTimer <= 0)
+                timeSinceLastInterval += deltaTime;
+
+            if (timeSinceLastInterval > nextInterval)
+            {
+                timeSinceLastInterval = 0f;
+                nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+                phaseTimer = randomPhaseDuration.GetRandomInRange(Utils.randomLocal);
+            }
+
+            if (phaseTimer > 0)
+            {
+                phaseTimer -= deltaTime;
+                action.Invoke();
+            }
         }
     }
 }
