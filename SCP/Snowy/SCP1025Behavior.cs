@@ -211,7 +211,8 @@ namespace ItemSCPs.Items.Snowy
                 // Random severe headaches causing temporary disorientation
                 // Reduced stamina
                 float time = UnityEngine.Random.Range(300, 600);
-                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, 0.15f), ));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, 0.15f), "migraine", time));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalPhaseActionEffect(new BoundedRange(30, 60), new BoundedRange(30, 60), () => localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, 0.3f), "migraine", time));
             }),
 
             new Disease("Appendicitis", () =>
