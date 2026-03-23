@@ -118,6 +118,16 @@ namespace ItemSCPs
             effects.Clear();
         }
 
+        public void PlayLocalRandomClip(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+        {
+            AudioGroup group = audioLibrary.groups.Where(x => x.id == id).FirstOrDefault();
+            if (group == null) return;
+            int index = Utils.randomLocal.Next(0, group.clips.Length);
+            AudioClip clip = group.clips[index];
+            logger.LogDebug($"Playing sound effect {id}, index {index}, volume {volume}, minMaxDistance {min3DDistance}-{max3DDistance}, cutoffFrequency {cutoffFrequency}");
+            Utils.PlaySoundAtPosition(playerAttachedTo.bodyParts[bodyPartIndex], clip, volume, min3DDistance: min3DDistance, max3DDistance: max3DDistance, cutoffFrequency: cutoffFrequency, audibleNoiseID: audibleNoiseID);
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void PlayRandomClipServerRpc(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
         {
