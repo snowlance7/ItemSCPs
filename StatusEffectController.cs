@@ -1,25 +1,13 @@
 ﻿using Dawn.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
-
-/* bodyparts
- * 0 head
- * 1 right arm
- * 2 left arm
- * 3 right leg
- * 4 left leg
- * 5 chest
- * 6 feet
- * 7 right hip
- * 8 crotch
- * 9 left shoulder
- * 10 right shoulder */
 
 namespace ItemSCPs
 {
@@ -54,9 +42,9 @@ namespace ItemSCPs
             for (int i = effects.Count - 1; i >= 0; i--)
             {
                 var effect = effects[i];
-                effect.Tick(Time.deltaTime);
+                effect.Tick();
 
-                if (effect.IsFinished || (playerAttachedTo.isPlayerDead && effect.removeOnDeath))
+                if (effect.isFinished || (playerAttachedTo.isPlayerDead && effect.removeOnDeath))
                 {
                     effect.OnRemove();
                     effects.RemoveAt(i);
@@ -64,26 +52,24 @@ namespace ItemSCPs
             }
         }
 
-        public void ApplyEffect(StatusEffect effect)
+        public void ApplyEffect(StatusEffect newEffect)
         {
-            StatusEffect? existing = null;
-
-            if (!effect.AllowMultipleInstances)
-                existing = effects.FirstOrDefault(e => e.GetType() == effect.GetType());
-            else if (!string.IsNullOrEmpty(effect.id))
-                existing = effects.FirstOrDefault(e => e.id == effect.id && e.GetType() == effect.GetType());
+            var existing = !string.IsNullOrEmpty(newEffect.id)
+                ? effects.FirstOrDefault(e => e.id == newEffect.id)
+                : null;
 
             if (existing != null)
             {
-                if (existing.OnReapply(effect))
-                    return;
-
-                existing.OnRemove();
-                effects.Remove(existing);
+                if (newEffect.onConflict(existing, newEffect))
+                {
+                    existing.OnRemove();
+                    effects.Remove(existing);
+                }
+                else return;
             }
 
-            effect.OnApply();
-            effects.Add(effect);
+            newEffect.OnApply();
+            effects.Add(newEffect);
         }
 
         public void RemoveEffect<T>() where T : StatusEffect
@@ -152,32 +138,35 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(string id, float duration, bool removeOnDeath, bool pauseInOrbit)
+    public abstract class StatusEffect(string source, string id, float duration, bool removeOnDeath, bool pauseInOrbit, Func<StatusEffect, StatusEffect, bool>? onConflict = null)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
-        public virtual bool AllowMultipleInstances { get; } = true;
-
+        public string source = source;
         public string id = id;
         public float duration = duration;
         public bool removeOnDeath = removeOnDeath;
         public bool pauseInOrbit = pauseInOrbit;
 
+        // Takes (existingEffect, newEffect) → returns bool
+        // Default: no conflict (always false)
+        public Func<StatusEffect, StatusEffect, bool> onConflict = onConflict ?? ((existing, incoming) => false);
+
         protected float elapsedTime;
 
-        public bool IsFinished => duration > 0 && elapsedTime >= duration;
+        public bool isFinished => duration > 0 && elapsedTime >= duration;
+        public float timeLeft => duration > 0 ? duration - elapsedTime : Mathf.Infinity;
 
-        public void Tick(float deltaTime)
+        public void Tick()
         {
-            OnTick(deltaTime);
+            OnTick();
 
             if (duration > 0 && !(pauseInOrbit && StartOfRound.Instance.inShipPhase))
-                elapsedTime += deltaTime;
+                elapsedTime += Time.deltaTime;
         }
 
         public virtual void OnApply() { }
-        public abstract bool OnReapply(StatusEffect effect);
-        public virtual void OnTick(float deltaTime) { }
+        public virtual void OnTick() { }
         public void Remove()
         {
             controller?.RemoveEffect(this);
@@ -185,7 +174,7 @@ namespace ItemSCPs
         public virtual void OnRemove() { }
     }
 
-    public class VignetteOverlay : MonoBehaviour // TODO: Test this
+    public class VignetteOverlay : MonoBehaviour
     {
 #pragma warning disable CS8618
         public Image visual;
@@ -251,6 +240,203 @@ namespace ItemSCPs
             catch
             {
                 return;
+            }
+        }
+    }
+
+    /* bodyparts
+     * 0 head
+     * 1 right arm
+     * 2 left arm
+     * 3 right leg
+     * 4 left leg
+     * 5 chest
+     * 6 feet
+     * 7 right hip
+     * 8 crotch
+     * 9 left shoulder
+     * 10 right shoulder */
+
+    //localPlayer.sprintMeter 0-1
+    //localPlayer.sprintTime 11, idk what this does
+    //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
+
+    /*ShortFallLanding (Trigger) - coughing small motion
+    SpawnPlayer (Trigger) - puking
+    startCrouching (Trigger) - force crouch, specialanimation time for duration
+    Damage (Trigger) - hands in air
+    Overheat (Trigger) - hands in air lower
+    SA_Typing (Trigger) - puking motion, head forward?
+    SA_stopAnimation (Trigger)
+    SA_ChargeItem (Trigger) - hand out
+    SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation*/
+
+    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        BoundedRange randomInterval = randomInterval;
+        Action action = action;
+
+        float timeSinceLastInterval;
+        float nextInterval;
+
+        public override void OnApply()
+        {
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnTick()
+        {
+            timeSinceLastInterval += Time.deltaTime;
+
+            if (timeSinceLastInterval > nextInterval)
+            {
+                timeSinceLastInterval = 0f;
+                nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+
+                action.Invoke();
+            }
+        }
+    }
+
+    public class IntervalActionEffect(float interval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        float interval = interval;
+        Action action = action;
+
+        float timeSinceLastInterval;
+
+        public override void OnTick()
+        {
+            timeSinceLastInterval += Time.deltaTime;
+
+            if (timeSinceLastInterval > interval)
+            {
+                timeSinceLastInterval = 0f;
+                action.Invoke();
+            }
+        }
+    }
+
+    public class OnRemoveActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        Action action = action;
+
+        public override void OnRemove()
+        {
+            action.Invoke();
+        }
+    }
+
+    public class TickActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        Action action = action;
+
+        public override void OnTick()
+        {
+            action.Invoke();
+        }
+    }
+
+    public class ChanceTickActionEffect(float chancePerSecond, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        float chance = chancePerSecond;
+        Action action = action;
+
+        public override void OnTick()
+        {
+            if (Utils.randomLocal.NextFloat(0f, 1f) < Mathf.Clamp01(chance) * Time.deltaTime)
+                action.Invoke();
+        }
+    }
+
+    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, string source, float cooldown = 0f, int maxTriggerCount = 0, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        Func<bool> condition = condition;
+        Action action = action;
+        bool removeOnTrigger = removeOnTrigger;
+        float cooldown = cooldown;
+        int maxTriggerCount = maxTriggerCount;
+
+        float timeSinceLastTrigger;
+        int triggerCount;
+
+        public override void OnTick()
+        {
+            timeSinceLastTrigger += Time.deltaTime;
+
+            if (condition() && timeSinceLastTrigger > cooldown)
+            {
+                timeSinceLastTrigger = 0f;
+                triggerCount++;
+                action.Invoke();
+
+                if (removeOnTrigger || (maxTriggerCount > 0 && triggerCount >= maxTriggerCount))
+                    Remove();
+            }
+        }
+    }
+
+    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, float duration, string source, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        Action<float> setter = setter;
+
+        float startValue = startValue;
+        float endValue = endValue;
+
+        public override void OnApply()
+        {
+            setter.Invoke(startValue);
+        }
+
+        public override void OnTick()
+        {
+            elapsedTime += Time.deltaTime;
+
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            float value = Mathf.Lerp(startValue, endValue, t);
+
+            setter.Invoke(value);
+        }
+
+        public override void OnRemove()
+        {
+            setter.Invoke(endValue);
+        }
+    }
+
+    public class RandomIntervalPhaseActionEffect(BoundedRange randomInterval, BoundedRange randomPhaseDuration, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict)
+    {
+        BoundedRange randomInterval = randomInterval;
+        BoundedRange randomPhaseDuration = randomPhaseDuration;
+        Action action = action;
+
+        float timeSinceLastInterval;
+        float nextInterval;
+
+        float phaseTimer;
+
+        public override void OnApply()
+        {
+            nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+        }
+
+        public override void OnTick()
+        {
+            if (phaseTimer <= 0)
+                timeSinceLastInterval += Time.deltaTime;
+
+            if (timeSinceLastInterval > nextInterval)
+            {
+                timeSinceLastInterval = 0f;
+                nextInterval = randomInterval.GetRandomInRange(Utils.randomLocal);
+                phaseTimer = randomPhaseDuration.GetRandomInRange(Utils.randomLocal);
+            }
+
+            if (phaseTimer > 0)
+            {
+                phaseTimer -= Time.deltaTime;
+                action.Invoke();
             }
         }
     }

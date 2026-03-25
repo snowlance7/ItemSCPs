@@ -179,7 +179,7 @@ namespace ItemSCPs.SCPs.Snowy
             localPlayer.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Stabbing);
             localPlayer.inSpecialInteractAnimation = false;
             HUDManager.Instance.ShakeCamera(ScreenShakeType.Big);
-            StatusEffectController.Instance.vignetteOverlay.SetIntensity(localPlayer.health / 100f);
+            StatusEffectController.Instance.vignetteOverlay.SetIntensity(localPlayer.health / 100f); // TODO: This needs to be inversed
 
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);

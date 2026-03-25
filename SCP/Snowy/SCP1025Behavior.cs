@@ -1,4 +1,5 @@
 ﻿using Dawn.Utils;
+using ItemSCPs.SCP.Snowy;
 using System;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,7 +8,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    internal class SCP1025Behavior : PhysicsProp // TODO: Make this work with SCP-714
+    internal class SCP1025Behavior : PhysicsProp
     {
         /*
         ShortFallLanding (Trigger) - coughing small motion
@@ -30,9 +31,10 @@ namespace ItemSCPs.Items.Snowy
         public SkinnedMeshRenderer renderer;
 #pragma warning restore CS8618
 
-        readonly Disease[] diseases = new Disease[]
+        readonly Action[] diseases = new Action[]
         {
-            new Disease("Common Cold", () =>
+            // Common Cold
+            () =>
             {
                 // Occasional sneezing that interrupts actions
                 // Decreased movement speed
@@ -43,31 +45,33 @@ namespace ItemSCPs.Items.Snowy
                     StatusEffectController.Instance.PlayRandomClipServerRpc("sneeze", 0, 0.5f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
-                }, "sneeze", time));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "sprintMultiplier"));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter"));
-            }),
-            new Disease("Chickenpox", () =>
+                }, "Common Cold", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "Common Cold", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "Common Cold", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+            },
+            // Chickenpox
+            () =>
             {
                 // Reduced stamina
                 // Itchy skin causing random interruptions
                 // Minor health degeneration
                 float time = UnityEngine.Random.Range(1800, 3000);
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter"));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "Chickenpox", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
                 {
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("Overheat");
-                }, "itch", time));
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
-                {
-                    localPlayer.inSpecialInteractAnimation = true;
-                    localPlayer.DamagePlayer(1, false);
-                    localPlayer.inSpecialInteractAnimation = false;
-                }, duration: time));
-                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1, "healthDegeneration", time));
-            }),
-            new Disease("Cancer of the Lungs", () =>
+                    if (localPlayer.health > 1)
+                    {
+                        localPlayer.inSpecialInteractAnimation = true;
+                        localPlayer.DamagePlayer(1, false);
+                        localPlayer.inSpecialInteractAnimation = false;
+                    }
+                }, "Chickenpox", "itch", time));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() => localPlayer.healthRegenerateTimer = 1, "Chickenpox", "healthRegenerateTimer", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+            },
+            // Cancer of the Lungs
+            () =>
             {
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
                 {
@@ -75,22 +79,23 @@ namespace ItemSCPs.Items.Snowy
                     localPlayer.playerBodyAnimator.SetTrigger("SA_Typing");
                     StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.2f);
-                }, "coughHeavy"));
+                    if (localPlayer.health > 1)
+                    {
+                        localPlayer.inSpecialInteractAnimation = true;
+                        localPlayer.DamagePlayer(1, false);
+                        localPlayer.inSpecialInteractAnimation = false;
+                    }
+                }, "Cancer of the Lungs", "coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
-                }, "cough"));
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(120, 200), () =>
-                {
-                    localPlayer.inSpecialInteractAnimation = true;
-                    localPlayer.DamagePlayer(1, false);
-                    localPlayer.inSpecialInteractAnimation = false;
-                }));
-            }),
-            new Disease("Appendicitis", () =>
+                }, "Cancer of the Lungs", "cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+            },
+            // Appendicitis
+            () =>
             {
                 // Severe pain causing random interruptions
                 // Reduced movement speed
@@ -100,16 +105,17 @@ namespace ItemSCPs.Items.Snowy
                     localPlayer.playQuickSpecialAnimation(2f);
                     localPlayer.playerBodyAnimator.SetTrigger("Overheat");
                     StatusEffectController.Instance.PlayLocalRandomClip("pain", 0, 0.5f, 1, 5, 1500);
-                }, "pain", time));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "sprintMultiplier"));
-            }),
-            new Disease("Asthma", () =>
+                }, "Appendicitis", "pain", time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "Appendicitis", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+            },
+            // Asthma
+            () =>
             {
-                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) =>
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() =>
                 {
                     float cap = Mathf.Lerp(1f, 2.5f, localPlayer.sprintMeter);
                     localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0, cap);
-                }, "sprintMultiplier"));
+                }, "Asthma", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft && incoming.source == existing.source));
                 StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
@@ -117,29 +123,30 @@ namespace ItemSCPs.Items.Snowy
                     localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
-                }, false, 5f, id: "asthmaCough"));
-            }),
-            new Disease("Cardiac Arrest", () =>
+                }, false, "Asthma", 5f, id: "asthmaCough"));
+            },
+            // Cardiac Arrest
+            () =>
             {
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 60), () =>
                 {
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
                     StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
-                }));
+                }, "Cardiac Arrest", "heartbeatSlow", onConflict: (existing, incoming) => false));
                 StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                 {
                     StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                     {
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
-                    }, "cardiac arrest", 6f));
-                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "cardiac arrest"));
+                    }, "Cardiac Arrest", "Kill Player in 6 seconds", 6f));
+                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "Cardiac Arrest", "vignette increase"));
                     StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0, audibleNoiseID: -1);
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
                     localPlayer.sprintMeter = 0;
-                }, "cardiac arrest", 500));
-            })
+                }, "Cardiac Arrest", "Incoming Heart Attack", 500, onConflict: (existing, incoming) => false));
+            }
         };
 
         // Configs
@@ -170,12 +177,12 @@ namespace ItemSCPs.Items.Snowy
         public override void EquipItem()
         {
             base.EquipItem();
-            if (TESTING.localPlayerImmune || SCP500Compatibility.IsLocalPlayerAffectedBySCP500) { return; }
+            if (TESTING.localPlayerImmune || SCP500Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected) { return; }
             if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
             {
                 int index = UnityEngine.Random.Range(0, diseases.Length);
                 OpenBookServerRpc(index);
-                diseases[index].action.Invoke();
+                diseases[index].Invoke();
             }
         }
 
@@ -209,12 +216,5 @@ namespace ItemSCPs.Items.Snowy
             renderer.materials[2] = diseasePageMaterials[pageIndex];
             animator.SetBool("open", true);
         }
-    }
-
-    [Serializable]
-    public class Disease(string name, Action action)
-    {
-        public string name = name;
-        public Action action = action;
     }
 }
