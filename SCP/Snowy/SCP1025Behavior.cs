@@ -1,18 +1,8 @@
-﻿using BepInEx.Logging;
-using Dawn.Utils;
-using GameNetcodeStuff;
+﻿using Dawn.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using TMPro;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem.Utilities;
 using UnityEngine.Rendering.HighDefinition;
-using UnityEngine.UIElements;
-using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
@@ -33,29 +23,15 @@ namespace ItemSCPs.Items.Snowy
         //localPlayer.sprintMeter 0-1
         //localPlayer.sprintTime 11, idk what this does
         //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
+
+#pragma warning disable CS8618
+        public Animator animator;
+        public Material[] diseasePageMaterials;
+        public SkinnedMeshRenderer renderer;
+#pragma warning restore CS8618
+
         readonly Disease[] diseases = new Disease[]
         {
-            new Disease("Cardiac Arrest", () =>
-            {
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 60), () =>
-                {
-                    StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
-                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
-                }));
-                StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
-                {
-                    StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
-                    {
-                        if (!localPlayer.isPlayerDead)
-                            localPlayer.KillPlayer(Vector3.zero);
-                    }, "cardiac arrest", 6f));
-                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "cardiac arrest"));
-                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0, audibleNoiseID: -1);
-                    localPlayer.MakeCriticallyInjured(true);
-                    localPlayer.sprintMeter = 0;
-                }, "cardiac arrest", 500));
-            }),
-
             new Disease("Common Cold", () =>
             {
                 // Occasional sneezing that interrupts actions
@@ -71,7 +47,6 @@ namespace ItemSCPs.Items.Snowy
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "sprintMultiplier"));
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "sprintMeter"));
             }),
-
             new Disease("Chickenpox", () =>
             {
                 // Reduced stamina
@@ -92,7 +67,6 @@ namespace ItemSCPs.Items.Snowy
                 }, duration: time));
                 StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) => localPlayer.healthRegenerateTimer = 1, "healthDegeneration", time));
             }),
-
             new Disease("Cancer of the Lungs", () =>
             {
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
@@ -116,7 +90,6 @@ namespace ItemSCPs.Items.Snowy
                     localPlayer.inSpecialInteractAnimation = false;
                 }));
             }),
-
             new Disease("Appendicitis", () =>
             {
                 // Severe pain causing random interruptions
@@ -130,12 +103,47 @@ namespace ItemSCPs.Items.Snowy
                 }, "pain", time));
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "sprintMultiplier"));
             }),
-
             new Disease("Asthma", () =>
             {
-                // TODO
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect((x) =>
+                {
+                    float cap = Mathf.Lerp(1f, 2.5f, localPlayer.sprintMeter);
+                    localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0, cap);
+                }, "sprintMultiplier"));
+                StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
+                {
+                    if (UnityEngine.Random.Range(0, 2) == 0) { return; }
+                    localPlayer.playQuickSpecialAnimation(1f);
+                    localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
+                    StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
+                    StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
+                }, false, 5f, id: "asthmaCough"));
+            }),
+            new Disease("Cardiac Arrest", () =>
+            {
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 60), () =>
+                {
+                    StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
+                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
+                }));
+                StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
+                {
+                    StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
+                    {
+                        if (!localPlayer.isPlayerDead)
+                            localPlayer.KillPlayer(Vector3.zero);
+                    }, "cardiac arrest", 6f));
+                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "cardiac arrest"));
+                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0, audibleNoiseID: -1);
+                    localPlayer.MakeCriticallyInjured(true);
+                    localPlayer.bleedingHeavily = false;
+                    localPlayer.sprintMeter = 0;
+                }, "cardiac arrest", 500));
             })
         };
+
+        // Configs
+        const float openBookChance = 0.1f;
 
         public static void SpawnPuke(Material pukeMaterial, Vector3 position, Vector3 normal)
         {
@@ -162,6 +170,44 @@ namespace ItemSCPs.Items.Snowy
         public override void EquipItem()
         {
             base.EquipItem();
+            if (TESTING.localPlayerImmune || SCP500Compatibility.IsLocalPlayerAffectedBySCP500) { return; }
+            if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
+            {
+                int index = UnityEngine.Random.Range(0, diseases.Length);
+                OpenBookServerRpc(index);
+                diseases[index].action.Invoke();
+            }
+        }
+
+        public override void DiscardItem()
+        {
+            base.DiscardItem();
+            OpenBookServerRpc(-1);
+        }
+
+        public override void PocketItem()
+        {
+            base.PocketItem();
+            OpenBookServerRpc(-1);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void OpenBookServerRpc(int pageIndex)
+        {
+            if (!IsServer) { return; }
+            OpenBookClientRpc(pageIndex);
+        }
+
+        [ClientRpc]
+        public void OpenBookClientRpc(int pageIndex)
+        {
+            if (pageIndex < 0)
+            {
+                animator.SetBool("open", false);
+                return;
+            }
+            renderer.materials[2] = diseasePageMaterials[pageIndex];
+            animator.SetBool("open", true);
         }
     }
 

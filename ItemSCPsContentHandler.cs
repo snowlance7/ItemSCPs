@@ -93,7 +93,7 @@ namespace ItemSCPs
 
             // Snowy
             RegisterContent("scp012", out SCP012);
-            //RegisterContent("scp1025", out SCP1025);
+            RegisterContent("scp1025", out SCP1025);
             //RegisterContent("scp1079", out SCP1079);
             //RegisterContent("scp268", out SCP268);
             //RegisterContent("scp3482", out SCP3482);
