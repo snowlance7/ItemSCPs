@@ -17,6 +17,7 @@ using System;
 using LethalLib.Modules;
 using Unity.Services.Authentication.Generated;
 using HarmonyLib;
+using ItemSCPs.SCP.Snowy;
 
 namespace ItemSCPs.SCP.Rat
 {
@@ -113,7 +114,7 @@ namespace ItemSCPs.SCP.Rat
 
         void Update()
         {
-            if (SCP500Compatibility.IsLocalPlayerAffectedBySCP500)
+            if (SCP500Behavior.localPlayerAffected)
             {
                 logger.LogDebug("WUT");
                 //scp500Taken = true;

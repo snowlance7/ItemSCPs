@@ -31,9 +31,9 @@ namespace ItemSCPs.Items.Snowy
         public SkinnedMeshRenderer renderer;
 #pragma warning restore CS8618
 
-        readonly Action[] diseases = new Action[]
+        public static readonly Action[] diseases = new Action[] // TODO: Test and rework these
         {
-            // Common Cold
+            // 0 Common Cold
             () =>
             {
                 // Occasional sneezing that interrupts actions
@@ -49,7 +49,7 @@ namespace ItemSCPs.Items.Snowy
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "Common Cold", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "Common Cold", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
             },
-            // Chickenpox
+            // 1 Chickenpox
             () =>
             {
                 // Reduced stamina
@@ -60,7 +60,7 @@ namespace ItemSCPs.Items.Snowy
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
                 {
                     localPlayer.playQuickSpecialAnimation(1f);
-                    localPlayer.playerBodyAnimator.SetTrigger("Overheat");
+                    localPlayer.playerBodyAnimator.SetTrigger("Overheat"); // TODO: Animation not playing
                     if (localPlayer.health > 1)
                     {
                         localPlayer.inSpecialInteractAnimation = true;
@@ -70,7 +70,7 @@ namespace ItemSCPs.Items.Snowy
                 }, "Chickenpox", "itch", time));
                 StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() => localPlayer.healthRegenerateTimer = 1, "Chickenpox", "healthRegenerateTimer", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
             },
-            // Cancer of the Lungs
+            // 2 Cancer of the Lungs
             () =>
             {
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
@@ -88,13 +88,11 @@ namespace ItemSCPs.Items.Snowy
                 }, "Cancer of the Lungs", "coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
-                    localPlayer.playQuickSpecialAnimation(1f);
-                    localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
                 }, "Cancer of the Lungs", "cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
             },
-            // Appendicitis
+            // 3 Appendicitis
             () =>
             {
                 // Severe pain causing random interruptions
@@ -103,12 +101,12 @@ namespace ItemSCPs.Items.Snowy
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 200), () =>
                 {
                     localPlayer.playQuickSpecialAnimation(2f);
-                    localPlayer.playerBodyAnimator.SetTrigger("Overheat");
+                    localPlayer.playerBodyAnimator.SetTrigger("Overheat"); // TODO: Animation not playing
                     StatusEffectController.Instance.PlayLocalRandomClip("pain", 0, 0.5f, 1, 5, 1500);
                 }, "Appendicitis", "pain", time));
                 StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "Appendicitis", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
             },
-            // Asthma
+            // 4 Asthma
             () =>
             {
                 StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() =>
@@ -119,16 +117,14 @@ namespace ItemSCPs.Items.Snowy
                 StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
-                    localPlayer.playQuickSpecialAnimation(1f);
-                    localPlayer.playerBodyAnimator.SetTrigger("ShortFallLanding");
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
                 }, false, "Asthma", 5f, id: "asthmaCough"));
             },
-            // Cardiac Arrest
+            // 5 Cardiac Arrest
             () =>
             {
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 60), () =>
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 20), () =>
                 {
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
                     StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
@@ -145,7 +141,7 @@ namespace ItemSCPs.Items.Snowy
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
                     localPlayer.sprintMeter = 0;
-                }, "Cardiac Arrest", "Incoming Heart Attack", 500, onConflict: (existing, incoming) => false));
+                }, "Cardiac Arrest", "Incoming Heart Attack", 60, onConflict: (existing, incoming) => false));
             }
         };
 
@@ -174,7 +170,7 @@ namespace ItemSCPs.Items.Snowy
             Destroy(decalObj, 60f);
         }
 
-        public override void EquipItem()
+        public override void EquipItem() // TODO: Pages not showing
         {
             base.EquipItem();
             if (TESTING.localPlayerImmune || SCP500Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected) { return; }

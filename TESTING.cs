@@ -1,4 +1,5 @@
 using HarmonyLib;
+using ItemSCPs.Items.Snowy;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -45,6 +46,9 @@ namespace ItemSCPs
 
             switch (args[0])
             {
+                case "/disease":
+                    SCP1025Behavior.diseases[int.Parse(args[1])].Invoke();
+                    break;
                 case "/overlay":
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(float.Parse(args[1]));
                     HUDManager.Instance.DisplayTip("ItemSCPs", "VignetteOverlay: " + args[1]);

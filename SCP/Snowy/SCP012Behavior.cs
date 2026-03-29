@@ -124,7 +124,7 @@ namespace ItemSCPs.SCPs.Snowy
             }
 
             localPlayer.activatingItem = true;
-            StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1f);
+            StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1f); // TODO: Set this up better
 
             if (localPlayerPlayingFinalSpeech)
             {
