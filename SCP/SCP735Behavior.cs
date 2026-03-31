@@ -9,7 +9,7 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP735Behavior : PhysicsProp // TODO: Make this work with SCP-714
     {

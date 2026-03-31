@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using static ItemSCPs.Plugin;
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP1079Behavior : PhysicsProp
     {

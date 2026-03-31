@@ -15,7 +15,7 @@ using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
 
 
-namespace ItemSCPs.Items.Rat
+namespace ItemSCPs.SCP
 {
     internal class SCP3270Behavior : PhysicsProp
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ItemSCPs.SCP.Snowy
+namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : PhysicsProp
+    internal class SCP500Behavior : PhysicsProp
     {
         public static bool localPlayerAffected;
     }

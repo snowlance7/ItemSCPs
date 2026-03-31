@@ -1,12 +1,11 @@
 ﻿using Dawn.Utils;
-using ItemSCPs.SCP.Snowy;
 using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using static ItemSCPs.Plugin;
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP1025Behavior : PhysicsProp
     {

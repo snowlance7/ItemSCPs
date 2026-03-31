@@ -7,14 +7,14 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
-using static ItemSCPs.Items.Snowy.SCP9831Behavior;
+using static ItemSCPs.SCP.SCP9831Behavior;
 using static ItemSCPs.Plugin;
 
 // SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
 // TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand
 // happy birthday to you, happy birthday to you, happy birthday dear player, bad luck go with you! A ding ding ding its your birthday!
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     public class SCP983Behavior : PhysicsProp
     {

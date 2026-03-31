@@ -17,9 +17,8 @@ using System;
 using LethalLib.Modules;
 using Unity.Services.Authentication.Generated;
 using HarmonyLib;
-using ItemSCPs.SCP.Snowy;
 
-namespace ItemSCPs.SCP.Rat
+namespace ItemSCPs.SCP
 {
     internal class SCP207Behavior : PhysicsProp
     {

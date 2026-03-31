@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP420JBehavior
     {

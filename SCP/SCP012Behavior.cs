@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
-namespace ItemSCPs.SCPs.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP012Behavior : PhysicsProp // TODO: Make this work with SCP-714 // Set up light functionality
     {
@@ -17,7 +17,6 @@ namespace ItemSCPs.SCPs.Snowy
         public AudioClip[] speechSFX;
         public AudioClip finalSpeechSFX;
         public AudioClip[] stabSFX;
-        public AnimationCurve pullCurve;
 #pragma warning restore CS8618
 
         int localPlayerStabAmount;
@@ -97,10 +96,7 @@ namespace ItemSCPs.SCPs.Snowy
 
             localPlayerAffected = CanAffectPlayer();
 
-            //TestingHUDOverlay.Instance?.SetToggle1("Affected", localPlayerAffected);
-
             audioSource.maxDistance = maxRange;
-            //audioSource.volume = localPlayerAffected ? 1f : 0f;
 
             if (!localPlayerAffected)
             {
@@ -124,7 +120,8 @@ namespace ItemSCPs.SCPs.Snowy
             }
 
             localPlayer.activatingItem = true;
-            StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1f); // TODO: Set this up better
+            if (localPlayer.health > 0)
+                StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1 - (100 / localPlayer.health));
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -158,7 +155,6 @@ namespace ItemSCPs.SCPs.Snowy
         {
             base.EquipItem();
             timeSinceLastSpeechStart = 0f;
-            //nextSpeechTime = speechInterval.GetRandomInRange(Utils.randomLocal);
             nextSpeechTime = 3f;
             localPlayer.activatingItem = CanAffectPlayer();
         }
@@ -179,7 +175,6 @@ namespace ItemSCPs.SCPs.Snowy
             localPlayer.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Stabbing);
             localPlayer.inSpecialInteractAnimation = false;
             HUDManager.Instance.ShakeCamera(ScreenShakeType.Big);
-            StatusEffectController.Instance.vignetteOverlay.SetIntensity(localPlayer.health / 100f); // TODO: This needs to be inversed
 
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
@@ -263,9 +258,9 @@ namespace ItemSCPs.SCPs.Snowy
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
-            //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
+            if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
             if (distance > maxRange) { return false; }
-            //if (!isLit) { return false; }
+            if (!isLit) { return false; } // TODO: Test this
             return true;
         }
 
@@ -285,11 +280,31 @@ namespace ItemSCPs.SCPs.Snowy
                 if (Physics.Raycast(l.transform.position, pos - l.transform.position, dist))
                     continue;
 
-                float atten = 1f - (dist / l.range);
+                float atten = 1f - dist / l.range;
                 total += l.intensity * atten;
             }
 
+            TestingHUDOverlay.Instance?.SetLabel1("Light level SCP012: " + total); // TODO: Test
             return total;
+        }
+
+        float GetLightLevelAtPosition(Vector3 pos)
+        {
+            float brightness = 0f;
+
+            foreach (Light light in lights)
+            {
+                float dist = Vector3.Distance(light.transform.position, pos);
+
+                if (dist < light.range)
+                {
+                    float contribution = light.intensity * (1f - dist / light.range);
+                    brightness += contribution;
+                }
+            }
+
+            TestingHUDOverlay.Instance?.SetLabel1("Light level SCP012: " + brightness); // TODO: Test
+            return brightness;
         }
 
         void PlayFinalSpeech()
@@ -352,26 +367,6 @@ namespace ItemSCPs.SCPs.Snowy
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
             playerVoice.volume = 1f;
             playerVoice.PlayOneShot(finalSpeechSFX);
-        }
-    }
-
-    [HarmonyPatch]
-    internal class SCP012Patches
-    {
-        [HarmonyPostfix, HarmonyPatch(typeof(RoundManager), nameof(RoundManager.FinishGeneratingLevel))]
-        internal static void FinishGeneratingLevelPostfix()
-        {
-            try
-            {
-                if (SCP012Behavior.configEnabled)
-                {
-                    SCP012Behavior.GetLights();
-                }
-            }
-            catch
-            {
-                return;
-            }
         }
     }
 }

@@ -12,7 +12,7 @@ using UnityEngine.UIElements;
 using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
 // TODO: Make this item increase time in day x2?
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714
     {

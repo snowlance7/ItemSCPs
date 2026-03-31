@@ -1,5 +1,5 @@
 using HarmonyLib;
-using ItemSCPs.Items.Snowy;
+using ItemSCPs.SCP;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 

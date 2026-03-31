@@ -17,7 +17,7 @@ using System.Threading;
 using System.Collections;
 using Unity.Services.Authentication.Generated;
 
-namespace ItemSCPs.Items.Rat
+namespace ItemSCPs.SCP
 {
     public class SCP201Behavior : PhysicsProp
     {
