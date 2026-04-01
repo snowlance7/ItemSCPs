@@ -10,7 +10,7 @@ using static ItemSCPs.Plugin;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCP
 {
-    internal class SCP012Behavior : PhysicsProp // TODO: Make this work with SCP-714 // Set up light functionality
+    internal class SCP012Behavior : PhysicsProp // TODO: // Set up light functionality
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;
@@ -50,13 +50,16 @@ namespace ItemSCPs.SCP
         const float lightThreshold = 0.4f;
         const int speechDamage = 5;
 
-        public override void Start()
+        public void Awake()
         {
-            base.Start();
-
             itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.19f);
             itemProperties.rotationOffset = new Vector3(170f, 90f, 0f);
             itemProperties.floorYOffset = 90;
+        }
+
+        public override void Start()
+        {
+            base.Start();
 
             GetLights();
             Utils.OnFinishGeneratingLevel.AddListener(GetLights);
@@ -255,6 +258,7 @@ namespace ItemSCPs.SCP
             {
                 return !TESTING.localPlayerImmune;
             }
+            if (SCP714Behavior.localPlayerAffected) { return false; }
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }

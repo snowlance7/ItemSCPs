@@ -4,6 +4,13 @@ namespace ItemSCPs.SCP
 {
     internal class SCP005Behavior : PhysicsProp
     {
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(0, 0, 0);
+            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);

@@ -1,22 +1,7 @@
-﻿using BepInEx.Logging;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using TMPro;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem.Utilities;
-using UnityEngine.UIElements;
-using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
-using System.Net;
-using System;
-using LethalLib.Modules;
-using Unity.Services.Authentication.Generated;
-using HarmonyLib;
 
 namespace ItemSCPs.SCP
 {

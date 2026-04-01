@@ -147,26 +147,11 @@ namespace ItemSCPs.SCP
         // Configs
         const float openBookChance = 0.1f;
 
-        public static void SpawnPuke(Material pukeMaterial, Vector3 position, Vector3 normal)
+        public void Awake()
         {
-            GameObject decalObj = new GameObject("PukeDecal");
-
-            var projector = decalObj.AddComponent<DecalProjector>();
-            projector.material = pukeMaterial;
-
-            // Position slightly above surface to avoid z-fighting
-            decalObj.transform.position = position + normal * 0.02f;
-
-            // Rotate to match the ground
-            decalObj.transform.rotation = Quaternion.LookRotation(-normal);
-
-            // Size of the splat
-            projector.size = new Vector3(1.5f, 1.5f, 1.5f);
-
-            // Optional: random rotation for variation
-            decalObj.transform.Rotate(Vector3.forward, UnityEngine.Random.Range(0f, 360f));
-
-            Destroy(decalObj, 60f);
+            itemProperties.positionOffset = new Vector3(0.1f, 0.13f, -0.19f);
+            itemProperties.rotationOffset = new Vector3(180, 90, 0);
+            itemProperties.floorYOffset = 90;
         }
 
         public override void EquipItem() // TODO: Pages not showing
@@ -210,6 +195,28 @@ namespace ItemSCPs.SCP
             }
             renderer.materials[2] = diseasePageMaterials[pageIndex];
             animator.SetBool("open", true);
+        }
+
+        public static void SpawnPuke(Material pukeMaterial, Vector3 position, Vector3 normal)
+        {
+            GameObject decalObj = new GameObject("PukeDecal");
+
+            var projector = decalObj.AddComponent<DecalProjector>();
+            projector.material = pukeMaterial;
+
+            // Position slightly above surface to avoid z-fighting
+            decalObj.transform.position = position + normal * 0.02f;
+
+            // Rotate to match the ground
+            decalObj.transform.rotation = Quaternion.LookRotation(-normal);
+
+            // Size of the splat
+            projector.size = new Vector3(1.5f, 1.5f, 1.5f);
+
+            // Optional: random rotation for variation
+            decalObj.transform.Rotate(Vector3.forward, UnityEngine.Random.Range(0f, 360f));
+
+            Destroy(decalObj, 60f);
         }
     }
 }
