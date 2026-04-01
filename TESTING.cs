@@ -30,8 +30,9 @@ namespace ItemSCPs
             if (!Utils.isBeta) { return; }
             if (!Utils.testing) { return; }
             //StatusEffectController.Instance.TestAudio();
-            localPlayer.PlayQuickSpecialAnimation(1);
-            localPlayer.playerBodyAnimator.SetTrigger(currentAnim);
+            //localPlayer.PlayQuickSpecialAnimation(1);
+            //localPlayer.playerBodyAnimator.SetTrigger(currentAnim);
+
             logger.LogDebug("PingScanTestPerformed");
         }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ItemSCPs.SCP
 {
@@ -11,6 +12,12 @@ namespace ItemSCPs.SCP
             itemProperties.floorYOffset = 90;
         }
 
+        public override void Start()
+        {
+            base.Start();
+            Utils.OnFinishGeneratingLevel.AddListener(OnFinishGeneratingLevel);
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
@@ -20,11 +27,21 @@ namespace ItemSCPs.SCP
                 DoorLock component = hitInfo.transform.GetComponent<DoorLock>();
                 //isBigDoor door = hitInfo.transform.GetComponent<isBigDoor>();
                 //figure out how to get the door hitbox and call it
+
+                //[Debug: ItemSCPs] BigDoor(Clone)
+                //[Debug: ItemSCPs] PoweredObject <- tag
+                //[Debug: ItemSCPs] 0
+                //[Debug: ItemSCPs] Default
                 if (component != null && component.isLocked && !component.isPickingLock)
                 {
                     component.UnlockDoorSyncWithServer();
                 }
             }
+        }
+
+        private void OnFinishGeneratingLevel()
+        {
+            throw new NotImplementedException();
         }
     }
 }
