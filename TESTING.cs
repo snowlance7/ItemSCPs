@@ -1,5 +1,6 @@
 using HarmonyLib;
 using ItemSCPs.SCP;
+using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -47,6 +48,13 @@ namespace ItemSCPs
 
             switch (args[0])
             {
+                case "/doors":
+                    TerminalAccessibleObject[] doors = GameObject.FindObjectsOfType<TerminalAccessibleObject>().Where(x => x.isBigDoor).ToArray();
+                    foreach (TerminalAccessibleObject door in doors)
+                    {
+                        door.SetDoorOpenServerRpc(false);
+                    }
+                    break;
                 case "/disease":
                     SCP1025Behavior.diseases[int.Parse(args[1])].Invoke();
                     break;
