@@ -123,6 +123,8 @@ namespace ItemSCPs.SCP
             }
 
             localPlayer.activatingItem = true;
+            localPlayer.sprintMeter = 0f;
+            localPlayer.isExhausted = true;
             if (localPlayer.health > 0)
                 StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1 - (100 / localPlayer.health));
 
@@ -182,8 +184,9 @@ namespace ItemSCPs.SCP
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
 
-            localPlayer.drunkness = 0.3f; // TODO: Test this
-            localPlayer.sprintMeter = 0f; // TODO: Test this
+            // TODO: Hinder movement?
+
+            localPlayer.drunkness = 0.3f;
 
             PlaySpeechServerRpc();
         }

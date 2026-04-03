@@ -204,16 +204,12 @@ namespace ItemSCPs.SCP
             var projector = decalObj.AddComponent<DecalProjector>();
             projector.material = pukeMaterial;
 
-            // Position slightly above surface to avoid z-fighting
             decalObj.transform.position = position + normal * 0.02f;
 
-            // Rotate to match the ground
             decalObj.transform.rotation = Quaternion.LookRotation(-normal);
 
-            // Size of the splat
             projector.size = new Vector3(1.5f, 1.5f, 1.5f);
 
-            // Optional: random rotation for variation
             decalObj.transform.Rotate(Vector3.forward, UnityEngine.Random.Range(0f, 360f));
 
             Destroy(decalObj, 60f);
