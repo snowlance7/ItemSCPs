@@ -103,11 +103,11 @@ public static class Utils
                 if (!relevant)
                     continue;
 
-                if (entrance.exitPoint == null && !entrance.FindExitPoint())
+                if (entrance.exitScript == null && !entrance.FindExitPoint())
                     continue;
 
                 Vector3 from = entrance.entrancePoint.position;
-                Vector3 to = entrance.exitPoint!.position;
+                Vector3 to = entrance.exitScript!.entrancePoint.position; // TODO: Test this
 
                 // start -> entrance -> exit -> end
                 if (CanPathToPoint(startPos, from) && CanPathToPoint(to, endPos))
@@ -697,34 +697,6 @@ public static class Utils
             component.lowPassOverride = muffle ? 500f : 20000f;
             player.voiceMuffledByEnemy = muffle;
         }
-    }
-
-    public static EntranceTeleport? GetClosestExitFromPosition(Vector3 position, bool checkForPath = false)
-    {
-        EntranceTeleport? closestExit = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (var entranceTeleport in entrances)
-        {
-            if (entranceTeleport.exitPoint == null)
-            {
-                if (!entranceTeleport.FindExitPoint())
-                {
-                    continue;
-                }
-            }
-            if (entranceTeleport.exitPoint == null) { continue; }
-            if (checkForPath && !SmartCanPathToPoint(position, entranceTeleport.exitPoint.position, false)) { continue; }
-            float distance = Vector3.Distance(entranceTeleport.exitPoint.position, position);
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestExit = entranceTeleport;
-            }
-        }
-
-        return closestExit;
     }
 
     public static Vector3 GetFloorPosition(Vector3 position, float verticalOffset = 0)

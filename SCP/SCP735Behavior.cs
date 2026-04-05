@@ -63,7 +63,7 @@ namespace ItemSCPs.SCP
 
             if (timeSinceLastPhrase > phraseCooldown)
             {
-                if (previousPlayerHeldBy.NearOtherPlayers(null, nearPlayersRadius) && UnityEngine.Random.Range(0, 3) == 0)
+                if (previousPlayerHeldBy.NearOtherPlayers(nearPlayersRadius) && UnityEngine.Random.Range(0, 3) == 0)
                 {
                     SpeakPhrase("NearOtherPlayersPhrases");
                 }
