@@ -16,7 +16,8 @@ namespace ItemSCPs.SCP
         public AnimationCurve intensityOverTime;
 #pragma warning restore CS8618
 
-        public static Dictionary<float, float> contributions = new Dictionary<float, float>();
+        public static Dictionary<int, float> contributions = new Dictionary<int, float>();
+        public static int previousContributionsID = 0;
 
         float effectDuration = 1200f;
 
@@ -34,36 +35,27 @@ namespace ItemSCPs.SCP
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
 
-            float seed = UnityEngine.Random.Range(0f, 1f);
+            int id = previousContributionsID++;
+            previousContributionsID = id;
+            contributions[id] = 0f;
 
-            if (contributions.Count == 0)
+            StatusEffectController.Instance.ApplyEffect(new CurveValueEffect(value =>
             {
-                contributions.Add(seed, 0f);
-                StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() =>
-                {
-                    if (contributions.Count == 0)
-                    {
-                        return true;
-                    }
-
-                    float contribution = 0f;
-                    foreach (var x in contributions)
-                    {
-                        contribution += x.Value;
-                    }
-                    localPlayer.sprintTime = contribution;
-                    return false;
-                }, () =>
-                {
-                    return;
-                }, removeOnTrigger: true, "scp207_1"));
-            }
-            else
+                contributions[id] = Mathf.Lerp(0f, 5f, value);
+                RecalculateSprintTime();
+            }, intensityOverTime, effectDuration, "scp207_1", $"scp207_1_{id}", onRemove: () =>
             {
-                contributions.Add(seed, 0f);
-            }
+                contributions.Remove(id);
+                RecalculateSprintTime();
+            }));
+        }
 
-            StatusEffectController.Instance.ApplyEffect(new CurveValueEffect((value) => contributions[seed] = Mathf.Lerp(0f, 5f, value), intensityOverTime, effectDuration, "scp207_1"));
+        static void RecalculateSprintTime()
+        {
+            float total = 0f;
+            foreach (var v in contributions.Values)
+                total += v;
+            localPlayer.sprintTime = total;
         }
     }
 }
