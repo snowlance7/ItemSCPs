@@ -28,11 +28,7 @@ namespace ItemSCPs
         public class SCP018Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP018Assets>(mod, filePath) { }
         public SCP018Assets? SCP018;
 
-        public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath)
-        {
-            [LoadFromBundle("pukeSplatter.mat")]
-            public Material PukeSplatterDecal { get; private set; } = null!;
-        }
+        public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath) { }
         public SCP1025Assets? SCP1025;
 
         public class SCP1079Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1079Assets>(mod, filePath)
@@ -83,10 +79,10 @@ namespace ItemSCPs
             RegisterContent("scp005", out SCP005);
             RegisterContent("scp012", out SCP012);
             //RegisterContent("scp018", out SCP018);
-            //RegisterContent("scp1025", out SCP1025);
-            //RegisterContent("scp1079", out SCP1079);
-            //RegisterContent("scp207", out SCP207);
-            //RegisterContent("scp268", out SCP268);
+            RegisterContent("scp1025", out SCP1025);
+            RegisterContent("scp1079", out SCP1079);
+            RegisterContent("scp207", out SCP207);
+            RegisterContent("scp268", out SCP268);
             //RegisterContent("scp3270", out SCP3270);
             //RegisterContent("scp3482", out SCP3482);
             //RegisterContent("scp420J", out SCP420J);

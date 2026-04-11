@@ -7,14 +7,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp
-    {
-
-    }
-
     internal class SCP207_1Behavior : PhysicsProp
     {
 #pragma warning disable CS8618
+        public GameObject liquidObject;
+        public GameObject capObject;
         public AudioClip drinkSFX;
         public AnimationCurve intensityOverTime;
 #pragma warning restore CS8618
@@ -23,7 +20,16 @@ namespace ItemSCPs.SCP
 
         float effectDuration = 1200f;
 
-        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: SIMPLIFY THIS WAAAAAA BRAIN NO WORK FUCK THIS DISABILITY
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(0, 0, 0);
+            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.floorYOffset = 90;
+
+            itemProperties.toolTips = ["Drink [LMB]"];
+        }
+
+        public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }

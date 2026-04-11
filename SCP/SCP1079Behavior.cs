@@ -13,7 +13,7 @@ namespace ItemSCPs.SCP
     internal class SCP1079Behavior : PhysicsProp
     {
 #pragma warning disable CS8618
-        public AudioClip[] ChewingSounds;
+        public AudioClip[] chewingSounds;
 #pragma warning restore CS8618
 
         public static int candiesEatenByLocalPlayer;
@@ -27,6 +27,10 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(0.05f, 0.11f, -0.05f);
             itemProperties.rotationOffset = new Vector3(180f, 90f, -15f);
             itemProperties.floorYOffset = 90;
+
+            itemProperties.canBeGrabbedBeforeGameStart = true;
+            itemProperties.canBeInspected = true;
+            itemProperties.toolTips = ["Eat Candy [LMB]"];
         }
 
         public override void Update()
@@ -44,7 +48,7 @@ namespace ItemSCPs.SCP
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
 
-            RoundManager.PlayRandomClip(playerHeldBy.statusEffectAudio, ChewingSounds);
+            RoundManager.PlayRandomClip(playerHeldBy.statusEffectAudio, chewingSounds);
             candiesEatenByLocalPlayer++;
             EatCandyServerRpc(playerHeldBy.actualClientId, candiesEatenByLocalPlayer);
         }

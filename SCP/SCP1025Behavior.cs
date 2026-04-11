@@ -152,6 +152,9 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(0.1f, 0.13f, -0.19f);
             itemProperties.rotationOffset = new Vector3(180, 90, 0);
             itemProperties.floorYOffset = 90;
+
+            itemProperties.canBeInspected = true;
+            itemProperties.canBeGrabbedBeforeGameStart = true;
         }
 
         public override void EquipItem() // TODO: Pages not showing
@@ -195,24 +198,6 @@ namespace ItemSCPs.SCP
             }
             renderer.materials[2] = diseasePageMaterials[pageIndex];
             animator.SetBool("open", true);
-        }
-
-        public static void SpawnPuke(Material pukeMaterial, Vector3 position, Vector3 normal)
-        {
-            GameObject decalObj = new GameObject("PukeDecal");
-
-            var projector = decalObj.AddComponent<DecalProjector>();
-            projector.material = pukeMaterial;
-
-            decalObj.transform.position = position + normal * 0.02f;
-
-            decalObj.transform.rotation = Quaternion.LookRotation(-normal);
-
-            projector.size = new Vector3(1.5f, 1.5f, 1.5f);
-
-            decalObj.transform.Rotate(Vector3.forward, UnityEngine.Random.Range(0f, 360f));
-
-            Destroy(decalObj, 60f);
         }
     }
 }

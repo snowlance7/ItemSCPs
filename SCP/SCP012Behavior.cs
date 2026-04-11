@@ -24,7 +24,7 @@ namespace ItemSCPs.SCP
         bool localPlayerPlayingFinalSpeech;
         float timeSinceStartFinalSpeech;
 
-        bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold;
+        bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold; // TODO: Test and make sure this works
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
         AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
@@ -55,6 +55,10 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.19f);
             itemProperties.rotationOffset = new Vector3(170f, 90f, 0f);
             itemProperties.floorYOffset = 90;
+
+            itemProperties.canBeGrabbedBeforeGameStart = true;
+            itemProperties.canBeInspected = true;
+            //itemProperties.twoHanded = true;
         }
 
         public override void Start()

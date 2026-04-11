@@ -12,6 +12,8 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(0, 0.1f, 0);
             itemProperties.rotationOffset = new Vector3(-90, 0, 0);
             itemProperties.floorYOffset = 90;
+
+            itemProperties.toolTips = ["Use Key [LMB]"];
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -33,7 +35,7 @@ namespace ItemSCPs.SCP
             {
                 if (hit.collider.CompareTag("PoweredObject"))
                 {
-                    hit.collider.gameObject.GetComponent<TerminalAccessibleObject>().SetDoorOpenServerRpc(true); // TODO: Test this
+                    hit.collider.gameObject.GetComponent<TerminalAccessibleObject>().SetDoorOpenServerRpc(true);
                 }
             }
         }

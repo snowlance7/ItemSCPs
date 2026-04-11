@@ -1,5 +1,4 @@
-﻿/*
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System.Collections;
@@ -7,22 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
+using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    internal class SCP268Behavior : PhysicsProp
+    public class SCP268Behavior : WearableObject
     {
-        public AudioSource ItemSFX;
+#pragma warning disable CS8618
+        public AudioSource audioSource;
+        public AudioClip activateSFX;
+        public AudioClip deactivateSFX;
+#pragma warning restore CS8618
 
-        public AudioClip ActivateSFX;
-        public AudioClip DeactivateSFX;
-        public AudioClip UseSFX;
+        bool useAltInvisibility = false;
 
-        public override void Start()
+        public void Awake()
         {
-            base.Start();
-            logger.LogDebug("Starting 268 behavior.");
+            itemProperties.positionOffset = new Vector3(0, 0, -0.1f);
+            itemProperties.rotationOffset = new Vector3(90, 0, 90);
+            itemProperties.floorYOffset = 90;
+
+            itemProperties.toolTips = ["Wear [LMB]"];
+            itemProperties.canBeGrabbedBeforeGameStart = true;
         }
 
         public override void Update()
@@ -45,42 +51,28 @@ namespace ItemSCPs.Items.Snowy
             }
         }
 
-        public override void ItemActivate(bool used, bool buttonDown = true)
+        protected override void OnWear(PlayerControllerB playerWearing)
         {
-            base.ItemActivate(used, buttonDown);
-            if (buttonDown)
-            {
-                base.Wear();
-            }
+            base.OnWear(playerWearing);
+            if (localPlayer == playerWornBy)
+                audioSource.PlayOneShot(activateSFX);
+            if (useAltInvisibility && playerWornBy != null)
+                Utils.MakePlayerInvisible(playerWornBy, true);
         }
 
-        public override void Wear()
+        protected override void OnUnWear()
         {
-            base.Wear();
-            StartCoroutine(PlayWearSFXCoroutine());
-        }
-
-        public override void UnWear(bool discard = false)
-        {
-            ItemSFX.PlayOneShot(DeactivateSFX);
-            base.UnWear();
-        }
-
-        public IEnumerator PlayWearSFXCoroutine()
-        {
-            ItemSFX.PlayOneShot(UseSFX);
-
-            yield return new WaitForSeconds(3f);
-
-            ItemSFX.PlayOneShot(ActivateSFX);
+            if (localPlayer == playerWornBy)
+                audioSource.PlayOneShot(deactivateSFX);
+            if (useAltInvisibility && playerWornBy != null)
+                Utils.MakePlayerInvisible(playerWornBy, false);
+            base.OnUnWear();
         }
     }
 
     [HarmonyPatch]
     internal class SCP268Patches
     {
-        private static ManualLogSource logger = LoggerInstance;
-
         // Player invisibility
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.GetAllPlayersInLineOfSight))]
@@ -146,4 +138,3 @@ namespace ItemSCPs.Items.Snowy
         }
     }
 }
-*/

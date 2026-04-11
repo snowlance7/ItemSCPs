@@ -14,7 +14,7 @@ using UnityEngine.InputSystem.Utilities;
 
 public static class Utils
 {
-    public static bool isBeta = true;
+    public static bool isBeta = true; // TODO
     public static bool testing => _testing && isBeta;
     private static bool _testing = false;
 
