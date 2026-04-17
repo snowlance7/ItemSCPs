@@ -8,6 +8,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
+using static ItemSCPs.StatusEffectController;
 
 namespace ItemSCPs
 {
@@ -23,6 +24,13 @@ namespace ItemSCPs
 #pragma warning restore CS8618
 
         readonly List<StatusEffect> effects = new();
+
+        public enum ConflictResult
+        {
+            Allow,
+            Replace,
+            Deny
+        }
 
         public static void Init(PlayerControllerB player)
         {
@@ -60,12 +68,19 @@ namespace ItemSCPs
 
             if (existing != null)
             {
-                if (newEffect.onConflict(existing, newEffect))
+                switch (newEffect.onConflict(existing, newEffect))
                 {
-                    existing.OnRemove();
-                    effects.Remove(existing);
+                    case ConflictResult.Allow:
+                        break;
+                    case ConflictResult.Replace:
+                        existing.OnRemove();
+                        effects.Remove(existing);
+                        break;
+                    case ConflictResult.Deny:
+                        return;
+                    default:
+                        return;
                 }
-                else return;
             }
 
             newEffect.OnApply();
@@ -138,7 +153,7 @@ namespace ItemSCPs
         }
     }
 
-    public abstract class StatusEffect(string source, string id, float duration, bool removeOnDeath, bool pauseInOrbit, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null)
+    public abstract class StatusEffect(string source, string id, float duration, bool removeOnDeath, bool pauseInOrbit, Func<StatusEffect, StatusEffect, ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true)
     {
         protected StatusEffectController controller => StatusEffectController.Instance;
 
@@ -148,10 +163,11 @@ namespace ItemSCPs
         public bool removeOnDeath = removeOnDeath;
         public bool pauseInOrbit = pauseInOrbit;
         public Action? onRemove = onRemove;
+        public bool curableBySCP500 = curableBySCP500;
 
         // Takes (existingEffect, newEffect) → returns bool
         // Default: no conflict (always false)
-        public Func<StatusEffect, StatusEffect, bool> onConflict = onConflict ?? ((existing, incoming) => false);
+        public Func<StatusEffect, StatusEffect, ConflictResult> onConflict = onConflict ?? ((existing, incoming) => ConflictResult.Deny);
 
         protected float elapsedTime;
 
@@ -273,7 +289,7 @@ namespace ItemSCPs
     SA_ChargeItem (Trigger) - hand out
     SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation*/
 
-    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class RandomIntervalActionEffect(BoundedRange randomInterval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         BoundedRange randomInterval = randomInterval;
         Action action = action;
@@ -300,7 +316,7 @@ namespace ItemSCPs
         }
     }
 
-    public class IntervalActionEffect(float interval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class IntervalActionEffect(float interval, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         float interval = interval;
         Action action = action;
@@ -319,7 +335,7 @@ namespace ItemSCPs
         }
     }
 
-    public class OnRemoveActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class OnRemoveActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, null, curableBySCP500)
     {
         Action action = action;
 
@@ -329,7 +345,7 @@ namespace ItemSCPs
         }
     }
 
-    public class TickActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class TickActionEffect(Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         Action action = action;
 
@@ -339,7 +355,7 @@ namespace ItemSCPs
         }
     }
 
-    public class ChanceTickActionEffect(float chancePerSecond, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class ChanceTickActionEffect(float chancePerSecond, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         float chance = chancePerSecond;
         Action action = action;
@@ -351,7 +367,7 @@ namespace ItemSCPs
         }
     }
 
-    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, string source, float cooldown = 0f, int maxTriggerCount = 0, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class ConditionalActionEffect(Func<bool> condition, Action action, bool removeOnTrigger, string source, float cooldown = 0f, int maxTriggerCount = 0, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         Func<bool> condition = condition;
         Action action = action;
@@ -378,7 +394,7 @@ namespace ItemSCPs
         }
     }
 
-    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, float duration, string source, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class LerpValueEffect(Action<float> setter, float startValue, float endValue, float duration, string source, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         Action<float> setter = setter;
 
@@ -407,7 +423,7 @@ namespace ItemSCPs
         }
     }
 
-    public class RandomIntervalPhaseActionEffect(BoundedRange randomInterval, BoundedRange randomPhaseDuration, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class RandomIntervalPhaseActionEffect(BoundedRange randomInterval, BoundedRange randomPhaseDuration, Action action, string source, string id = "", float duration = 0, bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         BoundedRange randomInterval = randomInterval;
         BoundedRange randomPhaseDuration = randomPhaseDuration;
@@ -443,7 +459,7 @@ namespace ItemSCPs
         }
     }
 
-    public class CurveValueEffect(Action<float> setter, AnimationCurve curve, float duration, string source, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, bool>? onConflict = null, Action? onRemove = null) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove)
+    public class CurveValueEffect(Action<float> setter, AnimationCurve curve, float duration, string source, string id = "", bool removeOnDeath = true, bool pauseInOrbit = true, Func<StatusEffect, StatusEffect, StatusEffectController.ConflictResult>? onConflict = null, Action? onRemove = null, bool curableBySCP500 = true) : StatusEffect(source, id, duration, removeOnDeath, pauseInOrbit, onConflict, onRemove, curableBySCP500)
     {
         Action<float> setter = setter;
         AnimationCurve curve = curve;

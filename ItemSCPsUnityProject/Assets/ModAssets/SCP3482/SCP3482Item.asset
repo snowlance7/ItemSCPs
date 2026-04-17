@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c30496d6ae6d6f907456e10a94e01ec6, type: 3}
+  m_Name: SCP3482Item
+  m_EditorClassIdentifier: 
+  itemId: 0
+  itemName: SCP201
+  spawnPositionTypes: []
+  twoHanded: 1
+  twoHandedAnimation: 1
+  disableHandsOnWall: 0
+  canBeGrabbedBeforeGameStart: 0
+  weight: 1.9
+  itemIsTrigger: 0
+  holdButtonUse: 0
+  itemSpawnsOnGround: 1
+  isConductiveMetal: 1
+  isScrap: 1
+  creditsWorth: 0
+  lockedInDemo: 0
+  highestSalePercentage: 0
+  maxValue: 0
+  minValue: 0
+  spawnPrefab: {fileID: 4037109154401693404, guid: f15f18b5c37e7db4f8d23544cfd9c4d7,
+    type: 3}
+  requiresBattery: 0
+  batteryUsage: 0
+  automaticallySetUsingPower: 0
+  itemIcon: {fileID: 21300000, guid: 3b935013d802984458c9bbef2a054fc6, type: 3}
+  grabAnim: HoldLung
+  useAnim: 
+  pocketAnim: 
+  throwAnim: 
+  grabAnimationTime: 0
+  grabSFX: {fileID: 8300000, guid: 5379493295663ab4e97594fb6bd87f12, type: 3}
+  dropSFX: {fileID: 8300000, guid: af39b53455ec3254f9fbe7b5822dfd5a, type: 3}
+  pocketSFX: {fileID: 0}
+  throwSFX: {fileID: 0}
+  syncGrabFunction: 0
+  syncUseFunction: 0
+  syncDiscardFunction: 0
+  syncInteractLRFunction: 0
+  saveItemVariable: 0
+  isDefensiveWeapon: 0
+  toolTips: []
+  verticalOffset: 0
+  floorYOffset: 0
+  allowDroppingAheadOfPlayer: 0
+  restingRotation: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 90, z: 0}
+  positionOffset: {x: 0, y: -1, z: 0}
+  meshOffset: 0
+  meshVariants: []
+  materialVariants: []
+  usableInSpecialAnimations: 0
+  canBeInspected: 0

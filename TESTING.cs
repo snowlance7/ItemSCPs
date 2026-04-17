@@ -33,6 +33,7 @@ namespace ItemSCPs
             //StatusEffectController.Instance.TestAudio();
             //localPlayer.PlayQuickSpecialAnimation(1);
             //localPlayer.playerBodyAnimator.SetTrigger(currentAnim);
+            logger.LogDebug(localPlayer.targetYRot);
 
             logger.LogDebug("PingScanTestPerformed");
         }

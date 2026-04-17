@@ -18,6 +18,7 @@ namespace ItemSCPs.SCP
 
         public static Dictionary<int, float> contributions = new Dictionary<int, float>();
         public static int previousContributionsID = 0;
+        public static bool heartAttackLocalPlayer = false;
 
         float effectDuration = 1200f;
 
@@ -38,24 +39,39 @@ namespace ItemSCPs.SCP
             int id = previousContributionsID++;
             previousContributionsID = id;
             contributions[id] = 0f;
+            float contribution = UnityEngine.Random.Range(3.5f, 6f);
 
             StatusEffectController.Instance.ApplyEffect(new CurveValueEffect(value =>
             {
-                contributions[id] = Mathf.Lerp(0f, 5f, value);
-                RecalculateSprintTime();
+                contributions[id] = Mathf.Lerp(0f, contribution, value);
+                float total = GetTotalContributions();
+                localPlayer.sprintTime = total;
+                if (total > 10 && !heartAttackLocalPlayer)
+                {
+                    heartAttackLocalPlayer = true;
+                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0);
+                    StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
+                    {
+                        if (!localPlayer.isPlayerDead)
+                            localPlayer.KillPlayer(Vector3.zero);
+                        heartAttackLocalPlayer = false;
+                    }, "scp207_1", "heart attack", 6));
+                }
             }, intensityOverTime, effectDuration, "scp207_1", $"scp207_1_{id}", onRemove: () =>
             {
                 contributions.Remove(id);
-                RecalculateSprintTime();
+                localPlayer.sprintTime = GetTotalContributions();
             }));
+
+            StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
         }
 
-        static void RecalculateSprintTime()
+        static float GetTotalContributions()
         {
             float total = 0f;
             foreach (var v in contributions.Values)
                 total += v;
-            localPlayer.sprintTime = total;
+            return total;
         }
     }
 }

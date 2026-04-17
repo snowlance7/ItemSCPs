@@ -44,9 +44,9 @@ namespace ItemSCPs.SCP
                     StatusEffectController.Instance.PlayRandomClipServerRpc("sneeze", 0, 0.5f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
-                }, "Common Cold", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "Common Cold", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "Common Cold", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                }, "scp1025", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1.7f, 2.5f, time, "scp1025", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "scp1025", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
             // 1 Chickenpox
             () =>
@@ -55,19 +55,12 @@ namespace ItemSCPs.SCP
                 // Itchy skin causing random interruptions
                 // Minor health degeneration
                 float time = UnityEngine.Random.Range(1800, 3000);
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "Chickenpox", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "scp1025", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
                 {
-                    localPlayer.playQuickSpecialAnimation(1f);
-                    localPlayer.playerBodyAnimator.SetTrigger("Overheat"); // TODO: Animation not playing
-                    if (localPlayer.health > 1)
-                    {
-                        localPlayer.inSpecialInteractAnimation = true;
                         localPlayer.DamagePlayer(1, false);
-                        localPlayer.inSpecialInteractAnimation = false;
-                    }
-                }, "Chickenpox", "itch", time));
-                StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() => localPlayer.healthRegenerateTimer = 1, "Chickenpox", "healthRegenerateTimer", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                }, "scp1025", "chickenpox itch", time));
+                StatusEffectController.Instance.ApplyEffect(new TickActionEffect(() => localPlayer.healthRegenerateTimer = 1, "scp1025", "healthRegenerateTimer", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
             // 2 Cancer of the Lungs
             () =>
@@ -84,12 +77,12 @@ namespace ItemSCPs.SCP
                         localPlayer.DamagePlayer(1, false);
                         localPlayer.inSpecialInteractAnimation = false;
                     }
-                }, "Cancer of the Lungs", "coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                }, "scp1025", "lung cancer coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
-                }, "Cancer of the Lungs", "cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                }, "scp1025", "lung cancer cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
             // 3 Appendicitis
             () =>
@@ -97,13 +90,8 @@ namespace ItemSCPs.SCP
                 // Severe pain causing random interruptions
                 // Reduced movement speed
                 float time = UnityEngine.Random.Range(600, 1200);
-                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 200), () =>
-                {
-                    localPlayer.playQuickSpecialAnimation(2f);
-                    localPlayer.playerBodyAnimator.SetTrigger("Overheat"); // TODO: Animation not playing
-                    StatusEffectController.Instance.PlayLocalRandomClip("pain", 0, 0.5f, 1, 5, 1500);
-                }, "Appendicitis", "pain", time));
-                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "Appendicitis", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft));
+                StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 200), () => localPlayer.DamagePlayer(1), "scp1025", "appendicitis pain", time));
+                StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0f, x), 1f, 2.5f, time, "scp1025", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
             // 4 Asthma
             () =>
@@ -112,13 +100,13 @@ namespace ItemSCPs.SCP
                 {
                     float cap = Mathf.Lerp(1f, 2.5f, localPlayer.sprintMeter);
                     localPlayer.sprintMultiplier = Mathf.Clamp(localPlayer.sprintMultiplier, 0, cap);
-                }, "Asthma", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft && incoming.source == existing.source));
+                }, "scp1025", "sprintMultiplier", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft && incoming.source == existing.source ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
                     StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
-                }, false, "Asthma", 5f, id: "asthmaCough"));
+                }, false, "scp1025", 5f, id: "asthmaCough"));
             },
             // 5 Cardiac Arrest
             () =>
@@ -127,20 +115,20 @@ namespace ItemSCPs.SCP
                 {
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
                     StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
-                }, "Cardiac Arrest", "heartbeatSlow", onConflict: (existing, incoming) => false));
+                }, "scp1025", "heartbeatSlow"));
                 StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                 {
                     StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                     {
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
-                    }, "Cardiac Arrest", "Kill Player in 6 seconds", 6f));
-                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "Cardiac Arrest", "vignette increase"));
+                    }, "scp1025", "heart attack", 6f));
+                    StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "scp1025", "vignette"));
                     StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0, audibleNoiseID: -1);
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
                     localPlayer.sprintMeter = 0;
-                }, "Cardiac Arrest", "Incoming Heart Attack", 60, onConflict: (existing, incoming) => false));
+                }, "scp1025", "incoming heart attack", 60));
             }
         };
 
