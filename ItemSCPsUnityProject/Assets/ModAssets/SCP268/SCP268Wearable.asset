@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1195373878, guid: 6b9726267a9678b48b09741fc58b4547, type: 3}
+  m_Script: {fileID: 1195373878, guid: 15430fced0bc5644591c9bda1289e1da, type: 3}
   m_Name: SCP268Wearable
   m_EditorClassIdentifier: 
   spawnPrefab: {fileID: 8291208632695706065, guid: cef561bd6153f1f4a9dec6fc5b43c69c,
@@ -17,9 +17,9 @@ MonoBehaviour:
   wearOnUse: 1
   restrictions: []
   slot: 0
-  restrictSlot: 1
+  restrictSlot: 0
   wornPositionOffset: {x: 0, y: 0, z: 0}
   wornRotationOffset: {x: 0, y: 0, z: 0}
   showWearable: 1
-  showWearableOnClient: 0
+  showWearableOnClient: 1
   icon: {fileID: 21300000, guid: 6965dfe535f61d242a4e7b69ef3395c8, type: 3}
