@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 476229526, guid: 8fd73e88580b09c4eabc03cb3969de0a, type: 3}
+  m_Script: {fileID: 476229526, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: StatusEffectAudioLibrary
   m_EditorClassIdentifier: 
   groups:
@@ -25,15 +25,15 @@ MonoBehaviour:
   - id: coughHeavy
     clips:
     - {fileID: 8300000, guid: b216f94bb6ff7fa4693fb68fc66514d1, type: 3}
-  - id: sneeze
-    clips:
-    - {fileID: 8300000, guid: fd00cea227a0526469e589a1d7ccae5f, type: 3}
-    - {fileID: 8300000, guid: 9caeeb8ee13eb51469ab4b86abc9d1da, type: 3}
-    - {fileID: 8300000, guid: 6f05930ac7183104c9ea3e2c54dd6a9f, type: 3}
-    - {fileID: 8300000, guid: 2627ccbf9d613e54c9e5de15e182d238, type: 3}
   - id: heartbeatFast
     clips:
     - {fileID: 8300000, guid: 25a8f32f9b5dec9489241c51a8fca238, type: 3}
   - id: heartbeatSlow
     clips:
     - {fileID: 8300000, guid: 7416e04c2e7ade04aac018d7bb66c264, type: 3}
+  - id: sneeze
+    clips:
+    - {fileID: 8300000, guid: fd00cea227a0526469e589a1d7ccae5f, type: 3}
+    - {fileID: 8300000, guid: 9caeeb8ee13eb51469ab4b86abc9d1da, type: 3}
+    - {fileID: 8300000, guid: 6f05930ac7183104c9ea3e2c54dd6a9f, type: 3}
+    - {fileID: 8300000, guid: 2627ccbf9d613e54c9e5de15e182d238, type: 3}

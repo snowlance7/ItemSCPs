@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 1997711733098359219}
   - component: {fileID: 1670190242570823144}
   - component: {fileID: 4646753590701783094}
-  - component: {fileID: 4704203422468671963}
-  - component: {fileID: 6567516270243310951}
+  - component: {fileID: 6765534497235329552}
+  - component: {fileID: 4793101668380995514}
   m_Layer: 5
   m_Name: StatusEffectController
   m_TagString: Untagged
@@ -126,7 +126,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 0
---- !u!114 &4704203422468671963
+--- !u!114 &6765534497235329552
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -135,13 +135,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 4546517236011313295}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1486665545, guid: 8fd73e88580b09c4eabc03cb3969de0a, type: 3}
+  m_Script: {fileID: 1486665545, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vignetteOverlay: {fileID: 6567516270243310951}
+  vignetteOverlay: {fileID: 4793101668380995514}
   audioLibrary: {fileID: 11400000, guid: e2e23ce368b1359438e11040bbaa0665, type: 2}
   playerAttachedTo: {fileID: 0}
---- !u!114 &6567516270243310951
+--- !u!114 &4793101668380995514
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4546517236011313295}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 395127089, guid: 8fd73e88580b09c4eabc03cb3969de0a, type: 3}
+  m_Script: {fileID: 395127089, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 2779747111521159011}

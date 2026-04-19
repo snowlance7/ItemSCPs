@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SCP268
   m_EditorClassIdentifier: 
   itemId: 0
-  itemName: SCP268
+  itemName: SCP-268
   spawnPositionTypes: []
   twoHanded: 0
   twoHandedAnimation: 0

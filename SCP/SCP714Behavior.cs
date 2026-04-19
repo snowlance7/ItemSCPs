@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GameNetcodeStuff;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 
@@ -10,12 +8,18 @@ namespace ItemSCPs.SCP
     {
         public static bool localPlayerAffected;
 
-        public override void ItemActivate(bool used, bool buttonDown = true)
+        public override void OnWear(PlayerControllerB playerWearing)
         {
-            base.ItemActivate(used, buttonDown);
-            if (!buttonDown) { return; }
+            base.OnWear(playerWearing);
+            if (localPlayer == playerWearing)
+                localPlayerAffected = true;
+        }
 
-
+        public override void OnUnWear()
+        {
+            base.OnUnWear();
+            if (localPlayer == lastPlayerWornBy)
+                localPlayerAffected = false;
         }
     }
 }

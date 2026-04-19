@@ -418,7 +418,7 @@ GameObject:
   - component: {fileID: 1595657049161419450}
   - component: {fileID: 1997711733098359219}
   - component: {fileID: 1670190242570823144}
-  - component: {fileID: 6307005165469593232}
+  - component: {fileID: 1140561315823096558}
   m_Layer: 5
   m_Name: HUDOverlay
   m_TagString: Untagged
@@ -513,7 +513,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6307005165469593232
+--- !u!114 &1140561315823096558
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -522,7 +522,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4546517236011313295}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1693742369, guid: 8fd73e88580b09c4eabc03cb3969de0a, type: 3}
+  m_Script: {fileID: 1693742369, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   toggle1Obj: {fileID: 76346685380317769}

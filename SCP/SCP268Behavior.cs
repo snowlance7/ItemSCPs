@@ -51,7 +51,7 @@ namespace ItemSCPs.Items.Snowy
             }
         }
 
-        protected override void OnWear(PlayerControllerB playerWearing)
+        public override void OnWear(PlayerControllerB playerWearing)
         {
             base.OnWear(playerWearing);
             if (localPlayer == playerWornBy)
@@ -60,7 +60,7 @@ namespace ItemSCPs.Items.Snowy
                 Utils.MakePlayerInvisible(playerWornBy, true);
         }
 
-        protected override void OnUnWear()
+        public override void OnUnWear()
         {
             if (localPlayer == playerWornBy)
                 audioSource.PlayOneShot(deactivateSFX);
