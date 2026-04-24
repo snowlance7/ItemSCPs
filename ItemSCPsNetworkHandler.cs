@@ -3,6 +3,7 @@ using HarmonyLib;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs
 {
@@ -10,7 +11,6 @@ namespace ItemSCPs
     {
 #pragma warning disable CS8618
         public static ItemSCPsNetworkHandler Instance { get; private set; }
-        public GameObject TestingHUDOverlayPrefab;
 #pragma warning restore CS8618
 
         //public NetworkList<ulong> PlayersEffectedBy201 = new NetworkList<ulong>();
@@ -22,12 +22,6 @@ namespace ItemSCPs
             Instance = this;
             logger.LogDebug("NetworkHandler spawned");
             base.OnNetworkSpawn();
-        }
-
-        public void Start()
-        {
-            if (Utils.isBeta)
-                TestingHUDOverlay.Init(TestingHUDOverlayPrefab);
         }
 
         public void Update()

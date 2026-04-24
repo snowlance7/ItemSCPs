@@ -75,6 +75,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Reference Include="Snowlance.SnowyLib">
+        <HintPath>..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Testing\BepInEx\plugins\Snowlance.SnowyLib\Snowlance.SnowyLib.dll</HintPath>
+      </Reference>
       <Reference Include="Snowlance.WearableItemsAPI">
         <HintPath>..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Testing\BepInEx\plugins\Snowlance.WearableItemsAPI\Snowlance.WearableItemsAPI.dll</HintPath>
       </Reference>

@@ -4,6 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.SCP
 {

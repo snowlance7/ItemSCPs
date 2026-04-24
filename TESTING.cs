@@ -3,6 +3,7 @@ using ItemSCPs.SCP;
 using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 /* bodyparts
  * 0 head

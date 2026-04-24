@@ -2,6 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.SCP
 {

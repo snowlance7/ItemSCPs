@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.Items.Snowy
 {
@@ -38,6 +39,7 @@ namespace ItemSCPs.Items.Snowy
             {
                 foreach (var player in StartOfRound.Instance.allPlayerScripts)
                 {
+                    if (player == playerWornBy) { continue; }
                     if (player.HasLineOfSightToPosition(playerWornBy.transform.position))
                     {
                         Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.SCP
 {

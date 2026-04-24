@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using static ItemSCPs.SCP.SCP9831Behavior;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 // SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
 // TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand

@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCP
 {
@@ -295,7 +296,6 @@ namespace ItemSCPs.SCP
                 total += l.intensity * atten;
             }
 
-            TestingHUDOverlay.Instance?.SetLabel1("Light level SCP012: " + total); // TODO: Test
             return total;
         }
 
@@ -314,7 +314,6 @@ namespace ItemSCPs.SCP
                 }
             }
 
-            TestingHUDOverlay.Instance?.SetLabel1("Light level SCP012: " + brightness); // TODO: Test
             return brightness;
         }
 
