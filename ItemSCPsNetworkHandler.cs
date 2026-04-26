@@ -7,13 +7,23 @@ using SnowyLib;
 
 namespace ItemSCPs
 {
-    internal class ItemSCPsNetworkHandler : NetworkBehaviour // TODO: Test to make sure network handler even works without the gamenetworkmanager start patch???
+    internal class ItemSCPsNetworkHandler : NetworkBehaviour
     {
-#pragma warning disable CS8618
-        public static ItemSCPsNetworkHandler Instance { get; private set; }
-#pragma warning restore CS8618
+        public static ItemSCPsNetworkHandler Instance { get; private set; } = null!;
+        public AudioClip[] sneezeSFX = null!; // TODO: Assign in unity
+        public AudioClip[] coughSFX = null!;
+        public AudioClip[] coughHeavySFX = null!;
+        public AudioClip[] heartbeatSlowSFX = null!;
+        public AudioClip[] heartbeatFastSFX = null!;
 
         //public NetworkList<ulong> PlayersEffectedBy201 = new NetworkList<ulong>();
+
+        public enum SoundEffect
+        {
+            Sneeze,
+            Cough,
+            CoughHeavy
+        }
 
         public override void OnNetworkSpawn()
         {
@@ -76,11 +86,44 @@ namespace ItemSCPs
         }
 
         [ClientRpc]
-        void MufflePlayerClientRpc(ulong clientId, bool value)
+        private void MufflePlayerClientRpc(ulong clientId, bool value)
         {
             PlayerControllerB? player = PlayerFromId(clientId);
             if (player == null) { return; }
             Utils.MufflePlayer(player, value);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void PlayPlayerSoundEffectServerRpc(ulong clientId, SoundEffect soundEffect, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+        {
+            if (!IsServer) { return; }
+            PlayPlayerSoundEffectClientRpc(clientId, soundEffect, bodyPartIndex, volume, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
+        }
+
+        [ClientRpc]
+        private void PlayPlayerSoundEffectClientRpc(ulong clientId, SoundEffect soundEffect, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+        {
+            PlayerControllerB? player = PlayerFromId(clientId);
+            if (player == null) { return; }
+            Transform position = player.bodyParts[bodyPartIndex];
+            AudioClip[] clips;
+
+            switch (soundEffect)
+            {
+                case SoundEffect.Sneeze:
+                    clips = sneezeSFX;
+                    break;
+                case SoundEffect.Cough:
+                    clips = coughSFX;
+                    break;
+                case SoundEffect.CoughHeavy:
+                    clips = coughHeavySFX;
+                    break;
+                default:
+                    return;
+            }
+
+            Utils.PlaySoundAtPosition(position, clips, volume, true, true, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
         }
     }
 

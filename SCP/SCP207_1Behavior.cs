@@ -1,10 +1,7 @@
-﻿using GameNetcodeStuff;
-using System.Collections;
+﻿using SnowyLib;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
@@ -50,7 +47,7 @@ namespace ItemSCPs.SCP
                 if (total > 10 && !heartAttackLocalPlayer)
                 {
                     heartAttackLocalPlayer = true;
-                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
                     StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                     {
                         if (!localPlayer.isPlayerDead)
@@ -64,7 +61,7 @@ namespace ItemSCPs.SCP
                 localPlayer.sprintTime = GetTotalContributions();
             }));
 
-            StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
+            StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
         }
 
         static float GetTotalContributions()

@@ -1,10 +1,12 @@
 ﻿using Dawn.Utils;
+using SnowyLib;
 using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.UIElements;
 using static ItemSCPs.Plugin;
-using SnowyLib;
+using static UnityEngine.VFX.VisualEffectControlTrackController;
 
 namespace ItemSCPs.SCP
 {
@@ -30,7 +32,7 @@ namespace ItemSCPs.SCP
         public Material[] diseasePageMaterials;
         public SkinnedMeshRenderer renderer;
 #pragma warning restore CS8618
-
+        // PlayRandomClipServerRpc(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
         public static readonly Action[] diseases = new Action[] // TODO: Test and rework these
         {
             // 0 Common Cold
@@ -42,7 +44,7 @@ namespace ItemSCPs.SCP
                 float time = UnityEngine.Random.Range(1200, 1800);
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
                 {
-                    StatusEffectController.Instance.PlayRandomClipServerRpc("sneeze", 0, 0.5f, 1, 10, 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, 0, 0.5f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
                 }, "scp1025", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
@@ -70,7 +72,7 @@ namespace ItemSCPs.SCP
                 {
                     localPlayer.playQuickSpecialAnimation(1.5f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_Typing");
-                    StatusEffectController.Instance.PlayRandomClipServerRpc("coughHeavy", 0, 0.6f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.2f);
                     if (localPlayer.health > 1)
                     {
@@ -81,7 +83,7 @@ namespace ItemSCPs.SCP
                 }, "scp1025", "lung cancer coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
-                    StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
                 }, "scp1025", "lung cancer cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
@@ -105,7 +107,7 @@ namespace ItemSCPs.SCP
                 StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
-                    StatusEffectController.Instance.PlayRandomClipServerRpc("cough", 0, 0.6f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.05f);
                 }, false, "scp1025", 5f, id: "asthmaCough"));
             },
@@ -115,7 +117,7 @@ namespace ItemSCPs.SCP
                 StatusEffectController.Instance.ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 20), () =>
                 {
                     StatusEffectController.Instance.vignetteOverlay.SetIntensity(0.4f);
-                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatSlow", 0, 0.7f, audibleNoiseID: -1);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
                 }, "scp1025", "heartbeatSlow"));
                 StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
                 {
@@ -125,7 +127,7 @@ namespace ItemSCPs.SCP
                             localPlayer.KillPlayer(Vector3.zero);
                     }, "scp1025", "heart attack", 6f));
                     StatusEffectController.Instance.ApplyEffect(new LerpValueEffect((x) => StatusEffectController.Instance.vignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "scp1025", "vignette"));
-                    StatusEffectController.Instance.PlayLocalRandomClip("heartbeatFast", 0, audibleNoiseID: -1);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
                     localPlayer.sprintMeter = 0;
@@ -144,6 +146,7 @@ namespace ItemSCPs.SCP
 
             itemProperties.canBeInspected = true;
             itemProperties.canBeGrabbedBeforeGameStart = true;
+            itemProperties.toolTips = new string[] { "Open Book [LMB]" };
         }
 
         public override void EquipItem() // TODO: Pages not showing
@@ -158,16 +161,39 @@ namespace ItemSCPs.SCP
             }
         }
 
+        public override void ItemActivate(bool used, bool buttonDown = true)
+        {
+            base.ItemActivate(used, buttonDown);
+            if (!buttonDown) { return; }
+
+            int index = UnityEngine.Random.Range(0, diseases.Length);
+            OpenBookServerRpc(index);
+            diseases[index].Invoke();
+        }
+
         public override void DiscardItem()
         {
             base.DiscardItem();
-            OpenBookServerRpc(-1);
+            CloseBookServerRpc();
         }
 
         public override void PocketItem()
         {
             base.PocketItem();
-            OpenBookServerRpc(-1);
+            CloseBookServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void CloseBookServerRpc()
+        {
+            if (!IsServer) { return; }
+            CloseBookClientRpc();
+        }
+
+        [ClientRpc]
+        public void CloseBookClientRpc()
+        {
+            animator.SetBool("open", false);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -178,14 +204,12 @@ namespace ItemSCPs.SCP
         }
 
         [ClientRpc]
-        public void OpenBookClientRpc(int pageIndex)
+        public void OpenBookClientRpc(int pageIndex) // TODO: Test this
         {
-            if (pageIndex < 0)
-            {
-                animator.SetBool("open", false);
-                return;
-            }
-            renderer.materials[2] = diseasePageMaterials[pageIndex];
+            var mats = renderer.materials;
+            mats[2] = diseasePageMaterials[pageIndex];
+            renderer.materials = mats;
+            //renderer.materials[2] = diseasePageMaterials[pageIndex];
             animator.SetBool("open", true);
         }
     }
