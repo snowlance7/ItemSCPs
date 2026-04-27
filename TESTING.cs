@@ -23,7 +23,7 @@ namespace ItemSCPs
     [HarmonyPatch]
     public class TESTING : MonoBehaviour
     {
-        public static bool localPlayerImmune = false;
+        public static bool immunity { get; private set; }
         public static string currentAnim = "";
 
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
@@ -31,10 +31,8 @@ namespace ItemSCPs
         {
             if (!Utils.isBeta) { return; }
             if (!Utils.testing) { return; }
-            //StatusEffectController.Instance.TestAudio();
-            //localPlayer.PlayQuickSpecialAnimation(1);
-            //localPlayer.playerBodyAnimator.SetTrigger(currentAnim);
-            logger.LogDebug(localPlayer.targetYRot);
+
+
 
             logger.LogDebug("PingScanTestPerformed");
         }
@@ -42,44 +40,52 @@ namespace ItemSCPs
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
         public static void SubmitChat_performedPrefix(HUDManager __instance)
         {
-            if (!Utils.isBeta) { return; }
-            if (!IsServerOrHost) { return; }
-            string msg = __instance.chatTextField.text;
-            string[] args = msg.Split(" ");
-            Plugin.logger.LogDebug(msg);
-
-            switch (args[0])
+            try
             {
-                case "/doors":
-                    TerminalAccessibleObject[] doors = GameObject.FindObjectsOfType<TerminalAccessibleObject>().Where(x => x.isBigDoor).ToArray();
-                    foreach (TerminalAccessibleObject door in doors)
-                    {
-                        door.SetDoorOpenServerRpc(false);
-                    }
-                    break;
-                case "/disease":
-                    SCP1025Behavior.diseases[int.Parse(args[1])].Invoke();
-                    break;
-                case "/overlay":
-                    StatusEffectController.Instance.vignetteOverlay.SetIntensity(float.Parse(args[1]));
-                    HUDManager.Instance.DisplayTip("ItemSCPs", "VignetteOverlay: " + args[1]);
-                    break;
-                case "/immune":
-                    localPlayerImmune = !localPlayerImmune;
-                    HUDManager.Instance.DisplayTip("ItemSCPs", "localPlayerImmune: " + localPlayerImmune);
-                    break;
-                case "/anim":
-                    localPlayer.playerBodyAnimator.SetTrigger(args[1]);
-                    currentAnim = args[1];
-                    break;
-                case "/qanim":
-                    localPlayer.PlayQuickSpecialAnimation(1);
-                    localPlayer.playerBodyAnimator.SetTrigger(args[1]);
-                    currentAnim = args[1];
-                    break;
-                default:
-                    Utils.ChatCommand(args);
-                    break;
+                if (!Utils.isBeta) { return; }
+                if (!IsServerOrHost) { return; }
+                string msg = __instance.chatTextField.text;
+                string[] args = msg.Split(" ");
+                Plugin.logger.LogDebug(msg);
+
+                switch (args[0])
+                {
+                    case "/doors":
+                        TerminalAccessibleObject[] doors = GameObject.FindObjectsOfType<TerminalAccessibleObject>().Where(x => x.isBigDoor).ToArray();
+                        foreach (TerminalAccessibleObject door in doors)
+                        {
+                            door.SetDoorOpenServerRpc(false);
+                        }
+                        break;
+                    case "/disease":
+                        SCP1025Behavior.diseases[int.Parse(args[1])].Invoke();
+                        break;
+                    case "/overlay":
+                        StatusEffectController.Instance.vignetteOverlay.SetIntensity(float.Parse(args[1]));
+                        HUDManager.Instance.DisplayTip("ItemSCPs", "VignetteOverlay: " + args[1]);
+                        break;
+                    case "/immunity":
+                        immunity = !immunity;
+                        HUDManager.Instance.DisplayTip("ItemSCPs", "Immunity: " + immunity);
+                        break;
+                    case "/anim":
+                        localPlayer.playerBodyAnimator.SetTrigger(args[1]);
+                        currentAnim = args[1];
+                        break;
+                    case "/qanim":
+                        localPlayer.PlayQuickSpecialAnimation(1);
+                        localPlayer.playerBodyAnimator.SetTrigger(args[1]);
+                        currentAnim = args[1];
+                        break;
+                    default:
+                        Utils.ChatCommand(args);
+                        break;
+                }
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
             }
         }
     }

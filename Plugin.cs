@@ -54,6 +54,8 @@ namespace ItemSCPs
 
             InitializeNetworkBehaviours();
 
+            SnowyLib.Utils.isBeta = true; // TODO
+
             // Finished
             Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
         }

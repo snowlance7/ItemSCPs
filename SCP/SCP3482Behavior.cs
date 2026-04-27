@@ -13,7 +13,7 @@ namespace ItemSCPs.SCP
         public override void EquipItem()
         {
             base.EquipItem();
-            if (TESTING.localPlayerImmune || SCP714Behavior.localPlayerAffected) { return; }
+            if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
             localPlayerAffected = true;
             StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() => localPlayerAffected = false, "scp3482", "antileft_effect", curableBySCP500: false));
         }

@@ -137,7 +137,7 @@ namespace ItemSCPs.SCP
         public override void EquipItem()
         {
             base.EquipItem();
-            if (TESTING.localPlayerImmune || SCP714Behavior.localPlayerAffected) { return; }
+            if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
             if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
             {
                 int index = UnityEngine.Random.Range(0, diseases.Length);

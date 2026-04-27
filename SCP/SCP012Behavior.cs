@@ -265,7 +265,7 @@ namespace ItemSCPs.SCP
         {
             if (Utils.isBeta && Utils.testing)
             {
-                return !TESTING.localPlayerImmune;
+                return !TESTING.immunity;
             }
             if (SCP714Behavior.localPlayerAffected) { return false; }
             if (localPlayerPlayingFinalSpeech) { return true; }
