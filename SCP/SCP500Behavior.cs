@@ -6,6 +6,6 @@ namespace ItemSCPs.SCP
 {
     internal class SCP500Behavior : PhysicsProp
     {
-        public static bool localPlayerAffected;
+
     }
 }

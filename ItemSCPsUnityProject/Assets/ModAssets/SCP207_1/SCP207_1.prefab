@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 11760251424919348}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.00017562322, y: 0, z: -1.8822632}
+  m_LocalPosition: {x: 0.0001756232, y: 0, z: -1.8822632}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 2437387348713574332}
   - component: {fileID: 335552983946689075}
   m_Layer: 0
-  m_Name: cup
+  m_Name: cap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +342,8 @@ GameObject:
   - component: {fileID: 2530115317857498698}
   - component: {fileID: 4618454457047147225}
   - component: {fileID: 1178587553198290574}
-  - component: {fileID: 7784546800417792731}
+  - component: {fileID: 5404213539028721507}
+  - component: {fileID: 1115168077005909680}
   m_Layer: 6
   m_Name: SCP207_1
   m_TagString: PhysicsProp
@@ -522,7 +523,28 @@ MonoBehaviour:
   overridingLowPass: 0
   lowPassOverride: 20000
   debugLog: 0
---- !u!114 &7784546800417792731
+--- !u!95 &5404213539028721507
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5241335982735900986}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2d7d336d68d0d01478585b446b606101, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1115168077005909680
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -571,9 +593,8 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
-  liquidObject: {fileID: 11760251424919348}
+  audioSource: {fileID: 4618454457047147225}
   capObject: {fileID: 2744462387965553150}
-  drinkSFX: {fileID: 8300000, guid: 3ee712ce8a8d918419e70529cdffac01, type: 3}
   intensityOverTime:
     serializedVersion: 2
     m_Curve:
@@ -582,37 +603,38 @@ MonoBehaviour:
       value: 0
       inSlope: 2
       outSlope: 2
-      tangentMode: 0
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.4
+      time: 0.5
       value: 1
-      inSlope: 0.067070715
-      outSlope: 0.067070715
+      inSlope: 0.13941258
+      outSlope: 0.13941258
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.33333334
+      outWeight: 0.25869867
     - serializedVersion: 3
-      time: 0.6
+      time: 0.75
       value: 1
-      inSlope: -0.08143929
-      outSlope: -0.08143929
+      inSlope: -0.08940798
+      outSlope: -0.08940798
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.19146119
+      inWeight: 0.23436934
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.99523926
-      value: -0.0017776489
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      time: 0.9968262
+      value: 0.005329132
+      inSlope: -4.029844
+      outSlope: -4.029844
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  animator: {fileID: 5404213539028721507}

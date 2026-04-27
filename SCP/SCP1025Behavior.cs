@@ -12,27 +12,12 @@ namespace ItemSCPs.SCP
 {
     internal class SCP1025Behavior : PhysicsProp
     {
-        /*
-        ShortFallLanding (Trigger) - coughing small motion
-        SpawnPlayer (Trigger) - puking
-        startCrouching (Trigger) - force crouch, specialanimation time for duration
-        Damage (Trigger) - hands in air
-        Overheat (Trigger) - hands in air lower
-        SA_Typing (Trigger) - puking motion, head forward?
-        SA_stopAnimation (Trigger)
-        SA_ChargeItem (Trigger) - hand out
-        SA_PushLeverBack (Trigger) - forces screen to middle and does quick animation
-        */
-        //localPlayer.sprintMeter 0-1
-        //localPlayer.sprintTime 11, idk what this does
-        //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
-
 #pragma warning disable CS8618
         public Animator animator;
         public Material[] diseasePageMaterials;
         public SkinnedMeshRenderer renderer;
 #pragma warning restore CS8618
-        // PlayRandomClipServerRpc(string id, int bodyPartIndex = 5, float volume = 1f, float min3DDistance = 1f, float max3DDistance = 10f, float cutoffFrequency = 22000, int audibleNoiseID = 0)
+        
         public static readonly Action[] diseases = new Action[] // TODO: Test and rework these
         {
             // 0 Common Cold
@@ -149,10 +134,10 @@ namespace ItemSCPs.SCP
             itemProperties.toolTips = new string[] { "Open Book [LMB]" };
         }
 
-        public override void EquipItem() // TODO: Pages not showing
+        public override void EquipItem()
         {
             base.EquipItem();
-            if (TESTING.localPlayerImmune || SCP500Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected) { return; }
+            if (TESTING.localPlayerImmune || SCP714Behavior.localPlayerAffected) { return; }
             if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
             {
                 int index = UnityEngine.Random.Range(0, diseases.Length);
@@ -204,12 +189,11 @@ namespace ItemSCPs.SCP
         }
 
         [ClientRpc]
-        public void OpenBookClientRpc(int pageIndex) // TODO: Test this
+        public void OpenBookClientRpc(int pageIndex)
         {
             var mats = renderer.materials;
             mats[2] = diseasePageMaterials[pageIndex];
             renderer.materials = mats;
-            //renderer.materials[2] = diseasePageMaterials[pageIndex];
             animator.SetBool("open", true);
         }
     }

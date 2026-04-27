@@ -13,7 +13,6 @@ using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UIElements;
 using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
-//using ItemSCPs.Items.Rat.SCP207;
 
 namespace ItemSCPs.SCP
 {
