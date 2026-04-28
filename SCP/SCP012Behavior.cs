@@ -2,12 +2,13 @@
 using DunGen;
 using GameNetcodeStuff;
 using HarmonyLib;
+using SnowyLib;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCP
 {
@@ -25,7 +26,9 @@ namespace ItemSCPs.SCP
         bool localPlayerPlayingFinalSpeech;
         float timeSinceStartFinalSpeech;
 
-        bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold; // TODO: Test and make sure this works
+        //bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold; // TODO: Test and make sure this works
+        //bool isLit => GetLightAt(transform.position) > lightThreshold; // TODO: Test and make sure this works
+        bool isLit => GetLightAt(localPlayer.transform.position, Vector3.up) > 1000;
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
         AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
@@ -263,58 +266,35 @@ namespace ItemSCPs.SCP
 
         bool CanAffectPlayer()
         {
-            if (Utils.isBeta && Utils.testing)
-            {
-                return !TESTING.immunity;
-            }
             if (SCP714Behavior.localPlayerAffected) { return false; }
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
-            if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
+            //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
+            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; } // TODO: Test this
             if (distance > maxRange) { return false; }
             if (!isLit) { return false; } // TODO: Test this
+            if (TESTING.immunity) { return false; }
             return true;
         }
 
-        float GetLightAt(Vector3 pos, float radius)
-        {
-            float total = 0f;
-
-            foreach (var col in Physics.OverlapSphere(pos, radius))
-            {
-                Light l = col.GetComponent<Light>();
-                if (!l || !l.enabled) continue;
-
-                float dist = Vector3.Distance(pos, l.transform.position);
-                if (dist > l.range) continue;
-
-                // optional occlusion
-                if (Physics.Raycast(l.transform.position, pos - l.transform.position, dist))
-                    continue;
-
-                float atten = 1f - dist / l.range;
-                total += l.intensity * atten;
-            }
-
-            return total;
-        }
-
-        float GetLightLevelAtPosition(Vector3 pos)
+        public static float GetLightAt(Vector3 pos) // TODO: Figure this out more
         {
             float brightness = 0f;
 
             foreach (Light light in lights)
             {
-                float dist = Vector3.Distance(light.transform.position, pos);
+                if (light == null || !light.enabled) { continue; }
+                float distance = Vector3.Distance(light.transform.position, pos);
+                if (distance > light.range) { continue; }
 
-                if (dist < light.range)
-                {
-                    float contribution = light.intensity * (1f - dist / light.range);
-                    brightness += contribution;
-                }
+                if (Physics.Raycast(light.transform.position, pos - light.transform.position, distance, StartOfRound.Instance.collidersAndRoomMask)) { continue; }
+
+                float contribution = light.intensity * (1f - distance / light.range);
+                brightness += contribution;
             }
 
+            logger.LogDebug(brightness);
             return brightness;
         }
 
