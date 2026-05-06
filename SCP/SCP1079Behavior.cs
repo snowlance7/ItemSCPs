@@ -71,13 +71,10 @@ namespace ItemSCPs.SCP
 
                 localPlayer.StatusEffectController().ApplyEffect(new DistributedActionEffect(() =>
                 {
+                    DropBlood();
 
-                }, bloodDropAmount, "SCP-1079", "Pink Blood Secretion", ));
+                }, bloodDropAmount, "SCP-1079", "Pink Blood Secretion", 10f, true, true, (existing, incoming) => ConflictResult.Allow));
 
-                /*localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(0.5f, 1f), (effect) =>
-                {
-                    
-                }));*/
             }, "SCP-1079", "Pink Blood Secretion", UnityEngine.Random.Range(10f, 15f), onConflict: (existing, incoming) => ConflictResult.Allow));
 
             EatCandyServerRpc(playerHeldBy.actualClientId, candiesEatenByLocalPlayer);
@@ -85,7 +82,7 @@ namespace ItemSCPs.SCP
 
         public void DropBlood()
         {
-
+            logger.LogDebug("Dropping blood");
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -106,7 +103,7 @@ namespace ItemSCPs.SCP
             float interval = 1.2f / Mathf.Pow(1.35f, candiesEaten - 1);
 
             logger.LogDebug("Dropping pink blood");
-            PinkBloodManager.Instance(player)?.DropPinkBlood(amount, interval, candiesEaten <= 1 ? 0 : damage);
+            //PinkBloodManager.Instance(player)?.DropPinkBlood(amount, interval, candiesEaten <= 1 ? 0 : damage);
         }
     }
 }
