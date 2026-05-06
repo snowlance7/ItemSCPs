@@ -120,7 +120,7 @@ namespace ItemSCPs.SCP
             previousContributionsID = id;
             contributions[id] = 0f;
 
-            StatusEffectController.Instance.ApplyEffect(new CurveValueEffect(value =>
+            localPlayer.StatusEffectController().ApplyEffect(new CurveValueEffect(value =>
             {
                 contributions[id] = Mathf.Lerp(0f, amount, value);
                 float total = GetTotalContributions();
@@ -129,20 +129,20 @@ namespace ItemSCPs.SCP
                 {
                     heartAttackLocalPlayer = true;
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
-                    StatusEffectController.Instance.ApplyEffect(new OnRemoveActionEffect(() =>
+                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                     {
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
                         heartAttackLocalPlayer = false;
                     }, "scp207_1", "heart attack", 6));
                 }
-            }, intensityOverTime, effectDuration, "scp207_1", $"scp207_1_{id}", onRemove: () =>
+            }, intensityOverTime, effectDuration, "scp207_1", $"scp207_1_{id}", onRemove: (effect) =>
             {
                 contributions.Remove(id);
                 localPlayer.sprintTime = GetTotalContributions();
             }));
 
-            StatusEffectController.Instance.ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
+            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
         }
 
         static float GetTotalContributions()

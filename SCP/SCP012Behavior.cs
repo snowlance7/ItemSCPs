@@ -1,13 +1,8 @@
 ﻿using Dawn.Utils;
-using DunGen;
 using GameNetcodeStuff;
-using HarmonyLib;
 using SnowyLib;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 using static ItemSCPs.Plugin;
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 namespace ItemSCPs.SCP
@@ -28,7 +23,7 @@ namespace ItemSCPs.SCP
 
         //bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold; // TODO: Test and make sure this works
         //bool isLit => GetLightAt(transform.position) > lightThreshold; // TODO: Test and make sure this works
-        bool isLit => GetLightAt(localPlayer.transform.position, Vector3.up) > 1000;
+        //bool isLit => GetLightAt(localPlayer.transform.position, Vector3.up) > 1000;
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
         AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
@@ -69,8 +64,8 @@ namespace ItemSCPs.SCP
         {
             base.Start();
 
-            GetLights();
-            Utils.OnFinishGeneratingLevel.AddListener(GetLights);
+            //GetLights();
+            //Utils.OnFinishGeneratingLevel.AddListener(GetLights);
         }
 
         public override void Update()
@@ -135,7 +130,7 @@ namespace ItemSCPs.SCP
             localPlayer.isExhausted = true;
 
             if (localPlayer.health > 0)
-                StatusEffectController.Instance.vignetteOverlay?.SetIntensity(1 - (100 / localPlayer.health));
+                VignetteOverlay.Instance.SetIntensity(1 - (100 / localPlayer.health));
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -221,7 +216,7 @@ namespace ItemSCPs.SCP
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
-            StatusEffectController.Instance.vignetteOverlay?.SetIntensity(normalized);
+            VignetteOverlay.Instance.SetIntensity(normalized);
 
             MovePlayerTowardsPosition(transform.position, normalized);
 
@@ -271,9 +266,9 @@ namespace ItemSCPs.SCP
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
             //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
-            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; } // TODO: Test this
+            if (heldByLocalPlayer) { return /*isLit && */!TESTING.immunity; } // TODO: Test this
             if (distance > maxRange) { return false; }
-            if (!isLit) { return false; } // TODO: Test this
+            //if (!isLit) { return false; } // TODO: Test this
             if (TESTING.immunity) { return false; }
             return true;
         }
