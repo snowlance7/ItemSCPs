@@ -8,10 +8,10 @@ namespace ItemSCPs.SCP
     {
         public static bool localPlayerAffected;
 
-        public override void OnWear(PlayerControllerB playerWearing)
+        public override void OnWear()
         {
-            base.OnWear(playerWearing);
-            if (localPlayer == playerWearing)
+            base.OnWear();
+            if (localPlayer == playerWornBy)
                 localPlayerAffected = true;
         }
 

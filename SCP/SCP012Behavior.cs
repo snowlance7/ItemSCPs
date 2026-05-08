@@ -317,7 +317,7 @@ namespace ItemSCPs.SCP
         {
             PlayerControllerB? player = PlayerFromId(clientId);
             if (player == null) { return; }
-            Utils.MufflePlayer(player, value);
+            player.MufflePlayer(value);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -331,7 +331,7 @@ namespace ItemSCPs.SCP
         public void PlaySpeechClientRpc()
         {
             if (playerVoice == null) { return; }
-            Utils.MufflePlayer(playerHeldBy, true);
+            playerHeldBy.MufflePlayer(true);
             playerVoice.pitch = Random.Range(0.94f, 1.06f);
             playerVoice.volume = 1f;
 

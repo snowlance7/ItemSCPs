@@ -142,7 +142,7 @@ namespace ItemSCPs.SCP
                 localPlayer.sprintTime = GetTotalContributions();
             }));
 
-            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration, true, true));
+            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration));
         }
 
         static float GetTotalContributions()

@@ -328,6 +328,11 @@ MonoBehaviour:
   chewingSounds:
   - {fileID: 8300000, guid: ad11253bd6f196c4d957dedc9017e132, type: 3}
   - {fileID: 8300000, guid: 85efb9f12b5e2b9469a0899d527c28bf, type: 3}
+  pinkBloodSplatterProjectorPrefab: {fileID: 1183040580664911, guid: 5ecfb93afa8c044468d81b34d244fbb4,
+    type: 3}
+  pinkFootPrintProjectorPrefab: {fileID: 1883408173679401, guid: 6b4813ccdfcb66149898a00ba61f1bf0,
+    type: 3}
+  sizzleSFX: {fileID: 8300000, guid: 50f87cb2fc5e1ab428849b5bf35ab344, type: 3}
 --- !u!1 &5217202319647440236
 GameObject:
   m_ObjectHideFlags: 0

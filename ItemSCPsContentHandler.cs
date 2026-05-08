@@ -31,14 +31,7 @@ namespace ItemSCPs
         public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath) { }
         public SCP1025Assets? SCP1025;
 
-        public class SCP1079Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1079Assets>(mod, filePath)
-        {
-            [LoadFromBundle("PinkBloodDecal.mat")]
-            public Material PinkBloodDecal { get; private set; } = null!;
-
-            [LoadFromBundle("PinkFootprintsDecal.mat")]
-            public Material PinkFootprintsDecal { get; private set; } = null!;
-        }
+        public class SCP1079Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1079Assets>(mod, filePath) { }
         public SCP1079Assets? SCP1079;
 
         public class SCP207Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP207Assets>(mod, filePath) { }

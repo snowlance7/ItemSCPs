@@ -1,9 +1,6 @@
-﻿using Dawn.Utils;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
 using SnowyLib;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -16,13 +13,11 @@ namespace ItemSCPs.SCP
     {
 #pragma warning disable CS8618
         public AudioClip[] chewingSounds;
-        public GameObject pinkBloodSplatterPrefab;
-        public GameObject pinkFootPrintPrefab;
-        public GameObject decalProjectorPrefab;
+        public GameObject pinkBloodSplatterProjectorPrefab;
         public AudioClip sizzleSFX;
 #pragma warning restore CS8618
 
-        static int candiesEatenByLocalPlayer;
+        static int candiesEatenByLocalPlayer = 0;
 
         float timeSinceCandyDecrement;
 
@@ -45,7 +40,7 @@ namespace ItemSCPs.SCP
             {
                 timeSinceCandyDecrement += Time.deltaTime;
 
-                if (timeSinceCandyDecrement > 30f)
+                if (timeSinceCandyDecrement > 60f)
                 {
                     timeSinceCandyDecrement = 0f;
                     candiesEatenByLocalPlayer--;
@@ -66,44 +61,92 @@ namespace ItemSCPs.SCP
 
             localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
             {
-                if (candiesEatenByLocalPlayer > 1)
-                    localPlayer.itemAudio.PlayOneShot(sizzle);
+                float peakSizzle = Mathf.Clamp01(0.5f + (candiesEatenByLocalPlayer * 0.15f));
+                logger.LogDebug($"Peak sizzle: {peakSizzle}");
 
-                localPlayer.StatusEffectController().ApplyEffect(new DistributedActionEffect(() =>
+                AnimationCurve sizzleCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, peakSizzle), new Keyframe(0, 0));
+
+                localPlayer.itemAudio.clip = sizzleSFX;
+                localPlayer.itemAudio.volume = 0.5f;
+                localPlayer.itemAudio.Play();
+
+                localPlayer.StatusEffectController().ApplyEffect(new CurveValueEffect((value) => localPlayer.itemAudio.volume = value, sizzleCurve, 10f, "SCP-1079", "Blood Boiling", (existing, incoming) => ConflictResult.Replace, (effect) =>
                 {
-                    DropBlood();
+                    localPlayer.itemAudio.volume = 1f;
+                }));
 
-                }, bloodDropAmount, "SCP-1079", "Pink Blood Secretion", 10f, true, true, (existing, incoming) => ConflictResult.Allow));
+                localPlayer.StatusEffectController().ApplyEffect(new DistributedActionEffect(() => DropBlood(), bloodDropAmount, "SCP-1079", "Pink Blood Secretion", 10f, (existing, incoming) => ConflictResult.Replace));
 
-            }, "SCP-1079", "Pink Blood Secretion", UnityEngine.Random.Range(10f, 15f), onConflict: (existing, incoming) => ConflictResult.Allow));
+                int damagePerSecond = Mathf.RoundToInt(Mathf.Pow(2.5f, candiesEatenByLocalPlayer) / 10);
+                if (damagePerSecond == 0) { return; }
+                logger.LogDebug($"Doing {damagePerSecond} damage per second");
 
-            EatCandyServerRpc(playerHeldBy.actualClientId, candiesEatenByLocalPlayer);
+                localPlayer.StatusEffectController().ApplyEffect(new IntervalActionEffect(1f, () =>
+                {
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(damagePerSecond, false);
+                    localPlayer.inSpecialInteractAnimation = false;
+                    localPlayer.bleedingHeavily = false;
+                }, "SCP-1079", "Blood Loss Damage", 10f, (existing, incoming) => ConflictResult.Replace));
+
+            }, "SCP-1079", "Pink Blood Secretion", UnityEngine.Random.Range(10f, 15f), onConflict: (existing, incoming) => ConflictResult.Deny));
         }
 
         public void DropBlood()
         {
             logger.LogDebug("Dropping blood");
+            Vector3 pos = localPlayer.gameplayCamera.transform.position.GetFloorPosition();
+            DropBloodServerRpc(pos);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void EatCandyServerRpc(ulong clientId, int candiesEaten)
+        public void DropBloodServerRpc(Vector3 pos)
         {
             if (!IsServer) { return; }
-            EatCandyClientRpc(clientId, candiesEaten);
+            DropBloodClientRpc(pos);
         }
 
         [ClientRpc]
-        public void EatCandyClientRpc(ulong clientId, int candiesEaten)
+        public void DropBloodClientRpc(Vector3 pos)
         {
-            PlayerControllerB? player = PlayerFromId(clientId);
-            if (player == null) { logger.LogError("Couldnt find player with id: " + clientId); return; }
+            GameObject bloodProjectorObj = Instantiate(pinkBloodSplatterProjectorPrefab, pos, pinkBloodSplatterProjectorPrefab.transform.rotation);
+            DecalProjector bloodProjector = bloodProjectorObj.GetComponent<DecalProjector>();
+            bloodProjector.enabled = true;
+            Destroy(bloodProjectorObj, 300);
+        }
+    }
 
-            int damage = (int)(4f * Mathf.Pow(1.84f, candiesEaten - 1));
-            int amount = 3 * candiesEaten * candiesEaten;
-            float interval = 1.2f / Mathf.Pow(1.35f, candiesEaten - 1);
+    [HarmonyPatch]
+    internal class SCP1079Patches
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ResetPlayerBloodObjects))]
+        private static void ResetPlayerBloodObjectsPostfix(PlayerControllerB __instance, bool resetBodyBlood)
+        {
+            try
+            {
+                //PinkBloodManager.Instance(__instance)?.ResetPlayerBloodObjects(resetBodyBlood);
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
+            }
+        }
 
-            logger.LogDebug("Dropping pink blood");
-            //PinkBloodManager.Instance(player)?.DropPinkBlood(amount, interval, candiesEaten <= 1 ? 0 : damage);
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.RemoveBloodFromBody))]
+        private static void RemoveBloodFromBodyPostfix(PlayerControllerB __instance)
+        {
+            try
+            {
+                //PinkBloodManager.Instance(__instance)?.AddBloodToBody(false);
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
+            }
         }
     }
 }

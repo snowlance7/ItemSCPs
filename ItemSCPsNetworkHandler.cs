@@ -90,7 +90,7 @@ namespace ItemSCPs
         {
             PlayerControllerB? player = PlayerFromId(clientId);
             if (player == null) { return; }
-            Utils.MufflePlayer(player, value);
+            player.MufflePlayer(value);
         }
 
         [ServerRpc(RequireOwnership = false)]

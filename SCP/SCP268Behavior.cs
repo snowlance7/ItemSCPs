@@ -18,6 +18,7 @@ namespace ItemSCPs.Items.Snowy
         public AudioSource audioSource;
         public AudioClip activateSFX;
         public AudioClip deactivateSFX;
+        public GameObject mesh;
 #pragma warning restore CS8618
 
         bool useAltInvisibility = false;
@@ -53,13 +54,13 @@ namespace ItemSCPs.Items.Snowy
             }
         }
 
-        public override void OnWear(PlayerControllerB playerWearing)
+        public override void OnWear()
         {
-            base.OnWear(playerWearing);
+            base.OnWear();
             if (localPlayer == playerWornBy)
                 audioSource.PlayOneShot(activateSFX);
             if (useAltInvisibility && playerWornBy != null)
-                Utils.MakePlayerInvisible(playerWornBy, true);
+                playerWornBy.MakePlayerInvisible(true);
         }
 
         public override void OnUnWear()
@@ -67,7 +68,7 @@ namespace ItemSCPs.Items.Snowy
             if (localPlayer == playerWornBy)
                 audioSource.PlayOneShot(deactivateSFX);
             if (useAltInvisibility && playerWornBy != null)
-                Utils.MakePlayerInvisible(playerWornBy, false);
+                playerWornBy.MakePlayerInvisible(false);
             base.OnUnWear();
         }
     }
