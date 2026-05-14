@@ -1,197 +1,104 @@
-﻿using BepInEx.Logging;
-using DunGen;
-using GameNetcodeStuff;
+﻿using SnowyLib;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem.Utilities;
-using UnityEngine.UIElements;
-using UnityEngine.VFX;
 using static ItemSCPs.Plugin;
-// TODO: Make this item increase time in day x2?
+
 namespace ItemSCPs.SCP
 {
-    internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714
+    internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498
     {
-        public ScanNodeProperties ScanNode;
+        public ScanNodeProperties scanNode = null!;
+        public AudioSource audioSource = null!;
+        public TextMeshPro timeDisplay = null!;
 
-        public TextMeshPro TimeDisplay;
+        float timeSinceAlarmActive => timeSinceLastSnooze - snoozeTime;
 
-        string grabTooltip = "Snooze [E]";
+        bool alarmActive => timeSinceLastSnooze > snoozeTime;
 
-        float timeBetweenAlarms;
-        float volumeIncreaseInterval;
-        float volumeIncreaseAmount;
+        float volumeIncreaseMultiplier => 1 / timeToMaxVolume;
 
-        float timeBeforeAlarmStart;
-        float timeAlarmCountdown = 0f;
-        float timeAlarmActive = 0f;
-        float timeSinceDamagePlayers = 0f;
-        float timeSinceDelayedUpdate = 0f;
+        float timeSinceLastSnooze;
 
-        float StartingAlarmVolume;
-        float VolumeToStartDamagePlayers;
-        int maxDamage;
 
-        public AudioSource ItemSFX;
-
-        public List<AudioClip> AlarmSounds;
-        // TODO: Use ears ringing timer in soundmanager for scp498
-
-        enum AudioClips
-        {
-            ExtraLoud,
-            FourBeeps,
-            Alien,
-            Annoying
-        }
-
-        public override void Start()
-        {
-            base.Start();
-            logger.LogDebug("Starting 498 behavior.");
-            timeBeforeAlarmStart = ConfigManager.configTimeBeforeAlarmStart.Value;
-            timeBetweenAlarms = ConfigManager.configTimeBetweenAlarms.Value;
-            volumeIncreaseInterval = ConfigManager.configTimeBeforeVolumeIncrease.Value;
-            volumeIncreaseAmount = ConfigManager.configVolumeIncreaseAmount.Value;
-            StartingAlarmVolume = ConfigManager.configStartingAlarmVolume.Value;
-            VolumeToStartDamagePlayers = ConfigManager.configVolumeToStartDamagePlayers.Value;
-            maxDamage = ConfigManager.config498MaxDamage.Value;
-
-            ItemSFX.enabled = true;
-            ItemSFX.volume = StartingAlarmVolume;
-            ItemSFX.clip = AlarmSounds[ConfigManager.configAlarmType.Value];
-            customGrabTooltip = " ";
-
-            ItemSFX.minDistance = ConfigManager.configMaxVolumeMinDistance.Value;
-            ItemSFX.maxDistance = GetFarthestAINodeDistance();
-        }
+        const float snoozeTime = 120f;
+        const float timeToMaxVolume = 300f;
 
         public override void Update()
         {
             base.Update();
-
-            SetTimeDisplay();
-
-            if (timeBeforeAlarmStart > 0)
+            if (!StartOfRound.Instance.inShipPhase)
             {
-                timeBeforeAlarmStart -= Time.deltaTime;
-                //logger.LogDebug("Time left before start: " + timeBeforeAlarmStart);
-                ScanNode.subText = $"Time left: {timeBeforeAlarmStart}";
-                return;
+                timeSinceLastSnooze += Time.deltaTime;
+                SetTimeDisplay();
             }
 
-            if (timeAlarmCountdown > 0)
+            if (alarmActive && !audioSource.isPlaying)
             {
-                timeAlarmCountdown -= Time.deltaTime;
-                //logger.LogDebug("Time left: " + timeAlarmCountdown);
-                ScanNode.subText = $"Time left: {(int)timeAlarmCountdown}";
-                return;
-            }
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                    grabbable = false;
+                    grabbableToEnemies = false;
+                    customGrabTooltip = "Snooze [E]";
+                }
 
-            timeAlarmActive += Time.deltaTime;
-            if (customGrabTooltip != grabTooltip) { customGrabTooltip = grabTooltip; }
-            ScanNode.subText = $"Volume: {ItemSFX.volume}";
-
-            timeSinceDamagePlayers += Time.deltaTime;
-
-            timeSinceDelayedUpdate += Time.deltaTime;
-            if (timeSinceDelayedUpdate > 0.22f)
-            {
-                timeSinceDelayedUpdate = 0f;
-                DoDelayedUpdate();
-            }
-
-            if (!ItemSFX.isPlaying) { ItemSFX.Play(); }
-
-            int volumeMultiplier = (int)(timeAlarmActive / volumeIncreaseInterval);
-            float volume = volumeIncreaseAmount * volumeMultiplier;
-            ItemSFX.volume = Mathf.Clamp(volume, 0f, 1f);
-
-            if (ItemSFX.volume == 1f)
-            {
-                StartOfRound.Instance.ShipLeave();
+                audioSource.volume = timeSinceAlarmActive * volumeIncreaseMultiplier;
             }
         }
 
-        public void DoDelayedUpdate()
-        {
-            if (timeAlarmActive >= VolumeToStartDamagePlayers)
-            {
-                DamagePlayers();
-            }
-        }
-
-        public override void InteractItem() // TODO: Make sure this works on the network
+        public override void InteractItem()
         {
             base.InteractItem();
-            //logger.LogDebug("Time alarm active: " + timeAlarmActive);
-            if (timeAlarmActive <= 0f) { return; }
-            logger.LogDebug("Snoozing alarm.");
-            timeAlarmActive = 0f;
-            timeAlarmCountdown = timeBetweenAlarms;
-            ItemSFX.Stop();
-            ItemSFX.volume = StartingAlarmVolume;
-            customGrabTooltip = " ";
+            SnoozeServerRpc();
         }
 
-        public float GetFarthestAINodeDistance()
+        public override void ItemActivate(bool used, bool buttonDown = true)
         {
-            float maxDistance = 0f;
-
-            foreach (var node in RoundManager.Instance.insideAINodes)
-            {
-                if (node == null) { continue; }
-                float distance = Vector3.Distance(node.transform.position, transform.position);
-
-                if (distance > maxDistance)
-                {
-                    maxDistance = distance;
-                }
-            }
-
-            logger.LogDebug($"Max distance for SCP-498: {maxDistance}");
-            return maxDistance;
+            base.ItemActivate(used, buttonDown);
+            if (!buttonDown) { return; }
+            SnoozeServerRpc();
         }
 
-        private void SetTimeDisplay()
+        void SetTimeDisplay()
         {
             string time = HUDManager.Instance.clockNumber.text.Replace("\n", " ");
-            TimeDisplay.text = time;
+            timeDisplay.text = time;
         }
 
-        public void DamagePlayers()
+        void CalculateMaxDistance()
         {
-            if (timeSinceDamagePlayers > 3f && ItemSFX.volume >= VolumeToStartDamagePlayers / 2f)
+            if (localPlayer.isInsideFactory == isInFactory)
             {
-                timeSinceDamagePlayers = 0f;
-
-                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                GameObject farthestNode = Utils.insideAINodes.GetFarthestFromPosition(transform.position, (x) => x.transform.position)!;
+                float maxDistance = Vector3.Distance(transform.position, farthestNode.transform.position) + 10;
+                audioSource.maxDistance = Mathf.Lerp(10f, maxDistance, audioSource.volume);
+            }
+            else
+            {
+                foreach (var entrance in Utils.entrances)
                 {
-                    if (!player.isPlayerControlled) { continue; }
-                    float distance = Vector3.Distance(transform.position, player.transform.position);
-
-                    // MAIN Equation
-                    float damageFactor = 1f - distance / ItemSFX.maxDistance; // TODO: Test this
-                    int damage = (int)(maxDamage * damageFactor * ItemSFX.volume);
-                    damage = Mathf.Clamp(damage, 0, maxDamage);
-                    logger.LogDebug("Damage: " + damage); // temp
-
-                    float drunkness = damage / (float)maxDamage * 0.3f;
-                    logger.LogDebug("Drunkness: " + drunkness);
-                    player.drunkness = drunkness;
-
-                    if (ItemSFX.volume >= VolumeToStartDamagePlayers)
-                    {
-                        logger.LogDebug($"Damaging player with {damage} damage.");
-                        int newHealth = player.health - damage;
-                        player.DamagePlayerClientRpc(damage, newHealth);
-                    }
+                    // TODO
                 }
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SnoozeServerRpc()
+        {
+            if (!IsServer) { return; }
+            SnoozeClientRpc();
+        }
+
+        [ClientRpc]
+        public void SnoozeClientRpc()
+        {
+            audioSource.Stop();
+            timeSinceLastSnooze = 0f;
+            grabbable = true;
+            grabbableToEnemies = true;
+            customGrabTooltip = "";
         }
     }
 }
