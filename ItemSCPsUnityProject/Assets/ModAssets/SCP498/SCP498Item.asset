@@ -19,6 +19,7 @@ MonoBehaviour:
   twoHandedAnimation: 0
   disableHandsOnWall: 0
   canBeGrabbedBeforeGameStart: 0
+  disallowUtilitySlot: 1
   weight: 2
   itemIsTrigger: 0
   holdButtonUse: 0
@@ -61,5 +62,6 @@ MonoBehaviour:
   meshOffset: 0
   meshVariants: []
   materialVariants: []
+  clinkAudios: []
   usableInSpecialAnimations: 0
   canBeInspected: 0

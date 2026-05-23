@@ -81,7 +81,7 @@ namespace ItemSCPs.SCP
             timeDisplay.text = time;
         }
 
-        void CalculateVolume()
+        void CalculateVolume()// TODO
         {
             GameObject[] nodes = isInFactory ? Utils.insideAINodes : Utils.outsideAINodes;
             GameObject? farthestNode = nodes.GetFarthestFromPosition(transform.position, (x) => x.transform.position);
@@ -96,13 +96,21 @@ namespace ItemSCPs.SCP
             }
             else
             {
+                float maxVolume = 0f;
                 foreach (var entrance in Utils.entrances)
                 {
                     if (entrance.isEntranceToBuilding == isInFactory) { continue; }
                     if (entrance.exitScript == null && (entrance.exitPointDoesntExist || !entrance.FindExitPoint())) { continue; }
 
                     float alarmToEntrance = Vector3.Distance(transform.position, entrance.transform.position);
-                    float exitToPlayer = Vector3.Distance() // TODO
+                    if (alarmToEntrance > audioSource.maxDistance) { continue; }
+                    float exitToPlayer = Vector3.Distance(entrance.exitScript!.transform.position, localPlayer.transform.position); // TODO
+                    GameObject[] nodes2 = isInFactory ? Utils.outsideAINodes : Utils.insideAINodes; 
+                    GameObject? farthestNode2 = nodes2.GetFarthestFromPosition(transform.position, (x) => x.transform.position);
+                    if (farthestNode2 == null) { continue; }
+
+                    float maxDistance2 = Vector3.Distance(transform.position, farthestNode2.transform.position) + 10;
+                    audioSource.maxDistance = Mathf.Lerp(10f, maxDistance, audioSource.volume);
                 }
             }
         }
