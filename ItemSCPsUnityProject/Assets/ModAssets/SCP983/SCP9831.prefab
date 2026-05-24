@@ -129,7 +129,7 @@ GameObject:
   - component: {fileID: 3358933396894932557}
   - component: {fileID: 3320841218364914200}
   - component: {fileID: 2046280677089935512}
-  - component: {fileID: 1524068161423941627}
+  - component: {fileID: 3681257201498379638}
   m_Layer: 6
   m_Name: SCP9831
   m_TagString: PhysicsProp
@@ -205,7 +205,7 @@ AudioSource:
   m_GameObject: {fileID: 5001614886323996742}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300008, guid: cb9fb87df5ca10840a2a5b2dc5a4284c,
+  OutputAudioMixerGroup: {fileID: 24300008, guid: 64b08a5192e203847bb952b79319ef18,
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
@@ -293,7 +293,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1524068161423941627
+--- !u!114 &3681257201498379638
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5001614886323996742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1683149322, guid: 8fd73e88580b09c4eabc03cb3969de0a, type: 3}
+  m_Script: {fileID: 1613945411, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   grabbable: 1
@@ -322,7 +322,7 @@ MonoBehaviour:
   isBeingUsed: 0
   isInElevator: 0
   isInShipRoom: 0
-  isInFactory: 0
+  isInFactory: 1
   useCooldown: 0
   currentUseCooldown: 0
   itemProperties: {fileID: 11400000, guid: 28c005e907b64004db262ff57ad498f2, type: 2}
@@ -339,8 +339,9 @@ MonoBehaviour:
   heldByPlayerOnServer: 0
   radarIcon: {fileID: 0}
   reachedFloorTarget: 0
-  grabbableToEnemies: 0
+  grabbableToEnemies: 1
   hasBeenHeld: 0
+  rotateObject: 0
   eatCandySFX: {fileID: 8300000, guid: 9f24ed8e2a25ea34e90d51b1b1797eed, type: 3}
   renderers:
   - {fileID: 2153907727716260900}

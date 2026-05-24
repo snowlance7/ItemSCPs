@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: SCP498Item
   m_EditorClassIdentifier: 
   itemId: 0
-  itemName: SCP498
+  itemName: SCP-498
   spawnPositionTypes: []
   twoHanded: 0
   twoHandedAnimation: 0
   disableHandsOnWall: 0
-  canBeGrabbedBeforeGameStart: 0
+  canBeGrabbedBeforeGameStart: 1
   disallowUtilitySlot: 1
-  weight: 2
+  weight: 1.5
   itemIsTrigger: 0
   holdButtonUse: 0
   itemSpawnsOnGround: 1
   isConductiveMetal: 0
   isScrap: 1
-  creditsWorth: 100
+  creditsWorth: 0
   lockedInDemo: 0
   highestSalePercentage: 0
-  maxValue: 0
-  minValue: 0
-  spawnPrefab: {fileID: 1484420102244752001, guid: 74af92b1cb736a9459e0b565506a55c9,
+  maxValue: 200
+  minValue: 100
+  spawnPrefab: {fileID: 8517923538342812898, guid: 74af92b1cb736a9459e0b565506a55c9,
     type: 3}
   requiresBattery: 0
   batteryUsage: 0
@@ -42,9 +42,9 @@ MonoBehaviour:
   pocketAnim: 
   throwAnim: 
   grabAnimationTime: 0
-  grabSFX: {fileID: 0}
-  dropSFX: {fileID: 0}
-  pocketSFX: {fileID: 0}
+  grabSFX: {fileID: 8300000, guid: 7ee2adf75fe9ac040936b923eb9cc435, type: 3}
+  dropSFX: {fileID: 8300000, guid: 01fa77b67ba3303489dda53a4b95df28, type: 3}
+  pocketSFX: {fileID: 8300000, guid: 7ee2adf75fe9ac040936b923eb9cc435, type: 3}
   throwSFX: {fileID: 0}
   syncGrabFunction: 0
   syncUseFunction: 0

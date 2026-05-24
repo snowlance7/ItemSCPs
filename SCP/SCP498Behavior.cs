@@ -1,6 +1,4 @@
 ﻿using SnowyLib;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -26,6 +24,7 @@ namespace ItemSCPs.SCP
 
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
+        const float maxDistanceOffset = 10f;
 
         public override void Update()
         {
@@ -41,7 +40,7 @@ namespace ItemSCPs.SCP
             timeSinceLastSnooze += Time.deltaTime;
             SetTimeDisplay();
 
-            if (alarmActive/* && !audioSource.isPlaying*/)
+            if (alarmActive)
             {
                 if (!audioSource.isPlaying)
                 {
@@ -81,13 +80,13 @@ namespace ItemSCPs.SCP
             timeDisplay.text = time;
         }
 
-        void CalculateVolume()// TODO
+        void CalculateVolume() // TODO: Test this
         {
             GameObject[] nodes = isInFactory ? Utils.insideAINodes : Utils.outsideAINodes;
-            GameObject? farthestNode = nodes.GetFarthestFromPosition(transform.position, (x) => x.transform.position);
+            GameObject? farthestNode = nodes.GetFarthestFromPosition(transform.position, (x) => x.transform.position, out float farthestNodeDistance, skipSqrt: true);
             if (farthestNode == null) { return; }
 
-            float maxDistance = Vector3.Distance(transform.position, farthestNode.transform.position) + 10;
+            float maxDistance = farthestNodeDistance + maxDistanceOffset;
             audioSource.maxDistance = Mathf.Lerp(10f, maxDistance, audioSource.volume);
 
             if (localPlayer.isInsideFactory == isInFactory)
@@ -101,17 +100,23 @@ namespace ItemSCPs.SCP
                 {
                     if (entrance.isEntranceToBuilding == isInFactory) { continue; }
                     if (entrance.exitScript == null && (entrance.exitPointDoesntExist || !entrance.FindExitPoint())) { continue; }
+                    if (entrance.exitScript == null) { continue; }
 
-                    float alarmToEntrance = Vector3.Distance(transform.position, entrance.transform.position);
-                    if (alarmToEntrance > audioSource.maxDistance) { continue; }
-                    float exitToPlayer = Vector3.Distance(entrance.exitScript!.transform.position, localPlayer.transform.position); // TODO
+                    float alarmToEntranceDistance = (transform.position - entrance.transform.position).sqrMagnitude;
+                    if (alarmToEntranceDistance > audioSource.maxDistance) { continue; }
+                    float exitToPlayerDistance = (entrance.exitScript.transform.position - localPlayer.transform.position).sqrMagnitude; // TODO
+                    float totalDistanceToPlayer = alarmToEntranceDistance + exitToPlayerDistance;
                     GameObject[] nodes2 = isInFactory ? Utils.outsideAINodes : Utils.insideAINodes; 
-                    GameObject? farthestNode2 = nodes2.GetFarthestFromPosition(transform.position, (x) => x.transform.position);
+                    GameObject? farthestNode2 = nodes2.GetFarthestFromPosition(entrance.exitScript.transform.position, (x) => x.transform.position, out float farthestNode2Distance, skipSqrt: true);
                     if (farthestNode2 == null) { continue; }
 
-                    float maxDistance2 = Vector3.Distance(transform.position, farthestNode2.transform.position) + 10;
-                    audioSource.maxDistance = Mathf.Lerp(10f, maxDistance, audioSource.volume);
+                    float maxDistance2 = alarmToEntranceDistance + farthestNode2Distance + maxDistanceOffset;
+                    float volume = totalDistanceToPlayer / maxDistance2;
+                    if (volume < maxVolume) { continue; }
+                    maxVolume = volume;
                 }
+
+                audioSource2D.volume = maxVolume;
             }
         }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp
+    public class SCP420JBehavior : PhysicsProp // TODO
     {
         public AudioSource localHelmetSFX = null!;
         public AudioSource thisAudioSource = null!;
@@ -14,6 +14,7 @@ namespace ItemSCPs.SCP
         public AudioClip holdCanSFX = null!;
         public AudioClip removeCanSFX = null!;
         public AudioClip outOfGasSFX = null!;
+        public ParticleSystem particleSystem = null!;
 
         PlayerControllerB? previousPlayerHeldBy;
 
@@ -36,9 +37,6 @@ namespace ItemSCPs.SCP
                     if (!triedUsingWithoutFuel)
                     {
                         triedUsingWithoutFuel = true;
-                        thisAudioSource.PlayOneShot(outOfGasSFX);
-                        WalkieTalkie.TransmitOneShotAudio(thisAudioSource, outOfGasSFX);
-                        previousPlayerHeldBy.playerBodyAnimator.SetTrigger("shakeItem");
                     }
                     return;
                 }
