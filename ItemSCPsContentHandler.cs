@@ -79,11 +79,11 @@ namespace ItemSCPs
             //RegisterContent("scp3270", out SCP3270);
             //RegisterContent("scp3482", out SCP3482);
             //RegisterContent("scp420J", out SCP420J);
-            //RegisterContent("scp498", out SCP498);
+            RegisterContent("scp498", out SCP498);
             //RegisterContent("scp500", out SCP500);
             //RegisterContent("scp714", out SCP714);
             //RegisterContent("scp735", out SCP735);
-            //RegisterContent("scp983", out SCP983);
+            RegisterContent("scp983", out SCP983);
         }
     }
 
