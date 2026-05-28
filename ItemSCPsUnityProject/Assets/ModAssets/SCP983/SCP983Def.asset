@@ -121,12 +121,12 @@ MonoBehaviour:
       _namespace: lethal_company
       _key: vanilla
     MathOperation: 0
-    Weight: 0
+    Weight: 5
   - NamespacedKey:
       _namespace: lethal_company
       _key: custom
     MathOperation: 0
-    Weight: 0
+    Weight: 10
   - NamespacedKey:
       _namespace: lethal_company
       _key: facility

@@ -1,15 +1,10 @@
-﻿using BepInEx.Logging;
-using Dawn.Utils;
-using System;
-using System.Collections;
+﻿using Dawn.Utils;
+using SnowyLib;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Unity.Netcode;
-using Unity.Services.Authentication;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 
 namespace ItemSCPs
 {
@@ -19,6 +14,13 @@ namespace ItemSCPs
         public AudioClip pillSwallowSFX = null!;
 
         BoundedRange pillAmountRange = new BoundedRange(2, 15);
+
+        public void Awake()
+        {
+            itemProperties.positionOffset = new Vector3(0, 0, 0);
+            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.floorYOffset = 90;
+        }
 
         public override void Start()
         {
@@ -48,7 +50,7 @@ namespace ItemSCPs
 
         void TakePill()
         {
-            localPlayer.StatusEffectController().RemoveEffect(x => x.curableBySCP500);
+            localPlayer.StatusEffectController().RemoveEffect(x => x.curable);
 
             localPlayer.drunkness = 0;
 

@@ -9,7 +9,7 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp
+    internal class SCP1079Behavior : PhysicsProp // TODO: Add body blood
     {
 #pragma warning disable CS8618
         public AudioClip[] chewingSounds;
@@ -116,7 +116,7 @@ namespace ItemSCPs.SCP
         }
     }
 
-    [HarmonyPatch]
+    /*[HarmonyPatch]
     internal class SCP1079Patches
     {
         [HarmonyPostfix]
@@ -148,5 +148,5 @@ namespace ItemSCPs.SCP
                 return;
             }
         }
-    }
+    }*/
 }

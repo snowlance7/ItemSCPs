@@ -1,49 +1,60 @@
 ﻿using BepInEx.Logging;
+using Dawn.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp // TODO: Make this work with SCP-714
+    internal class SCP735Behavior : PhysicsProp
     {
-        public AudioSource ItemSFX;
+        public AudioSource audioSource = null!;
 
-        public AudioClip[] MonsterDamagePhrases;
-        public AudioClip[] NearOtherPlayersPhrases;
-        public AudioClip[] PlayerDiesPhrases;
-        public AudioClip[] PlayerDamagePhrases;
-        public AudioClip[] PlayerFallDamagePhrases;
-        public AudioClip[] RandomPhrases;
+        public AudioClip[] monsterDamagePhrases = null!;
+        public AudioClip[] nearOtherPlayersPhrases = null!;
+        public AudioClip[] playerDiesPhrases = null!;
+        public AudioClip[] playerDamagePhrases = null!;
+        public AudioClip[] playerFallDamagePhrases = null!;
+        public AudioClip[] randomPhrases = null!;
 
-        public Dictionary<string, AudioClip[]> Phrases = new Dictionary<string, AudioClip[]>();
+        public Dictionary<Phrase, AudioClip[]> phrases = new Dictionary<Phrase, AudioClip[]>();
 
-        float timeSinceLastPhrase;
         float phraseCooldown;
 
         PlayerControllerB? previousPlayerHeldBy;
 
+        public enum Phrase
+        {
+            MonsterDamagePhrases,
+            NearOtherPlayersPhrases,
+            PlayerDiesPhrases,
+            PlayerDamagePhrases,
+            PlayerFallDamagePhrases,
+            RandomPhrases
+        }
+
         // Configs
-        float minPhraseCooldown = 5f;
-        float maxPhraseCooldown = 10f;
-        float nearPlayersRadius = 5f;
+        BoundedRange phraseCooldownRange = new BoundedRange(5f, 10f);
+        float nearPlayersRadius = 10f;
 
         public override void Start()
         {
             base.Start();
 
-            Phrases.Add("MonsterDamagePhrases", MonsterDamagePhrases);
-            Phrases.Add("NearOtherPlayersPhrases", NearOtherPlayersPhrases);
-            Phrases.Add("PlayerDiesPhrases", PlayerDiesPhrases);
-            Phrases.Add("PlayerDamagePhrases", PlayerDamagePhrases);
-            Phrases.Add("PlayerFallDamagePhrases", PlayerFallDamagePhrases);
-            Phrases.Add("RandomPhrases", RandomPhrases);
+            phrases.Add(Phrase.MonsterDamagePhrases, monsterDamagePhrases);
+            phrases.Add(Phrase.NearOtherPlayersPhrases, nearOtherPlayersPhrases);
+            phrases.Add(Phrase.PlayerDiesPhrases, playerDiesPhrases);
+            phrases.Add(Phrase.PlayerDamagePhrases, playerDamagePhrases);
+            phrases.Add(Phrase.PlayerFallDamagePhrases, playerFallDamagePhrases);
+            phrases.Add(Phrase.RandomPhrases, randomPhrases);
         }
 
         public override void Update()
@@ -54,116 +65,75 @@ namespace ItemSCPs.SCP
             previousPlayerHeldBy = playerHeldBy;
             if (localPlayer != playerHeldBy) { return; }
 
-            timeSinceLastPhrase += Time.deltaTime;
+            if (phraseCooldown > 0)
+                phraseCooldown -= Time.deltaTime;
 
             if (previousPlayerHeldBy.takingFallDamage)
             {
-                SpeakPhrase("PlayerFallDamagePhrases");
+                SpeakPhrase(Phrase.PlayerFallDamagePhrases);
             }
 
-            if (timeSinceLastPhrase > phraseCooldown)
+            if (phraseCooldown <= 0)
             {
                 if (previousPlayerHeldBy.NearOtherPlayers(nearPlayersRadius) && UnityEngine.Random.Range(0, 3) == 0)
                 {
-                    SpeakPhrase("NearOtherPlayersPhrases");
+                    SpeakPhrase(Phrase.NearOtherPlayersPhrases);
                 }
                 else
                 {
-                    SpeakPhrase("RandomPhrases");
+                    SpeakPhrase(Phrase.RandomPhrases);
                 }
             }
         }
 
-        public void SpeakPhrase(string phrase, bool overrideIfPlaying = false)
+        public void SpeakPhrase(Phrase phrase, bool overrideIfPlaying = false)
         {
-            if (ItemSFX.isPlaying && !overrideIfPlaying) { return; }
+            if (audioSource.isPlaying && !overrideIfPlaying) { return; }
 
-            if (IsServerOrHost)
-            {
-                SpeakPhraseClientRpc(phrase);
-            }
-            else
-            {
-                SpeakPhraseServerRpc(phrase);
-            }
+            phraseCooldown = phraseCooldownRange.GetRandomInRange(Utils.randomLocal);
+
+            int index = UnityEngine.Random.Range(0, phrases[phrase].Length);
+            SpeakPhraseServerRpc(phrase, index);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpeakPhraseServerRpc(string phraseName)
+        private void SpeakPhraseServerRpc(Phrase phrase, int index)
         {
-            if (IsServerOrHost)
-                SpeakPhraseClientRpc(phraseName);
+            if (!IsServer) { return; }
+            SpeakPhraseClientRpc(phrase, index);
         }
 
         [ClientRpc]
-        public void SpeakPhraseClientRpc(string phraseName)
+        private void SpeakPhraseClientRpc(Phrase phrase, int index)
         {
-            logger.LogDebug("Speaking phrase: " + phraseName);
+            logger.LogDebug("Speaking phrase: " + phrase.ToString());
 
-            AudioClip[] phrases = Phrases[phraseName];
+            AudioClip[] clips = phrases[phrase];
+            AudioClip clip = clips[index];
+            audioSource.Stop();
+            audioSource.clip = clip;
+            audioSource.Play();
+            RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance);
+            WalkieTalkie.TransmitOneShotAudio(audioSource, clip, 0.85f);
 
-            int index = UnityEngine.Random.Range(0, phrases.Length);
-            AudioClip phrase = phrases[index];
-            ItemSFX.Stop();
-            ItemSFX.clip = phrase;
-            ItemSFX.Play();
-            RoundManager.Instance.PlayAudibleNoise(transform.position);
-            WalkieTalkie.TransmitOneShotAudio(ItemSFX, phrase, 0.85f);
-            timeSinceLastPhrase = 0f;
+            if (previousPlayerHeldBy == null || previousPlayerHeldBy != localPlayer || SCP714Behavior.localPlayerAffected) { return; }
 
-            if (previousPlayerHeldBy == null) { return; }
-            previousPlayerHeldBy.drunkness = 0.2f;
+            previousPlayerHeldBy.drunkness = 0.1f;
             if (previousPlayerHeldBy.playersManager.fearLevel < 0.2f) { previousPlayerHeldBy.JumpToFearLevel(0.2f); }
-            if (previousPlayerHeldBy == localPlayer)
-            {
-                timeSinceLastPhrase = 0f;
-                phraseCooldown = UnityEngine.Random.Range(minPhraseCooldown, maxPhraseCooldown);
-            }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void MonsterDamagedPlayerServerRpc()
-        {
-            if (IsServerOrHost)
-                SpeakPhrase("MonsterDamagePhrases");
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PlayerDamagedPlayerServerRpc()
-        {
-            if (IsServerOrHost)
-                SpeakPhrase("PlayerDamagePhrases");
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PlayerKilledServerRpc()
-        {
-            if (IsServerOrHost)
-                SpeakPhrase("PlayerDiesPhrases", true);
         }
     }
 
     [HarmonyPatch]
     internal class SCP735Patches
     {
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayer))]
-        public static void KillPlayerPrefix(PlayerControllerB __instance)
+        public static void KillPlayerPostfix(PlayerControllerB __instance)
         {
             try
             {
-                if (__instance == localPlayer)
-                {
-                    if (__instance.currentlyHeldObjectServer != null && __instance.currentlyHeldObjectServer.itemProperties.name == "SCP735Item")
-                    {
-                        SCP735Behavior? scp = __instance.currentlyHeldObjectServer.GetComponent<SCP735Behavior>();
-
-                        if (scp != null)
-                        {
-                            scp.PlayerKilledServerRpc();
-                        }
-                    }
-                }
+                if (__instance != localPlayer || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
+                __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.PlayerDiesPhrases, overrideIfPlaying: true);
             }
             catch (Exception e)
             {
@@ -176,39 +146,17 @@ namespace ItemSCPs.SCP
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.DamagePlayer))]
         public static void DamagePlayerPostfix(PlayerControllerB __instance, CauseOfDeath causeOfDeath)
         {
-            if (__instance == localPlayer && !__instance.isPlayerDead)
-            {
-                if (__instance.currentlyHeldObjectServer != null && __instance.currentlyHeldObjectServer.itemProperties.name == "SCP735Item")
-                {
-                    SCP735Behavior? scp = __instance.currentlyHeldObjectServer.GetComponent<SCP735Behavior>();
-
-                    if (scp != null)
-                    {
-                        if (causeOfDeath == CauseOfDeath.Mauling || causeOfDeath == CauseOfDeath.Stabbing)
-                        {
-                            scp.MonsterDamagedPlayerServerRpc();
-                        }
-                    }
-                }
-            }
+            if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
+            if (causeOfDeath != CauseOfDeath.Mauling || causeOfDeath != CauseOfDeath.Stabbing || causeOfDeath != CauseOfDeath.Scratching) { return; }
+            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.MonsterDamagePhrases);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.DamagePlayerFromOtherClientClientRpc))]
         public static void DamagePlayerFromOtherClientClientRpcPostfix(PlayerControllerB __instance)
         {
-            if (__instance == localPlayer && !__instance.isPlayerDead)
-            {
-                if (__instance.currentlyHeldObjectServer != null && __instance.currentlyHeldObjectServer.itemProperties.name == "SCP735Item")
-                {
-                    SCP735Behavior? scp = __instance.currentlyHeldObjectServer.GetComponent<SCP735Behavior>();
-
-                    if (scp != null)
-                    {
-                        scp.PlayerDamagedPlayerServerRpc();
-                    }
-                }
-            }
+            if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
+            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.PlayerDamagePhrases);
         }
     }
 }

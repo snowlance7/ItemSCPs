@@ -1,9 +1,18 @@
 {
   "ItemscpsItemKeys": {
     "__type": "DawnItemInfo",
+    "SCPZeroZeroFive": "itemscps:scpzerozerofive",
     "SCPZeroOneTwo": "itemscps:scpzeroonetwo",
+    "SCPTwoZeroSevenOne": "itemscps:scptwozerosevenone",
+    "SCPTwoSixEight": "itemscps:scptwosixeight",
+    "SCPFourNineEight": "itemscps:scpfournineeight",
+    "SCPFiveZeroZero": "itemscps:scpfivezerozero",
+    "SCPSevenOneFour": "itemscps:scpsevenonefour",
+    "SCPSevenThreeFive": "itemscps:scpseventhreefive",
     "SCPNineEightThree": "itemscps:scpnineeightthree",
     "SCPNineEightThreeOne": "itemscps:scpnineeightthreeone",
-    "SCPOneZeroSevenNine": "itemscps:scponezerosevennine"
+    "SCPOneZeroTwoFive": "itemscps:scponezerotwofive",
+    "SCPOneZeroSevenNine": "itemscps:scponezerosevennine",
+    "SCPThreeFourEightTwo": "itemscps:scpthreefoureighttwo"
   }
 }

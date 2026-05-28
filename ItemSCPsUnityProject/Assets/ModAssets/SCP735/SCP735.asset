@@ -18,20 +18,20 @@ MonoBehaviour:
   twoHanded: 1
   twoHandedAnimation: 1
   disableHandsOnWall: 0
-  canBeGrabbedBeforeGameStart: 0
-  disallowUtilitySlot: 0
+  canBeGrabbedBeforeGameStart: 1
+  disallowUtilitySlot: 1
   weight: 1.2
   itemIsTrigger: 0
   holdButtonUse: 0
   itemSpawnsOnGround: 1
   isConductiveMetal: 1
   isScrap: 1
-  creditsWorth: 100
+  creditsWorth: 0
   lockedInDemo: 0
   highestSalePercentage: 0
   maxValue: 100
-  minValue: 200
-  spawnPrefab: {fileID: 4127152273246761494, guid: 0454aeb15e940cb4b8e1f84c83828103,
+  minValue: 300
+  spawnPrefab: {fileID: 224547607400746494, guid: 0454aeb15e940cb4b8e1f84c83828103,
     type: 3}
   requiresBattery: 0
   batteryUsage: 0
@@ -42,8 +42,8 @@ MonoBehaviour:
   pocketAnim: 
   throwAnim: 
   grabAnimationTime: 0
-  grabSFX: {fileID: 0}
-  dropSFX: {fileID: 0}
+  grabSFX: {fileID: 8300000, guid: 70e51c496bba5e54b940b4e4ce757081, type: 3}
+  dropSFX: {fileID: 8300000, guid: 4b2e0f2889fb6d14f8173d89744f65e2, type: 3}
   pocketSFX: {fileID: 0}
   throwSFX: {fileID: 0}
   syncGrabFunction: 0
@@ -57,8 +57,8 @@ MonoBehaviour:
   floorYOffset: 0
   allowDroppingAheadOfPlayer: 0
   restingRotation: {x: 0, y: 0, z: 0}
-  rotationOffset: {x: 0, y: 12, z: -100}
-  positionOffset: {x: 0.08, y: 0.05, z: -0.35}
+  rotationOffset: {x: 0, y: 0, z: 0}
+  positionOffset: {x: 0, y: 0, z: 0}
   meshOffset: 0
   meshVariants: []
   materialVariants: []

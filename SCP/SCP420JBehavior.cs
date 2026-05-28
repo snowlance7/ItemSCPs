@@ -7,13 +7,7 @@ namespace ItemSCPs.SCP
 {
     public class SCP420JBehavior : PhysicsProp // TODO
     {
-        public AudioSource localHelmetSFX = null!;
-        public AudioSource thisAudioSource = null!;
-        public AudioClip twistCanSFX = null!;
-        public AudioClip releaseGasSFX = null!;
-        public AudioClip holdCanSFX = null!;
-        public AudioClip removeCanSFX = null!;
-        public AudioClip outOfGasSFX = null!;
+        public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
 
         PlayerControllerB? previousPlayerHeldBy;
@@ -55,9 +49,9 @@ namespace ItemSCPs.SCP
                     StopCoroutine(useBluntCoroutine);
                     emittingGas = false;
                     previousPlayerHeldBy.activatingItem = false;
-                    thisAudioSource.Stop();
-                    localHelmetSFX.Stop();
-                    thisAudioSource.PlayOneShot(removeCanSFX);
+                    audioSource.Stop();
+                    //localHelmetSFX.Stop();
+                    //audioSource.PlayOneShot(removeCanSFX);
                 }
             }
             if (base.IsOwner)
@@ -69,23 +63,23 @@ namespace ItemSCPs.SCP
 
         IEnumerator UseTZPAnimation()
         {
-            thisAudioSource.PlayOneShot(holdCanSFX);
-            WalkieTalkie.TransmitOneShotAudio(previousPlayerHeldBy.itemAudio, holdCanSFX);
+            //audioSource.PlayOneShot(holdCanSFX);
+            //WalkieTalkie.TransmitOneShotAudio(previousPlayerHeldBy.itemAudio, holdCanSFX);
             yield return new WaitForSeconds(0.75f);
             emittingGas = true;
             HUDManager.Instance.gasHelmetAnimator.SetBool("gasEmitting", value: true);
             if (base.IsOwner)
             {
-                localHelmetSFX.Play();
-                localHelmetSFX.PlayOneShot(twistCanSFX);
+                //localHelmetSFX.Play();
+                //localHelmetSFX.PlayOneShot(twistCanSFX);
             }
             else
             {
-                thisAudioSource.clip = releaseGasSFX;
-                thisAudioSource.Play();
-                thisAudioSource.PlayOneShot(twistCanSFX);
+                //audioSource.clip = releaseGasSFX;
+                audioSource.Play();
+                //audioSource.PlayOneShot(twistCanSFX);
             }
-            WalkieTalkie.TransmitOneShotAudio(previousPlayerHeldBy.itemAudio, twistCanSFX);
+            //WalkieTalkie.TransmitOneShotAudio(previousPlayerHeldBy.itemAudio, twistCanSFX);
         }
 
         public override void Update()
@@ -95,8 +89,8 @@ namespace ItemSCPs.SCP
                 if (previousPlayerHeldBy == null || !isHeld || fuel <= 0f)
                 {
                     emittingGas = false;
-                    thisAudioSource.Stop();
-                    localHelmetSFX.Stop();
+                    audioSource.Stop();
+                    //localHelmetSFX.Stop();
                     RunOutOfFuelServerRpc();
                 }
                 previousPlayerHeldBy.drunknessInertia = Mathf.Clamp(previousPlayerHeldBy.drunknessInertia + Time.deltaTime / 1.75f * previousPlayerHeldBy.drunknessSpeed, 0.1f, 3f);
@@ -130,16 +124,16 @@ namespace ItemSCPs.SCP
             itemUsedUp = true;
             emittingGas = false;
             fuel = 0f;
-            thisAudioSource.Stop();
-            localHelmetSFX.Stop();
+            audioSource.Stop();
+            //localHelmetSFX.Stop();
         }
 
         public override void DiscardItem()
         {
             emittingGas = false;
-            thisAudioSource.Stop();
-            localHelmetSFX.Stop();
-            playerHeldBy.playerBodyAnimator.ResetTrigger("shakeItem");
+            audioSource.Stop();
+            //localHelmetSFX.Stop();
+            //playerHeldBy.playerBodyAnimator.ResetTrigger("shakeItem");
             previousPlayerHeldBy.playerBodyAnimator.SetBool("useTZPItem", value: false);
             if (previousPlayerHeldBy != null)
             {

@@ -21,15 +21,23 @@ MonoBehaviour:
     configName: SCP-005
   - assetBundleName: scp012
     configName: SCP-012
-  - assetBundleName: scp1025
-    configName: SCP-1025
-  - assetBundleName: scp1079
-    configName: SCP-1079
   - assetBundleName: scp207_1
     configName: SCP-207-1
   - assetBundleName: scp268
     configName: SCP-268
   - assetBundleName: scp498
     configName: SCP-498
+  - assetBundleName: scp500
+    configName: SCP-500
+  - assetBundleName: scp714
+    configName: SCP-714
+  - assetBundleName: scp735
+    configName: SCP-735
   - assetBundleName: scp983
     configName: SCP-983
+  - assetBundleName: scp1025
+    configName: SCP-1025
+  - assetBundleName: scp1079
+    configName: SCP-1079
+  - assetBundleName: scp3482
+    configName: SCP-3482
