@@ -40,9 +40,6 @@ namespace ItemSCPs
         public class SCP268Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP268Assets>(mod, filePath) { }
         public SCP268Assets? SCP268;
 
-        public class SCP3270Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP3270Assets>(mod, filePath) { }
-        public SCP3270Assets? SCP3270;
-
         public class SCP3482Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP3482Assets>(mod, filePath) { }
         public SCP3482Assets? SCP3482;
 
@@ -76,13 +73,12 @@ namespace ItemSCPs
             RegisterContent("scp1079", out SCP1079);
             RegisterContent("scp207", out SCP207);
             RegisterContent("scp268", out SCP268);
-            //RegisterContent("scp3270", out SCP3270);
-            //RegisterContent("scp3482", out SCP3482);
+            RegisterContent("scp3482", out SCP3482);
             //RegisterContent("scp420J", out SCP420J);
             RegisterContent("scp498", out SCP498);
-            //RegisterContent("scp500", out SCP500);
-            //RegisterContent("scp714", out SCP714);
-            //RegisterContent("scp735", out SCP735);
+            RegisterContent("scp500", out SCP500);
+            RegisterContent("scp714", out SCP714);
+            RegisterContent("scp735", out SCP735);
             RegisterContent("scp983", out SCP983);
         }
     }
