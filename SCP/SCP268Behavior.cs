@@ -9,6 +9,7 @@ using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 using SnowyLib;
+using ItemSCPs.SCP;
 
 namespace ItemSCPs.Items.Snowy
 {
@@ -25,12 +26,12 @@ namespace ItemSCPs.Items.Snowy
 
         public void Awake()
         {
-            itemProperties.positionOffset = new Vector3(0, 0, -0.1f);
-            itemProperties.rotationOffset = new Vector3(90, 0, 90);
+            itemProperties.positionOffset = new Vector3(0f, 0.15f, -0.17f);
+            itemProperties.rotationOffset = new Vector3(90, 0, -105);
             itemProperties.floorYOffset = 90;
 
-            itemProperties.toolTips = ["Wear [LMB]"];
-            itemProperties.canBeGrabbedBeforeGameStart = true;
+            wearableItemProperties.wornPositionOffset = new Vector3(0, 0.27f, 0.07f);
+            wearableItemProperties.wornRotationOffset = new Vector3(-30, 0, 0);
         }
 
         public override void Update()
@@ -40,7 +41,10 @@ namespace ItemSCPs.Items.Snowy
             {
                 foreach (var player in StartOfRound.Instance.allPlayerScripts)
                 {
+                    if (player != localPlayer) { continue;}
                     if (player == playerWornBy) { continue; }
+                    if (TESTING.immunity) { continue; }
+                    if (SCP714Behavior.localPlayerAffected) { continue; }
                     if (player.HasLineOfSightToPosition(playerWornBy.transform.position))
                     {
                         Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;

@@ -12,13 +12,6 @@ namespace ItemSCPs
         }
         public NetworkHandlerAssets? NetworkHandler;
 
-        public class StatusEffectControllerAssets(DuskMod mod, string filePath) : AssetBundleLoader<StatusEffectControllerAssets>(mod, filePath)
-        {
-            [LoadFromBundle("StatusEffectController.prefab")]
-            public GameObject StatusEffectControllerPrefab { get; private set; } = null!;
-        }
-        public StatusEffectControllerAssets? StatusEffectController;
-
         public class SCP005Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP005Assets>(mod, filePath) { }
         public SCP005Assets? SCP005;
 
@@ -31,7 +24,14 @@ namespace ItemSCPs
         public class SCP1025Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1025Assets>(mod, filePath) { }
         public SCP1025Assets? SCP1025;
 
-        public class SCP1079Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1079Assets>(mod, filePath) { }
+        public class SCP1079Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP1079Assets>(mod, filePath)
+        {
+            [LoadFromBundle("PinkBloodDecalProjector.prefab")]
+            public GameObject PinkBloodDecalProjector { get; private set; } = null!;
+
+            [LoadFromBundle("PinkBloodDecal.mat")]
+            public Material PinkBloodDecal { get; private set; } = null!;
+        }
         public SCP1079Assets? SCP1079;
 
         public class SCP207Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP207Assets>(mod, filePath) { }
@@ -64,7 +64,6 @@ namespace ItemSCPs
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)
         {
             RegisterContent("networkhandler", out NetworkHandler);
-            RegisterContent("statuseffectcontroller", out StatusEffectController);
 
             RegisterContent("scp005", out SCP005);
             RegisterContent("scp012", out SCP012);

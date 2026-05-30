@@ -6,7 +6,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207_1Behavior : PhysicsProp
+    internal class SCP207_1Behavior : PhysicsProp // TODO: Needs Testing
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;
@@ -33,7 +33,7 @@ namespace ItemSCPs.SCP
         float effectDuration = 1200f;
         float drinkTimePerBottle = 10f;
 
-        public void Awake()
+        public void Awake() // TODO: Set these
         {
             itemProperties.positionOffset = new Vector3(0, 0, 0);
             itemProperties.rotationOffset = new Vector3(0, 0, 0);
@@ -67,7 +67,7 @@ namespace ItemSCPs.SCP
 
                     if (base.IsOwner)
                     {
-                        if (drinkingTime > 0f)
+                        if (drinkingTime > 0f && !TESTING.immunity)
                             ApplyEffect(drinkingTime);
 
                         previousPlayerHeldBy!.activatingItem = false;
@@ -101,7 +101,7 @@ namespace ItemSCPs.SCP
                 drinking = false;
                 audioSource.Stop();
 
-                if (base.IsOwner && drinkingTime > 0f)
+                if (base.IsOwner && drinkingTime > 0f && TESTING.immunity)
                 {
                     ApplyEffect(drinkingTime);
                 }

@@ -45,6 +45,13 @@ namespace ItemSCPs.SCP
         BoundedRange phraseCooldownRange = new BoundedRange(5f, 10f);
         float nearPlayersRadius = 10f;
 
+        public void Awake() // TODO: Set these
+        {
+            itemProperties.positionOffset = new Vector3(0.07f, 0.2f, -0.25f);
+            itemProperties.rotationOffset = new Vector3(80, 0, 90);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void Start()
         {
             base.Start();
@@ -64,6 +71,7 @@ namespace ItemSCPs.SCP
             if (playerHeldBy == null) { return; }
             previousPlayerHeldBy = playerHeldBy;
             if (localPlayer != playerHeldBy) { return; }
+            if (TESTING.immunity) { return; }
 
             if (phraseCooldown > 0)
                 phraseCooldown -= Time.deltaTime;
@@ -115,11 +123,6 @@ namespace ItemSCPs.SCP
             audioSource.Play();
             RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance);
             WalkieTalkie.TransmitOneShotAudio(audioSource, clip, 0.85f);
-
-            if (previousPlayerHeldBy == null || previousPlayerHeldBy != localPlayer || SCP714Behavior.localPlayerAffected) { return; }
-
-            previousPlayerHeldBy.drunkness = 0.1f;
-            if (previousPlayerHeldBy.playersManager.fearLevel < 0.2f) { previousPlayerHeldBy.JumpToFearLevel(0.2f); }
         }
     }
 

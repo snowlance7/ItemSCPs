@@ -104,6 +104,7 @@ namespace ItemSCPs.SCP
 
             localPlayerAffected = CanAffectPlayer();
 
+            audioSource.volume = localPlayerAffected ? 1 : 0; // TODO: Test this
             audioSource.maxDistance = maxRange;
 
             if (!localPlayerAffected)

@@ -15,8 +15,6 @@ MonoBehaviour:
   assetBundles:
   - assetBundleName: networkhandler
     configName: NetworkHandler
-  - assetBundleName: statuseffectcontroller
-    configName: StatusEffectController
   - assetBundleName: scp005
     configName: SCP-005
   - assetBundleName: scp012

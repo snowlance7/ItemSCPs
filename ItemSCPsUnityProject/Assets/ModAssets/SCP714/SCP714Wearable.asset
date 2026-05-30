@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 1195373878, guid: 15430fced0bc5644591c9bda1289e1da, type: 3}
   m_Name: SCP714Wearable
   m_EditorClassIdentifier: 
-  spawnPrefab: {fileID: 4037109154401693404, guid: 57367bd27e247af4a862de71fa87d434,
+  spawnPrefab: {fileID: 4147217288726972037, guid: 57367bd27e247af4a862de71fa87d434,
     type: 3}
   wearOnUse: 1
   restrictions: []

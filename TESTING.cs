@@ -31,15 +31,6 @@ namespace ItemSCPs
         {
             if (!Utils.testing) { return; }
 
-            /*foreach (var light in FindObjectsOfType<Light>())
-            {
-                if (!light.enabled) { continue; }
-                float distance = Vector3.Distance(localPlayer.currentlyHeldObjectServer.transform.position, light.transform.position);
-                if (distance > 10) { continue; }
-                if (distance > light.range) { continue; }
-                logger.LogDebug($"{light.name}: {light.range}");
-            }*/
-
             logger.LogDebug("PingScanTestPerformed");
         }
 

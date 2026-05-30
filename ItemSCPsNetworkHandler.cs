@@ -1,9 +1,13 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using Unity.Netcode;
-using UnityEngine;
-using static ItemSCPs.Plugin;
+using ItemSCPs.SCP;
 using SnowyLib;
+using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Services.Authentication.Generated;
+using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
+using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
@@ -32,14 +36,6 @@ namespace ItemSCPs
             Instance = this;
             logger.LogDebug("NetworkHandler spawned");
             base.OnNetworkSpawn();
-        }
-
-        public void Update()
-        {
-            /*var ui = TestingHUDOverlay.Instance;
-            ui.SetLabel1("SprintMeter: " + localPlayer.sprintMeter); // 0-1
-            ui.SetLabel2("SprintTime: " + localPlayer.sprintTime); // 11, idk what this does
-            ui.SetLabel3("SprintMultiplier: " + localPlayer.sprintMultiplier); // 1-2.5, controls sprint speed */
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -124,6 +120,34 @@ namespace ItemSCPs
             }
 
             Utils.PlaySoundAtPosition(position, clips, volume, true, true, min3DDistance, max3DDistance, cutoffFrequency, audibleNoiseID);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DropPinkBloodServerRpc(Vector3 pos)
+        {
+            if (!IsServer) { return; }
+            DropPinkBloodClientRpc(pos);
+        }
+
+        [ClientRpc]
+        private void DropPinkBloodClientRpc(Vector3 pos)
+        {
+            SCP1079Behavior.DropPinkBloodOnLocalClient(pos);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void AddPinkBloodToBodyServerRpc(ulong clientId)
+        {
+            if (!IsServer) { return; }
+            AddPinkBloodToBodyClientRpc(clientId);
+        }
+
+        [ClientRpc]
+        private void AddPinkBloodToBodyClientRpc(ulong clientId)
+        {
+            PlayerControllerB? player = PlayerFromId(clientId);
+            if (player == null) { return; }
+            SCP1079Behavior.AddPinkBloodToBodyOnLocalClient(player);
         }
     }
 

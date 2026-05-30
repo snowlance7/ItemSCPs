@@ -128,7 +128,7 @@ namespace ItemSCPs.SCP
 
             itemProperties.canBeInspected = true;
             itemProperties.canBeGrabbedBeforeGameStart = true;
-            itemProperties.toolTips = new string[] { "Open Book [LMB]" };
+            itemProperties.toolTips = ["Open Book [LMB]"];
         }
 
         public override void EquipItem()
@@ -146,7 +146,7 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!buttonDown) { return; }
+            if (!buttonDown || TESTING.immunity) { return; }
 
             int index = UnityEngine.Random.Range(0, diseases.Length);
             OpenBookServerRpc(index);

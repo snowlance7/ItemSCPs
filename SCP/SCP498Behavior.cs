@@ -71,7 +71,6 @@ namespace ItemSCPs.SCP
 
         public override void InteractItem()
         {
-            base.InteractItem();
             SnoozeServerRpc();
         }
 

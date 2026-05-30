@@ -55,6 +55,13 @@ namespace ItemSCPs.SCP
         const float grace = 0.1f;
         const string cfgNoteHoldTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
+        public void Awake() // TODO: Set these
+        {
+            itemProperties.positionOffset = new Vector3(0f, 0f, 0f);
+            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.floorYOffset = 90;
+        }
+
         public override void Start()
         {
             base.Start();
@@ -350,6 +357,13 @@ namespace ItemSCPs.SCP
         }
 
         CandyType candyType;
+
+        public void Awake() // TODO: Set these
+        {
+            itemProperties.positionOffset = new Vector3(0f, 0f, 0f);
+            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.floorYOffset = 90;
+        }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {

@@ -4,15 +4,20 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject
+    internal class SCP714Behavior : WearableObject // TODO: Make the player tired and exhausted
     {
         public static bool localPlayerAffected { get; private set; }
 
-        public void Awake()
+        public void Awake() // TODO: Set these
         {
-            itemProperties.positionOffset = new Vector3(0, 0, 0);
+            itemProperties.positionOffset = new Vector3(0.07f, 0.1f, 0f);
             itemProperties.rotationOffset = new Vector3(0, 0, 0);
             itemProperties.floorYOffset = 90;
+
+            wearableItemProperties.showWearableOnClient = false;
+            wearableItemProperties.showWearable = false;
+            //wearableItemProperties.wornPositionOffset = new Vector3(0, 0, 0);
+            //wearableItemProperties.wornRotationOffset = new Vector3(0, 0, 0);
         }
 
         public override void Update()
