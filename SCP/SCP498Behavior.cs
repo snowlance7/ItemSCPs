@@ -6,7 +6,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498
+    internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498 // TODO: Set up 2D audio and fake it or set up 3d audio by doors to be more accurate, set panning depending on direction to player
     {
         public ScanNodeProperties scanNode = null!;
         public AudioSource audioSource = null!;

@@ -219,7 +219,7 @@ namespace ItemSCPs.SCP
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
-            VignetteOverlay.Instance.SetIntensity(normalized);
+            //VignetteOverlay.Instance.SetIntensity(normalized); // TODO: Set this up correctly
 
             MovePlayerTowardsPosition(transform.position, normalized);
 

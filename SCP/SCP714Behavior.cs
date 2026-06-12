@@ -4,7 +4,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject // TODO: Make the player tired and exhausted
+    internal class SCP714Behavior : WearableObject // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
     {
         public static bool localPlayerAffected { get; private set; }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp
+    internal class SCP005Behavior : PhysicsProp // TODO: Use a spherecast instead of raycasting
     {
         const float doorDistance = 1f;
 

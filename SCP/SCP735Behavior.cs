@@ -14,7 +14,7 @@ using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp
+    internal class SCP735Behavior : PhysicsProp // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
     {
         public AudioSource audioSource = null!;
 

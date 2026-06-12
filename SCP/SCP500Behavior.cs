@@ -8,7 +8,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    internal class SCP500Behavior : PhysicsProp
+    internal class SCP500Behavior : PhysicsProp // TODO: Gulp SFX not playing
     {
         public List<GameObject> pillsInBottle = null!;
         public AudioClip pillSwallowSFX = null!;

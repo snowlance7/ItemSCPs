@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c30496d6ae6d6f907456e10a94e01ec6, type: 3}
-  m_Name: SCP3482
+  m_Name: SCP420J
   m_EditorClassIdentifier: 
   itemId: 0
-  itemName: SCP-3482
+  itemName: SCP-420-J
   spawnPositionTypes: []
-  twoHanded: 1
-  twoHandedAnimation: 1
-  disableHandsOnWall: 1
+  twoHanded: 0
+  twoHandedAnimation: 0
+  disableHandsOnWall: 0
   canBeGrabbedBeforeGameStart: 1
   disallowUtilitySlot: 1
   weight: 1
   itemIsTrigger: 0
-  holdButtonUse: 0
+  holdButtonUse: 1
   itemSpawnsOnGround: 1
   isConductiveMetal: 0
   isScrap: 1
   creditsWorth: 0
   lockedInDemo: 0
   highestSalePercentage: 80
-  maxValue: 100
-  minValue: 200
-  spawnPrefab: {fileID: 2243885020743378187, guid: d222700a99f0242429631505f04a4e8b,
+  maxValue: 420
+  minValue: 420
+  spawnPrefab: {fileID: 2779343225596210630, guid: 5748967ad164d464c8ac23b83314dcff,
     type: 3}
-  requiresBattery: 0
+  requiresBattery: 1
   batteryUsage: 0
   automaticallySetUsingPower: 0
   itemIcon: {fileID: 21300000, guid: 3b935013d802984458c9bbef2a054fc6, type: 3}
@@ -42,8 +42,8 @@ MonoBehaviour:
   pocketAnim: 
   throwAnim: 
   grabAnimationTime: 0
-  grabSFX: {fileID: 8300000, guid: 7ee2adf75fe9ac040936b923eb9cc435, type: 3}
-  dropSFX: {fileID: 8300000, guid: 01fa77b67ba3303489dda53a4b95df28, type: 3}
+  grabSFX: {fileID: 0}
+  dropSFX: {fileID: 0}
   pocketSFX: {fileID: 0}
   throwSFX: {fileID: 0}
   syncGrabFunction: 0
@@ -52,7 +52,8 @@ MonoBehaviour:
   syncInteractLRFunction: 0
   saveItemVariable: 0
   isDefensiveWeapon: 0
-  toolTips: []
+  toolTips:
+  - Smoke [LMB]
   verticalOffset: 0
   floorYOffset: 0
   allowDroppingAheadOfPlayer: 1
@@ -64,4 +65,4 @@ MonoBehaviour:
   materialVariants: []
   clinkAudios: []
   usableInSpecialAnimations: 0
-  canBeInspected: 1
+  canBeInspected: 0

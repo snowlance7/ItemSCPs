@@ -14,6 +14,8 @@ using SnowyLib;
 // SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
 // TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand
 // happy birthday to you, happy birthday to you, happy birthday dear player, bad luck go with you! A ding ding ding its your birthday!
+// TODO: Candy is not dropping when spawned
+// TODO: Change to player voice instead of using item
 
 namespace ItemSCPs.SCP
 {

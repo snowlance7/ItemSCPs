@@ -23,6 +23,8 @@ MonoBehaviour:
     configName: SCP-207-1
   - assetBundleName: scp268
     configName: SCP-268
+  - assetBundleName: scp420j
+    configName: SCP-420-J
   - assetBundleName: scp498
     configName: SCP-498
   - assetBundleName: scp500

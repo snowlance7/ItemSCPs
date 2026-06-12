@@ -73,7 +73,7 @@ namespace ItemSCPs
             RegisterContent("scp207", out SCP207);
             RegisterContent("scp268", out SCP268);
             RegisterContent("scp3482", out SCP3482);
-            //RegisterContent("scp420J", out SCP420J);
+            RegisterContent("scp420j", out SCP420J);
             RegisterContent("scp498", out SCP498);
             RegisterContent("scp500", out SCP500);
             RegisterContent("scp714", out SCP714);

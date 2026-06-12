@@ -13,7 +13,7 @@ using ItemSCPs.SCP;
 
 namespace ItemSCPs.Items.Snowy
 {
-    public class SCP268Behavior : WearableObject // TODO: Set wearable offsets
+    public class SCP268Behavior : WearableObject // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;
