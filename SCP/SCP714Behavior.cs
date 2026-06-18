@@ -16,6 +16,9 @@ namespace ItemSCPs.SCP
 
             wearableItemProperties.showWearableOnClient = false;
             wearableItemProperties.showWearable = false;
+
+            wearableItemProperties.boneTransform = "";
+            wearableItemProperties.boneTransformLocal = ""; // TODO: Set these up
             //wearableItemProperties.wornPositionOffset = new Vector3(0, 0, 0);
             //wearableItemProperties.wornRotationOffset = new Vector3(0, 0, 0);
         }

@@ -30,7 +30,8 @@ namespace ItemSCPs.SCP
                 return;
             }
 
-            RaycastHit[] hits = Physics.RaycastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance);
+            //RaycastHit[] hits = Physics.RaycastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance);
+            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance); // TODO
             foreach (var hit in hits)
             {
                 if (hit.collider.CompareTag("PoweredObject"))
