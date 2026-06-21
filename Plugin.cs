@@ -14,7 +14,7 @@ namespace ItemSCPs
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(DawnLib.PLUGIN_GUID)]
-    [BepInDependency("SCP500", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(SnowyLib.MyPluginInfo.PLUGIN_GUID)]
     public class Plugin : BaseUnityPlugin
     {
 #pragma warning disable CS8618
