@@ -6,6 +6,8 @@ using UnityEngine;
 using static ItemSCPs.Plugin;
 
 // TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
+// TODO: Make spawn rates on scp interiors in dawnlib interior spawn weights super high
+// TODO: WearableItemsAPI cant move when exiting the ui by pressing escape
 
 namespace ItemSCPs.SCP
 {
