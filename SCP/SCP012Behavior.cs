@@ -5,13 +5,12 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-// TODO: Make config for making all the scp items names to be generic names instead of the SCP-??? when you scan them? Make it default?
 // TODO: Make spawn rates on scp interiors in dawnlib interior spawn weights super high
 // TODO: WearableItemsAPI cant move when exiting the ui by pressing escape
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP012Behavior : PhysicsProp // TODO: // Set up light functionality
+    internal class SCP012Behavior : PhysicsProp // TODO: Set up light functionality
     {
 #pragma warning disable CS8618
         public AudioSource audioSource;
@@ -25,8 +24,8 @@ namespace ItemSCPs.SCP
         bool localPlayerPlayingFinalSpeech;
         float timeSinceStartFinalSpeech;
 
-        //bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold; // TODO: Test and make sure this works
-        //bool isLit => GetLightAt(transform.position) > lightThreshold; // TODO: Test and make sure this works
+        //bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold;
+        //bool isLit => GetLightAt(transform.position) > lightThreshold;
         //bool isLit => GetLightAt(localPlayer.transform.position, Vector3.up) > 1000;
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
         AudioSource? playerVoice => playerHeldBy?.itemAudio;
@@ -134,8 +133,8 @@ namespace ItemSCPs.SCP
             localPlayer.sprintMeter = 0f;
             localPlayer.isExhausted = true;
 
-            if (localPlayer.health > 0)
-                VignetteOverlay.Instance.SetIntensity(1 - (100 / localPlayer.health));
+            //if (localPlayer.health > 0)
+            //    VignetteOverlay.Instance.SetIntensity(1 - (100 / localPlayer.health)); // TODO: Find how to do the vignette effect the game uses when spawn player animation gets run
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -278,6 +277,13 @@ namespace ItemSCPs.SCP
             return true;
         }
 
+        void PlayFinalSpeech()
+        {
+            localPlayerPlayingFinalSpeech = true;
+            timeSinceStartFinalSpeech = 0f;
+            PlayFinalSpeechServerRpc();
+        }
+
         public static float GetLightAt(Vector3 pos) // TODO: Figure this out more
         {
             float brightness = 0f;
@@ -296,13 +302,6 @@ namespace ItemSCPs.SCP
 
             logger.LogDebug(brightness);
             return brightness;
-        }
-
-        void PlayFinalSpeech()
-        {
-            localPlayerPlayingFinalSpeech = true;
-            timeSinceStartFinalSpeech = 0f;
-            PlayFinalSpeechServerRpc();
         }
 
         public static void GetLights()

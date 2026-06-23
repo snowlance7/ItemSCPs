@@ -28,12 +28,12 @@ MonoBehaviour:
   isScrap: 1
   creditsWorth: 0
   lockedInDemo: 0
-  highestSalePercentage: 80
+  highestSalePercentage: 0
   maxValue: 420
   minValue: 420
   spawnPrefab: {fileID: 2779343225596210630, guid: 5748967ad164d464c8ac23b83314dcff,
     type: 3}
-  requiresBattery: 1
+  requiresBattery: 0
   batteryUsage: 0
   automaticallySetUsingPower: 0
   itemIcon: {fileID: 21300000, guid: 3b935013d802984458c9bbef2a054fc6, type: 3}

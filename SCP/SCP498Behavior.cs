@@ -22,6 +22,8 @@ namespace ItemSCPs.SCP
         float timeSinceLastSnooze;
         float timeSinceCalculateMaxDistance;
 
+        bool snoozing;
+
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
         const float maxDistanceOffset = 10f;
@@ -71,13 +73,14 @@ namespace ItemSCPs.SCP
 
         public override void InteractItem()
         {
+            snoozing = true;
             SnoozeServerRpc();
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!buttonDown) { return; }
+            if (!buttonDown || snoozing) { snoozing = false; return; }
             SnoozeServerRpc();
         }
 

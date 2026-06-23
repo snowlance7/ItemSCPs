@@ -122,6 +122,7 @@ namespace ItemSCPs.SCP
 
         public override void ChargeBatteries()
         {
+            if (playerHeldBy == null) { return; }
             hasBeenLit = true;
             particleSystem.Play();
             audioSource.Play();

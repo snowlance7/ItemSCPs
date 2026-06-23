@@ -31,6 +31,9 @@ namespace ItemSCPs
         {
             if (!Utils.testing) { return; }
 
+
+            ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
+
             logger.LogDebug("PingScanTestPerformed");
         }
 

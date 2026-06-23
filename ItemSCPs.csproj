@@ -77,10 +77,10 @@
 
     <ItemGroup>
       <Reference Include="Snowlance.SnowyLib">
-        <HintPath>..\..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Testing\BepInEx\plugins\Snowlance-SnowyLib\Snowlance.SnowyLib.dll</HintPath>
+        <HintPath>..\SnowyLib\bin\Debug\netstandard2.1\Snowlance.SnowyLib.dll</HintPath>
       </Reference>
       <Reference Include="Snowlance.WearableItemsAPI">
-        <HintPath>..\..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Testing\BepInEx\plugins\Snowlance.WearableItemsAPI\Snowlance.WearableItemsAPI.dll</HintPath>
+        <HintPath>..\WearableItemsAPI\bin\Debug\netstandard2.1\Snowlance.WearableItemsAPI.dll</HintPath>
       </Reference>
     </ItemGroup>
 
