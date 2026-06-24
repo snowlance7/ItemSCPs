@@ -29,6 +29,8 @@ MonoBehaviour:
     configName: SCP-498
   - assetBundleName: scp500
     configName: SCP-500
+  - assetBundleName: scp689
+    configName: SCP-689
   - assetBundleName: scp714
     configName: SCP-714
   - assetBundleName: scp735

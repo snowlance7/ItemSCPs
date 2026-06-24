@@ -29,6 +29,12 @@ namespace ItemSCPs
             CoughHeavy
         }
 
+        public void Update()
+        {
+            if (IsServer)
+                SCP689Behavior.StaticUpdate();
+        }
+
         public override void OnNetworkSpawn()
         {
             if (IsServer)
@@ -148,6 +154,13 @@ namespace ItemSCPs
             PlayerControllerB? player = PlayerFromId(clientId);
             if (player == null) { return; }
             SCP1079Behavior.AddPinkBloodToBodyOnLocalClient(player);
+        }
+
+        [ClientRpc]
+        public void KillPlayerClientRpc(ulong clientId)
+        {
+            if (localPlayer.actualClientId != clientId) { return; }
+            localPlayer.KillPlayer(Vector3.zero);
         }
     }
 

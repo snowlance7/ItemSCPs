@@ -52,6 +52,9 @@ namespace ItemSCPs
         public class SCP500Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP500Assets>(mod, filePath) { }
         public SCP500Assets? SCP500;
 
+        public class SCP689Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP689Assets>(mod, filePath) { }
+        public SCP689Assets? SCP689;
+
         public class SCP714Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP714Assets>(mod, filePath) { }
         public SCP714Assets? SCP714;
 
@@ -67,7 +70,6 @@ namespace ItemSCPs
 
             RegisterContent("scp005", out SCP005);
             RegisterContent("scp012", out SCP012);
-            //RegisterContent("scp018", out SCP018);
             RegisterContent("scp1025", out SCP1025);
             RegisterContent("scp1079", out SCP1079);
             RegisterContent("scp207", out SCP207);
@@ -76,6 +78,7 @@ namespace ItemSCPs
             RegisterContent("scp420j", out SCP420J);
             RegisterContent("scp498", out SCP498);
             RegisterContent("scp500", out SCP500);
+            RegisterContent("scp689", out SCP689);
             RegisterContent("scp714", out SCP714);
             RegisterContent("scp735", out SCP735);
             RegisterContent("scp983", out SCP983);
@@ -83,9 +86,3 @@ namespace ItemSCPs
     }
 
 }
-
-/*public class ScrapDroneAssets(DuskMod mod, string filePath) : AssetBundleLoader<ScrapDroneAssets>(mod, filePath)
-{
-    [LoadFromBundle("ScrapDrone.prefab")]
-    public GameObject ScrapDronePrefab { get; private set; } = null!;
-}*/
