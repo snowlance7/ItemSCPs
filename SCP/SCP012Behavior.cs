@@ -1,5 +1,6 @@
 ﻿using Dawn.Utils;
 using GameNetcodeStuff;
+using PSCPLibrary;
 using SnowyLib;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,8 +11,21 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP012Behavior : PhysicsProp // TODO: Set up light functionality
+    internal class SCP012Behavior : PhysicsProp, ISCP // TODO: Set up light functionality
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public AudioClip[] speechSFX;

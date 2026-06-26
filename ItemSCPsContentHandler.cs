@@ -1,16 +1,20 @@
 ﻿using Dusk;
+using PSCPLibrary;
 using UnityEngine;
 
 namespace ItemSCPs
 {
     public class ItemSCPsContentHandler : ContentHandler<ItemSCPsContentHandler>
     {
-        public class NetworkHandlerAssets(DuskMod mod, string filePath) : AssetBundleLoader<NetworkHandlerAssets>(mod, filePath)
+        public class ItemSCPsAssetsAssets(DuskMod mod, string filePath) : AssetBundleLoader<ItemSCPsAssetsAssets>(mod, filePath)
         {
             [LoadFromBundle("ItemSCPsNetworkHandler.prefab")]
             public GameObject NetworkHandlerPrefab { get; private set; } = null!;
+
+            [LoadFromBundle("SCPInfos.asset")]
+            public SCPInfoList SCPInfos { get; private set; } = null!;
         }
-        public NetworkHandlerAssets? NetworkHandler;
+        public ItemSCPsAssetsAssets? ItemSCPsAssets;
 
         public class SCP005Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP005Assets>(mod, filePath) { }
         public SCP005Assets? SCP005;
@@ -66,7 +70,7 @@ namespace ItemSCPs
 
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)
         {
-            RegisterContent("networkhandler", out NetworkHandler);
+            RegisterContent("itemscps_assets", out ItemSCPsAssets);
 
             RegisterContent("scp005", out SCP005);
             RegisterContent("scp012", out SCP012);

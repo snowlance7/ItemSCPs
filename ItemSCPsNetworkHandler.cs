@@ -171,7 +171,7 @@ namespace ItemSCPs
         static void AwakePostFix()
         {
             if (!IsServerOrHost) { return; }
-            var networkHandlerHost = UnityEngine.Object.Instantiate(ItemSCPsContentHandler.Instance.NetworkHandler?.NetworkHandlerPrefab, Vector3.zero, Quaternion.identity);
+            var networkHandlerHost = UnityEngine.Object.Instantiate(ItemSCPsContentHandler.Instance.ItemSCPsAssets?.NetworkHandlerPrefab, Vector3.zero, Quaternion.identity);
             networkHandlerHost?.GetComponent<NetworkObject>().Spawn();
         }
     }

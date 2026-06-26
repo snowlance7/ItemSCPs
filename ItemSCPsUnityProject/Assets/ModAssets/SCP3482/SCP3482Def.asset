@@ -36,6 +36,11 @@ MonoBehaviour:
       _key: custom
     MathOperation: 0
     Weight: 10
+  - NamespacedKey:
+      _namespace: secret_labs
+      _key: secret_labs
+    MathOperation: 0
+    Weight: 100
   <InteriorSpawnWeightsConfig>k__BackingField:
   - NamespacedKey:
       _namespace: lethal_company

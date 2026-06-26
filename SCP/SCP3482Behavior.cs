@@ -1,13 +1,27 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using PSCPLibrary;
+using SnowyLib;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP3482Behavior : PhysicsProp // ANTI LEFT POSTER
+    internal class SCP3482Behavior : PhysicsProp, ISCP // ANTI LEFT POSTER
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
         public static bool localPlayerAffected;
 
         public void Awake()

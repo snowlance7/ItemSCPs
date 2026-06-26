@@ -52,6 +52,8 @@ namespace ItemSCPs
             Mod = DuskMod.RegisterMod(this, mainBundle);
             Mod.RegisterContentHandlers();
 
+            Configs.Init();
+
             InitializeNetworkBehaviours();
 
             // Finished

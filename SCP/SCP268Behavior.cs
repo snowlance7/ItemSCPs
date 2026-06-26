@@ -1,6 +1,9 @@
 ﻿using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
+using ItemSCPs.SCP;
+using PSCPLibrary;
+using SnowyLib;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +11,24 @@ using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
-using SnowyLib;
-using ItemSCPs.SCP;
 
 namespace ItemSCPs.Items.Snowy
 {
-    public class SCP268Behavior : WearableObject // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject, ISCP // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public AudioClip activateSFX;

@@ -1,4 +1,6 @@
 ﻿using Dawn.Utils;
+using ItemSCPs.SCP;
+using PSCPLibrary;
 using SnowyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +10,21 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    internal class SCP500Behavior : PhysicsProp // TODO: Gulp SFX not playing
+    internal class SCP500Behavior : PhysicsProp, ISCP // TODO: Gulp SFX not playing
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
         public List<GameObject> pillsInBottle = null!;
         public AudioClip pillSwallowSFX = null!;
 

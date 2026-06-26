@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: SCP005Def
   m_EditorClassIdentifier: 
   _configEntries: []
-  _tags: []
+  _tags:
+  - _namespace: itemscps
+    _key: scp
   <Key>k__BackingField:
     _namespace: itemscps
     _key: scpzerozerofive
@@ -36,6 +38,11 @@ MonoBehaviour:
       _key: custom
     MathOperation: 0
     Weight: 10
+  - NamespacedKey:
+      _namespace: secret_labs
+      _key: secret_labs
+    MathOperation: 0
+    Weight: 100
   <InteriorSpawnWeightsConfig>k__BackingField:
   - NamespacedKey:
       _namespace: lethal_company

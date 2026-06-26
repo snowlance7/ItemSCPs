@@ -1,10 +1,26 @@
-﻿using System;
+﻿using PSCPLibrary;
+using System;
 using UnityEngine;
+using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp // TODO: Use a spherecast instead of raycasting
+    internal class SCP005Behavior : PhysicsProp, ISCP // TODO: Use a spherecast instead of raycasting
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
+
         const float doorDistance = 1f;
 
         public void Awake()
@@ -39,6 +55,21 @@ namespace ItemSCPs.SCP
                     hit.collider.gameObject.GetComponent<TerminalAccessibleObject>().SetDoorOpenServerRpc(true);
                 }
             }
+        }
+
+        void ISCP.OnSCP500TakenByLocalPlayer()
+        {
+            throw new NotImplementedException();
+        }
+
+        void ISCP.OnSCP714UnWearByLocalPlayer()
+        {
+            throw new NotImplementedException();
+        }
+
+        void ISCP.OnSCP714WearByLocalPlayer()
+        {
+            throw new NotImplementedException();
         }
     }
 }

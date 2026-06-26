@@ -76,6 +76,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Reference Include="ProjectSCP.PSCPLibrary">
+        <HintPath>..\PSCPLibrary\bin\Debug\netstandard2.1\ProjectSCP.PSCPLibrary.dll</HintPath>
+      </Reference>
       <Reference Include="Snowlance.SnowyLib">
         <HintPath>..\SnowyLib\bin\Debug\netstandard2.1\Snowlance.SnowyLib.dll</HintPath>
       </Reference>

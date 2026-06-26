@@ -7,13 +7,17 @@ using UnityEngine;
 using SnowyLib;
 using static ItemSCPs.Plugin;
 using System.Linq;
+using PSCPLibrary;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP689Behavior : PhysicsProp
+    internal class SCP689Behavior : PhysicsProp, ISCP
     {
         public static SCP689Behavior? Instance { get; private set; }
 
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
         public SkinnedMeshRenderer renderer = null!;
         public Collider collider = null!;
 
@@ -33,9 +37,10 @@ namespace ItemSCPs.SCP
 
         public void Awake()
         {
-            itemProperties.positionOffset = new Vector3(0, 0, 0);
-            itemProperties.rotationOffset = new Vector3(0, 0, 0);
-            itemProperties.floorYOffset = 0;
+            itemProperties.positionOffset = new Vector3(0f, 0.1f, -0.06f);
+            itemProperties.rotationOffset = new Vector3(90, 90, 0);
+            itemProperties.floorYOffset = 90;
+            itemProperties.verticalOffset = -0.05f;
         }
 
         public static void StaticUpdate() // Called by network handler update
@@ -159,6 +164,7 @@ namespace ItemSCPs.SCP
         [ClientRpc]
         public void TeleportClientRpc(Vector3 position, bool visible, int killPlayerId = -1)
         {
+            logger.LogDebug($"Teleporting to {position}, visible: {visible}");
             parentObject = null;
             transform.position = position;
 
@@ -177,6 +183,21 @@ namespace ItemSCPs.SCP
 
             if (localPlayer.actualClientId != (ulong)killPlayerId || !localPlayer.isPlayerControlled) { return; }
             localPlayer.KillPlayer(Vector3.zero);
+        }
+
+        void ISCP.OnSCP500TakenByLocalPlayer()
+        {
+            return;
+        }
+
+        void ISCP.OnSCP714WearByLocalPlayer()
+        {
+            return;
+        }
+
+        void ISCP.OnSCP714UnWearByLocalPlayer()
+        {
+            return;
         }
     }
 }

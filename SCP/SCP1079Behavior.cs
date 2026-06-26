@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using PSCPLibrary;
 using SnowyLib;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -10,8 +11,21 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp // TODO: Add bloody footprints
+    internal class SCP1079Behavior : PhysicsProp, ISCP // TODO: Add bloody footprints
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioClip[] chewingSounds;
         public GameObject pinkBloodSplatterProjectorPrefab;

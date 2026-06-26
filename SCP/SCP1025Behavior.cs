@@ -1,4 +1,5 @@
 ﻿using Dawn.Utils;
+using PSCPLibrary;
 using SnowyLib;
 using System;
 using Unity.Netcode;
@@ -7,8 +8,21 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1025Behavior : PhysicsProp
+    internal class SCP1025Behavior : PhysicsProp, ISCP
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public Animator animator;
         public Material[] diseasePageMaterials;

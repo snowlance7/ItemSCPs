@@ -1,4 +1,5 @@
 ﻿using GameNetcodeStuff;
+using PSCPLibrary;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,8 +8,21 @@ using static UnityEngine.Rendering.DebugUI;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp // TODO: Floating???
+    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating???
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
         public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
         public SkinnedMeshRenderer renderer = null!;

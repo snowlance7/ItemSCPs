@@ -2,6 +2,8 @@
 using Dawn.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
+using PSCPLibrary;
+using SnowyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,12 +12,24 @@ using System.Transactions;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
+    internal class SCP735Behavior : PhysicsProp, ISCP // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
     {
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
+            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
+            if (spawnCount <= maxCount) { return; }
+            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            NetworkObject.Despawn(destroy: true);
+        }
+
+        SCPInfo ISCP.SCPInfo => scpInfo;
+
+        public SCPInfo scpInfo = null!;
         public AudioSource audioSource = null!;
 
         public AudioClip[] monsterDamagePhrases = null!;
