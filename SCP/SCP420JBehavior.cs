@@ -8,7 +8,7 @@ using static UnityEngine.Rendering.DebugUI;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating???
+    public class SCP420JBehavior : PhysicsProp // TODO: Floating???
     {
         public override void OnNetworkPostSpawn()
         {
@@ -20,9 +20,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
         public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
         public SkinnedMeshRenderer renderer = null!;

@@ -5,7 +5,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp, ISCP // TODO: Use a spherecast instead of raycasting
+    internal class SCP005Behavior : PhysicsProp // TODO: Use a spherecast instead of raycasting
     {
         public override void OnNetworkPostSpawn()
         {
@@ -17,9 +17,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 
         const float doorDistance = 1f;
 
@@ -55,21 +52,6 @@ namespace ItemSCPs.SCP
                     hit.collider.gameObject.GetComponent<TerminalAccessibleObject>().SetDoorOpenServerRpc(true);
                 }
             }
-        }
-
-        void ISCP.OnSCP500TakenByLocalPlayer()
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISCP.OnSCP714UnWearByLocalPlayer()
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISCP.OnSCP714WearByLocalPlayer()
-        {
-            throw new NotImplementedException();
         }
     }
 }

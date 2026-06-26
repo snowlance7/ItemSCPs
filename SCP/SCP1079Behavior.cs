@@ -11,7 +11,7 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp, ISCP // TODO: Add bloody footprints
+    internal class SCP1079Behavior : PhysicsProp // TODO: Add bloody footprints
     {
         public override void OnNetworkPostSpawn()
         {
@@ -23,9 +23,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioClip[] chewingSounds;
         public GameObject pinkBloodSplatterProjectorPrefab;

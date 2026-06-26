@@ -15,7 +15,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp, ISCP // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
+    internal class SCP735Behavior : PhysicsProp // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
     {
         public override void OnNetworkPostSpawn()
         {
@@ -27,9 +27,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
         public AudioSource audioSource = null!;
 
         public AudioClip[] monsterDamagePhrases = null!;

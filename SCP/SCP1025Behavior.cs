@@ -8,7 +8,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1025Behavior : PhysicsProp, ISCP
+    internal class SCP1025Behavior : PhysicsProp
     {
         public override void OnNetworkPostSpawn()
         {
@@ -20,9 +20,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public Animator animator;
         public Material[] diseasePageMaterials;

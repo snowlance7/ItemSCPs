@@ -11,8 +11,8 @@ namespace ItemSCPs
             [LoadFromBundle("ItemSCPsNetworkHandler.prefab")]
             public GameObject NetworkHandlerPrefab { get; private set; } = null!;
 
-            [LoadFromBundle("SCPInfos.asset")]
-            public SCPInfoList SCPInfos { get; private set; } = null!;
+            [LoadFromBundle("SCPDatabase.asset")]
+            public SCPDatabase SCPDatabase { get; private set; } = null!;
         }
         public ItemSCPsAssetsAssets? ItemSCPsAssets;
 

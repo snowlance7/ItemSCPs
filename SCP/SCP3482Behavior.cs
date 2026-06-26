@@ -7,7 +7,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP3482Behavior : PhysicsProp, ISCP // ANTI LEFT POSTER
+    internal class SCP3482Behavior : PhysicsProp // ANTI LEFT POSTER
     {
         public override void OnNetworkPostSpawn()
         {
@@ -19,9 +19,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
         public static bool localPlayerAffected;
 
         public void Awake()

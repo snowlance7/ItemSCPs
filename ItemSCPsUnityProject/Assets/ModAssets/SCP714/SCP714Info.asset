@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
+  m_Name: SCP714Info
+  m_EditorClassIdentifier: 
+  ItemNumber: SCP-714
+  Description: 'Seemingly nothing more than a green jade ring, SCP-714 has been shown
+    to be able to expand and contract to perfectly fit the finger of anyone who touches
+    it, though this is the least important of its properties. SCP-714 only changes
+    size when touched by a ''new'' subject.
+
+
+
+    SCP-714 has several major effects,
+    detailed as follows;
+
+
+
+    1) Exhaustion, Compulsion to Rest/Sleep
+
+    Within
+    minutes of putting on SCP-714, wearers report feeling worn out - physically and
+    mentally exhausted. Due to this, they will feel driven to "sit down and rest
+    for a bit" on the nearest available furniture, and will likely fall asleep within
+    the space of a few hours. If someone falls asleep wearing SCP-714, the only known
+    means of waking them is to remove SCP-714, at which point they may be roused
+    by anything that would normally wake them up. Exhaustion effects pass within
+    two or three hours of removing SCP-714 if removed from a conscious subject; those
+    that fall asleep wearing SCP-714 report feeling well-rested if SCP-714 is removed,
+    even if they slept for only a few minutes.
+
+
+
+    SCP-714 extends no ''considerations''
+    towards the needs of its wearer during their forced sleep, though most bodily
+    functions such as breathing continue. If SCP-714 is not removed and the wearer
+    woken up, most will die of dehydration or starvation within a matter of days.
+    SCP-714''s impact (if any) on aging remains untested.
+
+
+
+    Wearers that are
+    tired prior to putting SCP-714 are at serious risk of falling asleep on their
+    feet, possibly falling over in the process. If no furniture or furniture-like
+    object is available nearby, wearers either stand on the spot they donned SCP-714
+    or attempt to fashion a resting place out of any suitable materials (cushions,
+    blankets, etc.) available.
+
+
+
+    The drive to sleep can be resisted, but requires
+    formidable willpower and self-control on the part of the wearer. Even so, the
+    following effect makes it impractical for field use.
+
+
+
+    2) Slowed Reactions,
+    Sluggish Movement
+
+    Subjects suffer from severely impaired reaction times;
+    a normally sharp, alert and physically fit subject can have a hard time catching
+    a slow-moving object thrown to them, even if warned and given ample time to prepare.
+    Anyone wearing SCP-714 should not be allowed to operate any heavy machinery or
+    other vehicles under any circumstances.
+
+
+
+    Wearers of SCP-714 move much slower
+    than normal, managing an average walking pace at best. Their movements are not
+    physically slower, but they are incapable of exerting themselves.
+
+
+
+    3) Reduced
+    Mental Capacity
+
+    Seemingly as part of the mental fatigue, anyone wearing
+    SCP-714 claims that they ''think slowly'', or may even have trouble finding the
+    words to adequately communicate that they cannot think as clearly as normal.
+    The wearer may take a long time to think of an answer to a trivial question (eg;
+    "What colour is this red ball?"), never mind one that is vague or requires a
+    more complicated response.
+
+
+
+    With removal of SCP-714, mental capacity is
+    restored to normal within a few minutes.
+
+
+
+    4) Mental ''Shield''
+
+    As
+    a dubious "benefit" of seemingly reduced mental capacity, wearers of SCP-714
+    show abnormally high resilience to memetic and mental influences, particularly
+    commands or immediate effects. Weaker memetic influences may be totally nullified
+    by this. In both cases, the wearer feels a strong and instinctive fear of the
+    source of the influence; this fear drives them to immediately seek ''shelter''
+    by any means available, potentially by attempting to destroy the source. This
+    ''shielding'' lasts only for as long as SCP-714 is worn.
+
+
+
+    They are still
+    at significant risk if exposed to any memetic influences that do not take immediate
+    effect. Exposure to such influences should be handled as normal for the source
+    in question, as the degree of ''protection'' afforded by SCP-714 has yet to be
+    fully documented.
+
+
+
+    In addition, ''normal'' images and sounds that would
+    cause revulsion, nausea, etc. simply due to shocking or disturbing content have
+    next to no effect on the wearer of SCP-714. The wearer will not even recall seeing
+    them once SCP-714 is removed. Mundane persuasion (such as motivational speeches)
+    has no effect, regardless of the speaker''s skill and charisma.
+
+
+
+    5) Chemical
+    Tolerance
+
+    Just as their minds block memetic influences, the bodies of SCP-714
+    wearers slows and nullifies the effects of various chemicals on the body. Fully
+    poisonous or toxic substances are generally not hindered, but those that specifically
+    impede or enhance neural and/or nervous functions in some way (such as stimulants
+    or sedatives) have very diminished effects. With the removal of SCP-714, this
+    nullification effect expires instantly. Wearers may still suffer from standard
+    overdose effects whilst wearing SCP-714.'
+  clearanceLevel: 3
+  containmentClass: 0
+  disruptionClass: 0
+  riskClass: 0

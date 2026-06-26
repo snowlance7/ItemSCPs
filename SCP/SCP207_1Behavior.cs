@@ -7,7 +7,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207_1Behavior : PhysicsProp, ISCP // TODO: Needs Testing
+    internal class SCP207_1Behavior : PhysicsProp // TODO: Needs Testing
     {
         public override void OnNetworkPostSpawn()
         {
@@ -19,9 +19,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public GameObject capObject;

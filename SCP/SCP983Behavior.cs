@@ -19,7 +19,7 @@ using static ItemSCPs.SCP.SCP9831Behavior;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP983Behavior : PhysicsProp, ISCP
+    public class SCP983Behavior : PhysicsProp
     {
         public override void OnNetworkPostSpawn()
         {
@@ -31,9 +31,6 @@ namespace ItemSCPs.SCP
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public AudioClip monkeyFlipSFX;

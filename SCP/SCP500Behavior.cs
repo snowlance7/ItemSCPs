@@ -10,7 +10,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    internal class SCP500Behavior : PhysicsProp, ISCP // TODO: Gulp SFX not playing
+    internal class SCP500Behavior : PhysicsProp // TODO: Gulp SFX not playing
     {
         public override void OnNetworkPostSpawn()
         {
@@ -21,8 +21,6 @@ namespace ItemSCPs
             logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
             NetworkObject.Despawn(destroy: true);
         }
-
-        SCPInfo ISCP.SCPInfo => scpInfo;
 
         public SCPInfo scpInfo = null!;
         public List<GameObject> pillsInBottle = null!;
@@ -66,6 +64,8 @@ namespace ItemSCPs
         void TakePill()
         {
             localPlayer.StatusEffectController().RemoveEffect(x => x.curable);
+
+            SCPEvents.OnSCP500TakenByLocalPlayer.Invoke();
 
             localPlayer.drunkness = 0;
 

@@ -11,13 +11,10 @@ using PSCPLibrary;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP689Behavior : PhysicsProp, ISCP
+    internal class SCP689Behavior : PhysicsProp
     {
         public static SCP689Behavior? Instance { get; private set; }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
         public SkinnedMeshRenderer renderer = null!;
         public Collider collider = null!;
 
@@ -183,21 +180,6 @@ namespace ItemSCPs.SCP
 
             if (localPlayer.actualClientId != (ulong)killPlayerId || !localPlayer.isPlayerControlled) { return; }
             localPlayer.KillPlayer(Vector3.zero);
-        }
-
-        void ISCP.OnSCP500TakenByLocalPlayer()
-        {
-            return;
-        }
-
-        void ISCP.OnSCP714WearByLocalPlayer()
-        {
-            return;
-        }
-
-        void ISCP.OnSCP714UnWearByLocalPlayer()
-        {
-            return;
         }
     }
 }

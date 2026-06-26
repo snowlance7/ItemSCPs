@@ -14,7 +14,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    public class SCP268Behavior : WearableObject, ISCP // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
         public override void OnNetworkPostSpawn()
         {
@@ -26,9 +26,6 @@ namespace ItemSCPs.Items.Snowy
             NetworkObject.Despawn(destroy: true);
         }
 
-        SCPInfo ISCP.SCPInfo => scpInfo;
-
-        public SCPInfo scpInfo = null!;
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public AudioClip activateSFX;
