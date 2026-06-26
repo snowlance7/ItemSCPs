@@ -12,9 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP498Info
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  Description: 
-  clearanceLevel: 0
+  ItemNumber: SCP-498
+  Description: "SCP-498 appears to be a Koway Brand RT-800 electronic alarm clock
+    with yellow LED display, set to the U.S. Central Time Zone. When heard by a subject,
+    the alarm has been seen to induce a state of increased alertness until reset.
+    This effect prevents restful sleep in SCP-498's vicinity, although micro-naps
+    are possible. Other than the \"snooze\" button and the display, none of the other
+    functions on the device appear operational. Notably, the device continues to
+    display time and require resetting even while not connected to a power source.
+    Attempts to dismantle SCP-498 have not been successful in preventing it from
+    activating, nor have they determined how it operates without an obvious power
+    source.\r\n\r\nEvery 11 minutes, the clock's alarm goes off, gradually increasing
+    in volume. Testing reveals that the starting alarm plays at 30 dB, increasing
+    4 dB every 10 seconds the snooze button is not depressed. There has been no evidence
+    that this process will ever stop; the loudest recorded level exceeded \u2588\u2588\u2588
+    dB before reset was achieved. The sound waves produced have been seen to damage
+    nearby structures, cause internal bleeding, and are theorized to potentially
+    cause seismic activity."
+  clearanceLevel: 1
   containmentClass: 0
-  disruptionClass: 0
-  riskClass: 0
+  disruptionClass: 1
+  riskClass: 3

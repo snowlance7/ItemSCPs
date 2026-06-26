@@ -20,8 +20,6 @@ namespace ItemSCPs
         public AudioClip[] heartbeatSlowSFX = null!;
         public AudioClip[] heartbeatFastSFX = null!;
 
-        //public NetworkList<ulong> PlayersEffectedBy201 = new NetworkList<ulong>();
-
         public enum SoundEffect
         {
             Sneeze,

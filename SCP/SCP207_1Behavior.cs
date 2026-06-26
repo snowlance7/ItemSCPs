@@ -9,16 +9,6 @@ namespace ItemSCPs.SCP
 {
     internal class SCP207_1Behavior : PhysicsProp // TODO: Needs Testing
     {
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
-            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
-            if (spawnCount <= maxCount) { return; }
-            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
-
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public GameObject capObject;

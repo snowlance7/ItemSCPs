@@ -12,10 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP3482Info
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  SpecialContainmentProcedures: 
-  Description: 
-  clearanceLevel: 0
-  containmentClass: 0
-  disruptionClass: 0
-  riskClass: 0
+  ItemNumber: SCP-3482
+  Description: 'SCP-3482 refers to 216 promotional posters produced by Person of
+    Interest "dado" for Archibald Garner, a right-wing politician running for mayor
+    of Fellowship, Wyoming. All instances appeared overnight on 09/03/2019, in various
+    locations around the town of Fellowship.
+
+    
+
+    SCP-3482 instances possess
+    memetic properties, such that anyone who views an SCP-3482 instance will immediately
+    enter a state of hemispatial neglect, completely forgetting the concept of "left".
+    The full ramifications of these effects have yet to be explored, although affected
+    individuals will not suffer panic or confusion due to these effects.
+
+    
+
+    While
+    the exact numbers are unknown, almost all of the 1,984 residents of Fellowship
+    seem to be under the effects of SCP-3482.'
+  clearanceLevel: 1
+  containmentClass: 1
+  disruptionClass: 3
+  riskClass: 1

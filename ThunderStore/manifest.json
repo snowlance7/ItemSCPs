@@ -6,6 +6,7 @@
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305",
     "TeamXiaolan-DawnLib-0.9.24",
+    "Snowlance-SnowyLib-1.4.5",
     "ProjectSCP-PSCPLibrary-0.1.0"
   ]
 }

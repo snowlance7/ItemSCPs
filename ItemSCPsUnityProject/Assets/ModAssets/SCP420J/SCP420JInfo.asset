@@ -12,8 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP420JInfo
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  Description: 
+  ItemNumber: SCP-420-J
+  Description: "OK, so I got this stuff when we were down in Jamaica, really strong
+    stuff, with lotsa blue and red mixed in it\u2026 good \u2588\u2588\u2588\u2588,
+    man. Me and M\u2588\u2588\u2588\u2588, we were smokin\u2019 that stuff down there,
+    with \u2588\u2588\u2588\u2588\u2588 and Skinny \u2588\u2588\u2588\u2588, when
+    M\u2588\u2588\u2588\u2588 says, he says to me, \u201CHey, man, we should take
+    this stuff back and send it through\u2026 that\u2026 machine thing that changes
+    things and makes things better.\u201D And I said that was an excellent idea,
+    and so we did.\r\n\r\nMan, we tried it on Very Fine first, and whoa, we were
+    laughin' for weeks. Sucks what happened to \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588.
+    Still funny as \u2588\u2588\u2588\u2588, though. \u2014Dr. M\u2588\u2588\u2588\u2588\r\n\r\nSo
+    we get this really great \u2588\u2588\u2588\u2588 out of the machine, and me
+    and M\u2588\u2588\u2588\u2588 try it out, and we\u2019re like, whoa, man, that
+    is some excellent \u2588\u2588\u2588\u2588. But then we used it all up and didn\u2019t
+    have anything left but the seeds, and we figured we couldn\u2019t just get rid
+    of them, so we decided to plant them and grow them, and then M\u2588\u2588\u2588\u2588
+    was like, \u201CHey, man, what about that dirt that makes \u2588\u2588\u2588\u2588
+    grow real fast?\u201D And I said that was an excellent idea, so we went and got
+    some dirt, and planted the seeds in it, and oh wow, man, that is some excellent
+    \u2588\u2588\u2588\u2588."
   clearanceLevel: 0
   containmentClass: 0
   disruptionClass: 0

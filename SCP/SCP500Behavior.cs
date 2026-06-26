@@ -15,10 +15,9 @@ namespace ItemSCPs
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();
-            int maxCount = Configs.MaxSpawnCounts[itemProperties.itemName];
-            int spawnCount = FindObjectsOfType<SCP005Behavior>().Length;
-            if (spawnCount <= maxCount) { return; }
-            logger.LogDebug($"Only {maxCount} {itemProperties.name} instance{(maxCount > 1 ? "s" : "")} can be spawned, despawning duplicate");
+            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
+            if (FindObjectsOfType<SCP500Behavior>().Length <= 1) { return; }
+            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
             NetworkObject.Despawn(destroy: true);
         }
 

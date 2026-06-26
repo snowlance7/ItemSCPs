@@ -139,4 +139,4 @@ MonoBehaviour:
   clearanceLevel: 3
   containmentClass: 0
   disruptionClass: 0
-  riskClass: 0
+  riskClass: 1

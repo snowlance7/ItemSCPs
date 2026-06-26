@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP500Info
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  Description: 
-  clearanceLevel: 0
+  ItemNumber: SCP-500
+  Description: SCP-500 is a small plastic can which at the time of writing contains
+    forty-seven (47) red pills. One pill, when taken orally, effectively cures the
+    subject of all diseases within two hours, exact time depending on the severity
+    and amount of the subject's conditions. Despite extensive trials, all attempts
+    at synthesizing more of what is thought to be the active ingredient of the pills
+    have been unsuccessful.
+  clearanceLevel: 2
   containmentClass: 0
   disruptionClass: 0
   riskClass: 0

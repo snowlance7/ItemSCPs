@@ -12,3 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 1447704514, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: Database
   m_EditorClassIdentifier: 
+  SCPs:
+  - {fileID: 11400000, guid: 58c2dd3a8a23eeb42b881c9248982f76, type: 2}
+  - {fileID: 11400000, guid: 32cebc3feff8e4a4aa6ffb2e7048bb7e, type: 2}
+  - {fileID: 11400000, guid: f1f4342b12b20364fb34416f7f859dc5, type: 2}
+  - {fileID: 11400000, guid: bfdd608ee50dc7844886da15267896a3, type: 2}
+  - {fileID: 11400000, guid: 6819431c68034d747809f05cbba1031b, type: 2}
+  - {fileID: 11400000, guid: a63dc19bacc017c488068887aab9bdcd, type: 2}
+  - {fileID: 11400000, guid: 6a9c8ec499c890f4aa42db16123f680d, type: 2}
+  - {fileID: 11400000, guid: 18142415dacf4ce428f16f6287fef069, type: 2}
+  - {fileID: 11400000, guid: c055a89b1cc3de94db219c01c89bf1db, type: 2}
+  - {fileID: 11400000, guid: da34ddeb4f75e6348b4f3cb7f8fea164, type: 2}
+  - {fileID: 11400000, guid: 3695fcedf08308145a1354c2dabd29dd, type: 2}
+  - {fileID: 11400000, guid: 8304d5509726464458fa07f9fecf83fe, type: 2}
+  - {fileID: 11400000, guid: 29a8398eed7d6d644a13f610f0825008, type: 2}
+  - {fileID: 11400000, guid: 4a001687fa1861646bb4cc82f9f4ef10, type: 2}

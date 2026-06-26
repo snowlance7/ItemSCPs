@@ -12,9 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP1025Info
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  Description: 
-  clearanceLevel: 0
+  ItemNumber: SCP-1025
+  Description: "SCP-1025 is a hardcover book, approximately 1,500 pages long. The
+    front cover and spine feature the title \"The Encyclopedia of Common Diseases.\"
+    The publisher's page indicates the book was printed in 19\u2588\u2588 by \u2588\u2588\u2588\u2588\u2588
+    Press. No other copies of a book with that title and publisher have been found,
+    and no record of the publisher exists.\r\n\r\nReaders of the book seem to exhibit
+    symptoms of any disease they read about. The effect can take between \u2588 and
+    \u2588\u2588 hours to manifest."
+  clearanceLevel: 1
   containmentClass: 0
   disruptionClass: 0
-  riskClass: 0
+  riskClass: 4

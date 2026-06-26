@@ -4,6 +4,7 @@ using Dawn;
 using Dusk;
 using GameNetcodeStuff;
 using HarmonyLib;
+using PSCPLibrary;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,27 +16,18 @@ namespace ItemSCPs
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(DawnLib.PLUGIN_GUID)]
     [BepInDependency(SnowyLib.MyPluginInfo.PLUGIN_GUID)]
+    [BepInDependency(PSCPLibrary.MyPluginInfo.PLUGIN_GUID)]
     public class Plugin : BaseUnityPlugin
     {
-#pragma warning disable CS8618
-        public static Plugin Instance { get; private set; }
-        public static ManualLogSource logger { get; private set; }
-        public static DuskMod Mod { get; private set; }
-#pragma warning restore CS8618
+        public static Plugin Instance { get; private set; } = null!;
+        public static ManualLogSource logger { get; private set; } = null!;
+        public static DuskMod Mod { get; private set; } = null!;
+        public static SCPDatabase SCPDatabase { get; private set; } = null!;
 
         private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
         public static PlayerControllerB? PlayerFromId(ulong id) { return StartOfRound.Instance.allPlayerScripts.Where(x => x.actualClientId == id).FirstOrDefault(); }
         public static bool IsServerOrHost { get { return NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost; } }
-
-        public const ulong RodrigoSteamID = 76561198164429786;
-        public const ulong LizzieSteamID = 76561199094139351;
-        public const ulong GlitchSteamID = 76561198984467725;
-        public const ulong RatSteamID = 76561199182474292;
-        public const ulong XuSteamID = 76561198399127090;
-        public const ulong SlayerSteamID = 76561198077184650;
-        public const ulong SnowySteamID = 76561198253760639;
-        public const ulong FunoSteamID = 76561198993437314;
 
         private void Awake()
         {
@@ -51,6 +43,9 @@ namespace ItemSCPs
             AssetBundle? mainBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), "itemscps_mainassets"));
             Mod = DuskMod.RegisterMod(this, mainBundle);
             Mod.RegisterContentHandlers();
+
+            SCPDatabase = ItemSCPsContentHandler.Instance.ItemSCPsAssets!.SCPDatabase;
+            SCPAPI.Register(SCPDatabase);
 
             Configs.Init();
 

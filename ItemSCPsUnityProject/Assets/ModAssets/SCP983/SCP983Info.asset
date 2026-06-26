@@ -12,9 +12,49 @@ MonoBehaviour:
   m_Script: {fileID: -50983589, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
   m_Name: SCP983Info
   m_EditorClassIdentifier: 
-  ItemNumber: SCP-
-  Description: 
-  clearanceLevel: 0
+  ItemNumber: SCP-983
+  Description: "SCP-983 is a vintage mechanical monkey with a faded date located
+    on the bottom of the left foot, placing its manufacture at some point in the
+    1940s by an unknown person or company. The monkey is dressed in the remains of
+    what used to be a popular vest design for circus ringmasters. In the monkey\u2019s
+    left hand, there is a lightly tarnished brass bell. In the right hand, the monkey
+    holds a small brass striking rod. The monkey is capable of emitting speech and
+    sound, although examination of the object has revealed no seams, screws, or openings
+    that would indicate a method of disassembly.\r\n\r\nSCP-983 is completely harmless
+    and inert under most circumstances and may be handled without special precautions
+    so long as the handler is not experiencing the 24-hour period considered the
+    anniversary of their birth. Once SCP-983 physically comes into contact with an
+    individual on their birthday, it will spring to life and do a single back flip
+    before raising its bell and singing a simple song.\r\n\r\nA RING DING DING DING
+    IT\u2019S YOUR BIRTHDAY!\r\n\r\nThis single verse will be followed by the monkey
+    striking its bell producing a tone that varies in pitch from quite high to rather
+    low. SCP-983\u2019s singing was found to vary slightly in pitch as well but maintained
+    a very excited and happy tone.\r\n\r\nSCP-983 will sing this song once every
+    three to four seconds, pausing only to ring its bell, until the new owner has
+    died or met the sing-along requirements, which as of yet are not completely understood
+    but are believed to be based in timing the sing-along properly with SCP-983.\r\n\r\nEach
+    verse sung by SCP-983 appears to age the \u2018owner\u2019 of the item by what
+    is estimated at one year. By singing along with SCP-983, the \u2018owner\u2019
+    may deactivate the monkey which, once done successfully, results in a triumphant
+    declaration of \u2019BIRTHDAY!\u2019 from SCP-983, at which time it will ring
+    its bell once and produce a single gumdrop-style candy from the bell.\r\n\r\nThe
+    approach of singing along with SCP-983 has a direct impact on the color of the
+    candy and the side effects of its consumption. Test groups instructed to follow
+    Document 135r to the letter have verified that a perfect sing-along results in
+    the production of crystal-clear candy with mildly luminescent qualities. A near-perfect
+    sing-along produces the same candy minus the luminescence. Both of these candy
+    types have been verified as restoring any age lost by the consumer due to SCP-983\u2019s
+    song; however, the luminescent candy may also grant additional time and youth,
+    though as of yet this theory is unproven due to the low production rate of this
+    candy.\r\n\r\nDue to the inconsistencies in attitude, tone, behavior, and approach
+    when trying to match SCP-983\u2019s song, a wide variety of candies have been
+    produced. Under absolutely no circumstances are black candies allowed to be consumed,
+    although other colors may be consumed pending prior approval and containment
+    arrangements.\r\n\r\nThe initial activation of SCP-983 was in a highly uncontrolled
+    environment, so a \u2018retelling\u2019 is the best record available of the incident.
+    Subsequent tests of interest in more controlled environments have been attached
+    to this document as well as candy effects for those experiments."
+  clearanceLevel: 1
   containmentClass: 0
   disruptionClass: 0
-  riskClass: 0
+  riskClass: 3
