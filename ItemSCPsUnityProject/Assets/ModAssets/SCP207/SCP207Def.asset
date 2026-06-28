@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 466683445, guid: b9fa88e95e15d9348a8d0583367ab6d6, type: 3}
-  m_Name: SCP207_1Def
+  m_Name: SCP207Def
   m_EditorClassIdentifier: 
   _configEntries: []
   _tags: []
   <Key>k__BackingField:
-    _namespace: itemscps
-    _key: scptwozerosevenone
+    _namespace: <None>
+    _key: scptwozeroseven
   <Item>k__BackingField: {fileID: 11400000, guid: fb3d266d53be8eb48a0d90ebe3e5c356,
     type: 2}
   <ShopItemPreset>k__BackingField:

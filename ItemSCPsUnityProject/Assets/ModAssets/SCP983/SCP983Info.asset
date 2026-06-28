@@ -13,6 +13,21 @@ MonoBehaviour:
   m_Name: SCP983Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-983
+  ItemName: The Birthday Monkey
+  SpecialContainmentProcedures: "SCP-983 is completely safe so long as technicians
+    handling it do so on any day other than their birthday. Should SCP-983 be presented
+    to or handled by any individual on the yearly anniversary of their birth, they
+    should immediately follow the sing-along guidelines contained in Emergency Kit
+    135r located next to the door to SCP-983\u2019s containment chamber.\r\n\r\nIn
+    the event the targeted individual fails to meet sing-along requirements, their
+    remains are to be disposed of through standard methods. In the event the targeted
+    individual meets the sing-along requirements, the following pieces of data are
+    to be collected: Age, Color of Candy collected, Singing Accuracy obtained by
+    the best judgment of those present, and the number of verses that passed before
+    acknowledgment by SCP-983.\r\n\r\nNo candy obtained from SCP-983 is to be consumed
+    by any staff without senior staff-approved containment procedures in place and
+    written waivers filed and stamped by the consumer. This requirement is waived
+    in the case of Class-D candy testing."
   Description: "SCP-983 is a vintage mechanical monkey with a faded date located
     on the bottom of the left foot, placing its manufacture at some point in the
     1940s by an unknown person or company. The monkey is dressed in the remains of

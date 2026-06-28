@@ -1,6 +1,7 @@
 ﻿using Dawn.Utils;
 using GameNetcodeStuff;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using Unity.Netcode;
 using UnityEngine;
@@ -11,8 +12,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP012Behavior : PhysicsProp // TODO: Set up light functionality
+    internal class SCP012Behavior : PhysicsProp, ISCP // TODO: Set up light functionality
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();
@@ -346,7 +350,7 @@ namespace ItemSCPs.SCP
         {
             if (playerVoice == null) { return; }
             playerHeldBy.MufflePlayer(true);
-            playerVoice.pitch = Random.Range(0.94f, 1.06f);
+            playerVoice.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
             playerVoice.volume = 1f;
 
             int index = Utils.randomGlobal.Next(0, speechSFX.Length);
@@ -364,7 +368,7 @@ namespace ItemSCPs.SCP
         public void PlayFinalSpeechClientRpc()
         {
             if (playerVoice == null) { logger.LogWarning("PlayerVoice is null"); return; }
-            playerVoice.pitch = Random.Range(0.94f, 1.06f);
+            playerVoice.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
             playerVoice.volume = 1f;
             playerVoice.PlayOneShot(finalSpeechSFX);
         }

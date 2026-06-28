@@ -2,11 +2,8 @@
 using HarmonyLib;
 using ItemSCPs.SCP;
 using SnowyLib;
-using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Services.Authentication.Generated;
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs

@@ -75,7 +75,7 @@ namespace ItemSCPs
     }
 }
 
-/*
+/* For later use
 Voice.ListenForPhrase("my cool phrase", (message) => {
     Plugin.logger.LogInfo("my cool voice phrase was said!");
 });

@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: SCP735Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-735
+  ItemName: Insult Box
+  SpecialContainmentProcedures: SCP-735 is to be stored in a locked cell at Research
+    Site-14, with access granted to Level 2 personnel or higher after having undergone
+    a session of preparatory therapy to interact with the device.
   Description: "SCP-735 was discovered in \u2588\u2588\u2588\u2588\u2588\u2588\u2588,
     \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 among the personal possessions
     of \u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588 after said individual's
@@ -50,7 +54,7 @@ MonoBehaviour:
     associated with SCP-735, opined that it may be testing its subject. Another thought
     is that SCP-735 contains an artificial intelligence that is self-aware, and is
     attempting to commit \"suicide\" by seeking assistance."
-  clearanceLevel: 0
+  clearanceLevel: 1
   containmentClass: 1
   disruptionClass: 0
   riskClass: 0

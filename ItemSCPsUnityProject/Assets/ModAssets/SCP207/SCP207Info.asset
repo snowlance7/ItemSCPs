@@ -13,6 +13,16 @@ MonoBehaviour:
   m_Name: SCP207Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-207
+  ItemName: Cola Bottles
+  SpecialContainmentProcedures: "SCP-207 is to be stored in a waterproofed locking
+    metal container measuring 1 m x 0.5 m x 0.5 m. The key is to be issued to the
+    current head researcher of Site-\u2588\u2588's bio-containment area. SCP-207
+    is to be retained inside this area at all times, and all personnel entering the
+    area should be checked for any food or drink items, in addition to any other
+    searches required. Any staff seen ingesting SCP-207-1 are to be retained for
+    future study, with all Foundation clearance levels removed.\r\n\r\nAll vending
+    machines in Site-\u2588\u2588 are to only dispense clear carbonated beverages;
+    any variation from transparent is to be investigated immediately."
   Description: "SCP-207 refers to a crate containing 24 Coca-Cola brand cola drinks.
     The bottles are designated SCP-207-A to -X. SCP-207-B is currently the active
     bottle for testing, and no other bottles are to be opened without authorisation

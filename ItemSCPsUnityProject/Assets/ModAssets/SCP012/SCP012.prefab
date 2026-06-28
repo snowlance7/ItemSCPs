@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1215508390
+  GlobalObjectIdHash: 3880822205
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -299,6 +299,7 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: 32cebc3feff8e4a4aa6ffb2e7048bb7e, type: 2}
   audioSource: {fileID: 3985211423358423440}
   speechSFX:
   - {fileID: 8300000, guid: cb8dab0f3c46e5b409299d974f432e3c, type: 3}

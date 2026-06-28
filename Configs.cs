@@ -1,11 +1,4 @@
-﻿using BepInEx;
-using BepInEx.Configuration;
-using Dawn;
-using PSCPLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs

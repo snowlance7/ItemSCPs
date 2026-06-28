@@ -1,13 +1,18 @@
-﻿using Dusk;
-using PSCPLibrary;
-using System;
+﻿using PSCPLibrary;
+using PSCPLibrary.Interfaces;
+using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp // TODO: Use a spherecast instead of raycasting
+    internal class SCP005Behavior : PhysicsProp, ISCP // TODO: Use a spherecast instead of raycasting
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
+        const float unlockableDistance = 1f;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();
@@ -16,8 +21,6 @@ namespace ItemSCPs.SCP
             logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
             NetworkObject.Despawn(destroy: true);
         }
-
-        const float doorDistance = 1f;
 
         public void Awake()
         {
@@ -32,7 +35,7 @@ namespace ItemSCPs.SCP
         {
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
-            if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out var hitInfo, doorDistance, 2816))
+            /*if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out var hitInfo, doorDistance, 2816))
             {
                 DoorLock component = hitInfo.transform.GetComponent<DoorLock>();
                 if (component != null && component.isLocked && !component.isPickingLock)
@@ -40,16 +43,28 @@ namespace ItemSCPs.SCP
                     component.UnlockDoorSyncWithServer();
                 }
                 return;
-            }
+            }*/
 
             //RaycastHit[] hits = Physics.RaycastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance);
-            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance); // TODO
-            foreach (var hit in hits)
+            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), unlockableDistance); // TODO
+            foreach (var hit in hits) // TODO: Test this
             {
                 if (hit.collider.CompareTag("PoweredObject"))
                 {
-                    hit.collider.gameObject.GetComponent<TerminalAccessibleObject>().SetDoorOpenServerRpc(true);
+                    TerminalAccessibleObject? terminalAccessibleObject = hit.collider.gameObject.GetComponent<TerminalAccessibleObject>();
+                    if (terminalAccessibleObject != null && terminalAccessibleObject.isBigDoor && !terminalAccessibleObject.isDoorOpen)
+                        terminalAccessibleObject.SetDoorOpenServerRpc(true);
                 }
+
+                DoorLock? component = hit.transform.GetComponent<DoorLock>();
+                if (component != null && component.isLocked && !component.isPickingLock)
+                    component.UnlockDoorSyncWithServer();
+            }
+
+            foreach (MonoBehaviour unlockable in FindObjectsOfType<MonoBehaviour>().OfType<ISCP005Unlockable>()) // TODO: Test this
+            {
+                if ((unlockable.gameObject.transform.position - playerHeldBy.gameplayCamera.transform.position).sqrMagnitude < unlockableDistance * unlockableDistance)
+                    ((ISCP005Unlockable)unlockable).Unlock();
             }
         }
     }

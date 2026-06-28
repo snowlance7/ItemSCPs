@@ -1,4 +1,5 @@
 ﻿using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using TMPro;
 using Unity.Netcode;
@@ -7,8 +8,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP498Behavior : PhysicsProp // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498 // TODO: Set up 2D audio and fake it or set up 3d audio by doors to be more accurate, set panning depending on direction to player
+    internal class SCP498Behavior : PhysicsProp, ISCP // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498 // TODO: Set up 2D audio and fake it or set up 3d audio by doors to be more accurate, set panning depending on direction to player
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

@@ -1,14 +1,18 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP3482Behavior : PhysicsProp // ANTI LEFT POSTER
+    internal class SCP3482Behavior : PhysicsProp, ISCP // ANTI LEFT POSTER
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

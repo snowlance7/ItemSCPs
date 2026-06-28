@@ -271,7 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2868237059
+  GlobalObjectIdHash: 3845944825
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -329,10 +329,10 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: 6819431c68034d747809f05cbba1031b, type: 2}
   audioSource: {fileID: 4992094517538925926}
   particleSystem: {fileID: 5863414430975065666}
   renderer: {fileID: 5124460444329023009}
-  inhaleSFX: {fileID: 0}
   exhaleSFX: {fileID: 8300000, guid: 4422039373806734597b79d6107d2d74, type: 3}
 --- !u!1 &8039679539788757267
 GameObject:

@@ -225,6 +225,7 @@ MonoBehaviour:
   grabbableToEnemies: 0
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: da34ddeb4f75e6348b4f3cb7f8fea164, type: 2}
   audioSource: {fileID: 4214621829683055649}
   monsterDamagePhrases:
   - {fileID: 8300000, guid: e994b47f281636848b9339e290dc4ddc, type: 3}

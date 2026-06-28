@@ -1,22 +1,22 @@
-﻿using BepInEx.Logging;
-using Dawn.Utils;
+﻿using Dawn.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Transactions;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
+    internal class SCP735Behavior : PhysicsProp, ISCP // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

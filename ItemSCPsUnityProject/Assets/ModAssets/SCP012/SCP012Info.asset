@@ -13,6 +13,13 @@ MonoBehaviour:
   m_Name: SCP012Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-012
+  ItemName: A Bad Composition
+  SpecialContainmentProcedures: SCP-012 is to be kept in a darkened room at all times.
+    If the object is exposed to light or seen by personnel using a light frequency
+    other than infrared, remove personnel for mental health screening and immediate
+    physical. Object is to be encased in an iron-shielded box, suspended from the
+    ceiling with a minimum clearance of 2.5 m (8 ft) from the floor, walls, and any
+    openings.
   Description: 'SCP-012 was retrieved by Archaeologist K.M. Sandoval during the excavation
     of a northern Italian tomb destroyed in a recent storm. The object, a piece of
     handwritten musical score entitled "On Mount Golgotha", part of a larger set

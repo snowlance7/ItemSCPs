@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 144575138
+  GlobalObjectIdHash: 4099735804
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -401,6 +401,7 @@ MonoBehaviour:
   rotateObject: 0
   wearableItemProperties: {fileID: 11400000, guid: 17b05d899c760dc4f9c2adc43d3092fe,
     type: 2}
+  info: {fileID: 11400000, guid: bfdd608ee50dc7844886da15267896a3, type: 2}
   audioSource: {fileID: 5309334842336332758}
   activateSFX: {fileID: 8300000, guid: e22f316691dc1e14c82a4577f2b8e780, type: 3}
   deactivateSFX: {fileID: 8300000, guid: c1161d2406ac72c4dadeef0224df494b, type: 3}

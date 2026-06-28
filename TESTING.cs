@@ -1,9 +1,7 @@
 using HarmonyLib;
-using ItemSCPs.SCP;
-using System.Linq;
+using SnowyLib;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using SnowyLib;
 
 /* bodyparts
  * 0 head

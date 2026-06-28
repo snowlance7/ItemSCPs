@@ -1844,7 +1844,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2095451290
+  GlobalObjectIdHash: 2491622894
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1902,6 +1902,8 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: 6a9c8ec499c890f4aa42db16123f680d, type: 2}
+  scpInfo: {fileID: 0}
   pillsInBottle:
   - {fileID: 4737698090716164860}
   - {fileID: 7581219084158312530}

@@ -1,10 +1,9 @@
-﻿using BepInEx.Logging;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
 using ItemSCPs.SCP;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,8 +13,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    public class SCP268Behavior : WearableObject // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject, ISCP // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();
@@ -98,7 +100,7 @@ namespace ItemSCPs.Items.Snowy
             // SCP268 for making player invisible to enemies
             List<PlayerControllerB> invisiblePlayers = new List<PlayerControllerB>();
 
-            foreach (var scp268 in Object.FindObjectsOfType<SCP268Behavior>())
+            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
             {
                 if (scp268.playerWornBy != null)
                 {
@@ -117,7 +119,7 @@ namespace ItemSCPs.Items.Snowy
         private static void CheckLineOfSightForPlayerPostfixPatch(EnemyAI __instance, ref PlayerControllerB __result)
         {
             // SCP268 for making player invisible to enemies
-            foreach (var scp268 in Object.FindObjectsOfType<SCP268Behavior>())
+            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
             {
                 if (scp268.playerWornBy != null && scp268.playerWornBy == __result)
                 {
@@ -131,7 +133,7 @@ namespace ItemSCPs.Items.Snowy
         private static void CheckLineOfSightForClosestPlayerPostfixPatch(EnemyAI __instance, ref PlayerControllerB __result)
         {
             // SCP268 for making player invisible to enemies
-            foreach (var scp268 in Object.FindObjectsOfType<SCP268Behavior>())
+            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
             {
                 if (scp268.playerWornBy != null && scp268.playerWornBy == __result)
                 {
@@ -145,7 +147,7 @@ namespace ItemSCPs.Items.Snowy
         private static void CheckLineOfSightForPositionPostfixPatch(EnemyAI __instance, Vector3 objectPosition, ref bool __result)
         {
             // SCP268 for making player invisible to enemies
-            foreach (var scp268 in Object.FindObjectsOfType<SCP268Behavior>())
+            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
             {
                 if (scp268.playerWornBy != null && objectPosition == scp268.playerWornBy.gameplayCamera.transform.position)
                 {

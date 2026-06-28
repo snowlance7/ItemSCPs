@@ -13,6 +13,12 @@ MonoBehaviour:
   m_Name: SCP3482Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-3482
+  ItemName: fine mayor posters campaign by dado
+  SpecialContainmentProcedures: All instances of SCP-3482 are contained in Site-15.
+    Foundation researchers are currently developing a method to counteract and neutralize
+    SCP-3482's effects. The town of Fellowship is to remain in quarantine, under
+    the cover story of an outbreak of a deadly virus, until such time as the countermeasure
+    to SCP-3482 has been developed.
   Description: 'SCP-3482 refers to 216 promotional posters produced by Person of
     Interest "dado" for Archibald Garner, a right-wing politician running for mayor
     of Fellowship, Wyoming. All instances appeared overnight on 09/03/2019, in various

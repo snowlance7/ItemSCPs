@@ -1,12 +1,16 @@
 ﻿using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using UnityEngine;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
+    internal class SCP714Behavior : WearableObject, ISCP // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

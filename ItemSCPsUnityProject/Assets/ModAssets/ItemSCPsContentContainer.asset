@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: ItemSCPsContentContainer
   m_EditorClassIdentifier: 
   assetBundles:
-  - assetBundleName: networkhandler
-    configName: NetworkHandler
+  - assetBundleName: itemscps_assets
+    configName: General
   - assetBundleName: scp005
     configName: SCP-005
   - assetBundleName: scp012
     configName: SCP-012
-  - assetBundleName: scp207_1
-    configName: SCP-207-1
+  - assetBundleName: scp207
+    configName: SCP-207
   - assetBundleName: scp268
     configName: SCP-268
   - assetBundleName: scp420j

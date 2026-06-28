@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +8,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207_1Behavior : PhysicsProp // TODO: Needs Testing
+    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
 #pragma warning disable CS8618
         public AudioSource audioSource;
         public GameObject capObject;

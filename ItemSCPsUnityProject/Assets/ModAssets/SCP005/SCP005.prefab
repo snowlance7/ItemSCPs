@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 7826264893801666403}
   - component: {fileID: 3098984633033197043}
   - component: {fileID: 5122291896024042841}
-  - component: {fileID: 8216619424671558112}
+  - component: {fileID: 1239454844512261725}
   m_Layer: 6
   m_Name: SCP005
   m_TagString: PhysicsProp
@@ -276,7 +276,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.14059004, y: 0.024177963, z: 0.37523055}
   m_Center: {x: -0.0032751411, y: 0.011964527, z: 0.07230505}
---- !u!114 &8216619424671558112
+--- !u!114 &1239454844512261725
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -325,6 +325,7 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: 58c2dd3a8a23eeb42b881c9248982f76, type: 2}
 --- !u!1 &8287780148979477403
 GameObject:
   m_ObjectHideFlags: 0

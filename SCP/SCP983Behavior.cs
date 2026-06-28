@@ -1,6 +1,7 @@
 ﻿using Dawn.Utils;
 using GameNetcodeStuff;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System;
 using System.Collections;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
 using static ItemSCPs.Plugin;
 using static ItemSCPs.SCP.SCP9831Behavior;
 
@@ -19,8 +19,11 @@ using static ItemSCPs.SCP.SCP9831Behavior;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP983Behavior : PhysicsProp
+    public class SCP983Behavior : PhysicsProp, ISCP
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

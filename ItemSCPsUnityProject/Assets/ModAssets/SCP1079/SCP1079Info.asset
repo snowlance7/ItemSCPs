@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: SCP1079Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-1079
+  ItemName: Dr Wondertainment's Bubblebath Bonbons
+  SpecialContainmentProcedures: All instances of SCP-1079 are currently stored within
+    Containment Locker-1079 at Site-19. Furthermore, watchlist databases are to be
+    updated with SCP-1079's information, in order to intercept any new shipments
+    which may appear in the future.
   Description: "SCP-1079 is the designation given to a number of sweets brightly
     labelled \"Dr. Wondertainment's Bubblebath Bonbons!\xAE\". Currently, the Foundation
     has \u2588 crates of SCP-1079 in containment, originally containing 64 packets

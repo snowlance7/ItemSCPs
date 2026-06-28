@@ -13,6 +13,20 @@ MonoBehaviour:
   m_Name: SCP498Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-498
+  ItemName: 11 Minute Snooze
+  SpecialContainmentProcedures: "SCP-498 is to be contained within a sound-proof
+    bunker beneath Site \u2588\u2588, with a minimum of two attending Foundation
+    Security Officers, properly equipped with noise-canceling headphones in addition
+    to standard-issue equipment. The bunker is to be sound-proofed to noise-cancel
+    a minimum of 95% of outgoing sound waves.\r\n\r\nA fully automated mechanical
+    arm is to be used to reset SCP-498. <s>Secondary Containment Procedure: In the
+    event of failure, two D-Class personnel are to be locked inside with an appropriate
+    amount of rations. They are to be informed fully of its effects and to alternate
+    shifts sleeping and resetting SCP-498 until the failure is repaired. Security
+    footage sans audio of the chamber is to be monitored at all times.</s> Following
+    Incident I498-B, in the event of failure an on-site Foundation Security Officer
+    is to be sent in to manually reset until such a time automated safety procedures
+    can be reinstated."
   Description: "SCP-498 appears to be a Koway Brand RT-800 electronic alarm clock
     with yellow LED display, set to the U.S. Central Time Zone. When heard by a subject,
     the alarm has been seen to induce a state of increased alertness until reset.
@@ -28,7 +42,7 @@ MonoBehaviour:
     that this process will ever stop; the loudest recorded level exceeded \u2588\u2588\u2588
     dB before reset was achieved. The sound waves produced have been seen to damage
     nearby structures, cause internal bleeding, and are theorized to potentially
-    cause seismic activity."
+    cause seismic activity.\r"
   clearanceLevel: 1
   containmentClass: 0
   disruptionClass: 1

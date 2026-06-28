@@ -1023,7 +1023,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2043868497
+  GlobalObjectIdHash: 1156703001
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1236,6 +1236,7 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: 3695fcedf08308145a1354c2dabd29dd, type: 2}
   audioSource: {fileID: 788876855067887536}
   monkeyFlipSFX: {fileID: 8300000, guid: ab91fa04d73528c498e6396ddbbccf3b, type: 3}
   birthdaySongsSFX:

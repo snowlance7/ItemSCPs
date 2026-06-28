@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -11,8 +12,11 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp // TODO: Add bloody footprints
+    internal class SCP1079Behavior : PhysicsProp, ISCP // TODO: Add bloody footprints
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

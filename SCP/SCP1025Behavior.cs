@@ -1,5 +1,6 @@
 ﻿using Dawn.Utils;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System;
 using Unity.Netcode;
@@ -8,8 +9,11 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1025Behavior : PhysicsProp
+    internal class SCP1025Behavior : PhysicsProp, ISCP
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public override void OnNetworkPostSpawn()
         {
             base.OnNetworkPostSpawn();

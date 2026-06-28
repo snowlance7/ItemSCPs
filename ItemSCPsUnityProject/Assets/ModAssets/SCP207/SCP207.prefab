@@ -343,9 +343,9 @@ GameObject:
   - component: {fileID: 4618454457047147225}
   - component: {fileID: 1178587553198290574}
   - component: {fileID: 5404213539028721507}
-  - component: {fileID: 1115168077005909680}
+  - component: {fileID: 2877509981404335615}
   m_Layer: 6
-  m_Name: SCP207_1
+  m_Name: SCP207
   m_TagString: PhysicsProp
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -544,7 +544,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1115168077005909680
+--- !u!114 &2877509981404335615
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -553,7 +553,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5241335982735900986}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 602780899, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
+  m_Script: {fileID: -713415145, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   grabbable: 1
@@ -593,6 +593,7 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
+  info: {fileID: 11400000, guid: f1f4342b12b20364fb34416f7f859dc5, type: 2}
   audioSource: {fileID: 4618454457047147225}
   capObject: {fileID: 2744462387965553150}
   intensityOverTime:
@@ -603,36 +604,36 @@ MonoBehaviour:
       value: 0
       inSlope: 2
       outSlope: 2
-      tangentMode: 34
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
       time: 0.5
       value: 1
-      inSlope: 0.13941258
-      outSlope: 0.13941258
+      inSlope: -0.024403706
+      outSlope: -0.024403706
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.25869867
+      outWeight: 0.29113913
     - serializedVersion: 3
       time: 0.75
       value: 1
-      inSlope: -0.08940798
-      outSlope: -0.08940798
+      inSlope: -0.0881184
+      outSlope: -0.0881184
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.23436934
+      inWeight: 0.051168803
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.9968262
-      value: 0.005329132
-      inSlope: -4.029844
-      outSlope: -4.029844
-      tangentMode: 34
+      time: 1
+      value: 0
+      inSlope: -5.5566564
+      outSlope: -5.5566564
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.031645596
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

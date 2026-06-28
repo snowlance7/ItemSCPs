@@ -258,7 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 448293141
+  GlobalObjectIdHash: 2051779556
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -318,6 +318,7 @@ MonoBehaviour:
   rotateObject: 0
   wearableItemProperties: {fileID: 11400000, guid: 667c42056d143c54eabc1d0ff60f038b,
     type: 2}
+  info: {fileID: 11400000, guid: c055a89b1cc3de94db219c01c89bf1db, type: 2}
 --- !u!1 &8406615673716764149
 GameObject:
   m_ObjectHideFlags: 0

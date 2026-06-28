@@ -1,15 +1,17 @@
 ﻿using GameNetcodeStuff;
 using PSCPLibrary;
+using PSCPLibrary.Interfaces;
 using System.Collections;
-using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp // TODO: Floating???
+    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating???
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
         public SkinnedMeshRenderer renderer = null!;

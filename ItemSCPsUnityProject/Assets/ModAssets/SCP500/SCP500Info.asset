@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: SCP500Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-500
+  ItemName: Panacea
+  SpecialContainmentProcedures: SCP-500 must be stored in a cool and dry place away
+    from bright light. SCP-500 is only allowed to be accessed by personnel with level
+    4 security clearance to prevent misapplication.
   Description: SCP-500 is a small plastic can which at the time of writing contains
     forty-seven (47) red pills. One pill, when taken orally, effectively cures the
     subject of all diseases within two hours, exact time depending on the severity

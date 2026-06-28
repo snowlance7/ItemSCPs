@@ -13,6 +13,12 @@ MonoBehaviour:
   m_Name: SCP268Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-268
+  ItemName: Cap of Neglect
+  SpecialContainmentProcedures: <s>SCP-268 is currently to be maintained within [DATA
+    EXPUNGED], as it has been deemed that the chance of use for facilitation of escape
+    by restricted personnel or humanoid SCP is too great. However, the possibility
+    of use by field agents after further testing is under review.</s> See addendum
+    268-05.
   Description: 'SCP-268 is a tweed-wool newsboy cap. The design and make seem to
     be of Irish origin. Due to the style and fabric, it is estimated to have been
     created in the late 1800''s to early 1900''s, though fiber analysis is inconclusive.

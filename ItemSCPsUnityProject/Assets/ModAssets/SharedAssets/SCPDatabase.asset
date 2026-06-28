@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 1447704514, guid: cf6f79f9558dce54eb94f0cfc1c9a80b, type: 3}
-  m_Name: Database
+  m_Name: SCPDatabase
   m_EditorClassIdentifier: 
   SCPs:
   - {fileID: 11400000, guid: 58c2dd3a8a23eeb42b881c9248982f76, type: 2}

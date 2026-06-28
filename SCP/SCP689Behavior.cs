@@ -1,18 +1,20 @@
 ﻿using GameNetcodeStuff;
-using System;
+using PSCPLibrary;
+using PSCPLibrary.Interfaces;
+using SnowyLib;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using SnowyLib;
 using static ItemSCPs.Plugin;
-using System.Linq;
-using PSCPLibrary;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP689Behavior : PhysicsProp
+    internal class SCP689Behavior : PhysicsProp, ISCP
     {
+        [SerializeField] SCPInfo info = null!;
+        public SCPInfo SCPInfo => info;
+
         public static SCP689Behavior? Instance { get; private set; }
 
         public SkinnedMeshRenderer renderer = null!;

@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: SCP1025Info
   m_EditorClassIdentifier: 
   ItemNumber: SCP-1025
+  ItemName: Encyclopedia of Diseases
+  SpecialContainmentProcedures: "<s>Due to its potential as a bioweapon capable of
+    destroying all life on Earth, SCP-1025 is to be kept in an isolated underground
+    vault secured by no fewer than 10 armed guards, to be rotated twice weekly and
+    checked for compromise by infectious agents. The vault should be armed with a
+    thermite mine to be detonated at the first sign of containment breach.\r</s>\nRevision:
+    SCP-1025 is to be kept in a passcode-secured locker. Further research requires
+    O5 approval."
   Description: "SCP-1025 is a hardcover book, approximately 1,500 pages long. The
     front cover and spine feature the title \"The Encyclopedia of Common Diseases.\"
     The publisher's page indicates the book was printed in 19\u2588\u2588 by \u2588\u2588\u2588\u2588\u2588
