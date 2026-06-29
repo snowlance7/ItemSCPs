@@ -31,6 +31,8 @@ namespace ItemSCPs.SCP
         public AudioClip[] speechSFX;
         public AudioClip finalSpeechSFX;
         public AudioClip[] stabSFX;
+
+        public Camera lightCamera;
 #pragma warning restore CS8618
 
         int localPlayerStabAmount;
@@ -38,9 +40,7 @@ namespace ItemSCPs.SCP
         bool localPlayerPlayingFinalSpeech;
         float timeSinceStartFinalSpeech;
 
-        //bool isLit => GetLightAt(transform.position, maxRange) > lightThreshold;
-        //bool isLit => GetLightAt(transform.position) > lightThreshold;
-        //bool isLit => GetLightAt(localPlayer.transform.position, Vector3.up) > 1000;
+        bool isLit => IsLit();
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
         AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
@@ -53,8 +53,6 @@ namespace ItemSCPs.SCP
         float maxRange;
         float minRange;
 
-        static Light[] lights = [];
-
         bool isOutside;
 
         bool localPlayerAffected;
@@ -63,7 +61,6 @@ namespace ItemSCPs.SCP
         public static bool configEnabled => ItemSCPsContentHandler.Instance.SCP012 != null; // TODO: Test this
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
-        const float lightThreshold = 0.4f;
         const int speechDamage = 5;
 
         public void Awake()
@@ -75,14 +72,9 @@ namespace ItemSCPs.SCP
             itemProperties.canBeGrabbedBeforeGameStart = true;
             itemProperties.canBeInspected = true;
             //itemProperties.twoHanded = true;
-        }
-
-        public override void Start()
-        {
-            base.Start();
-
-            //GetLights();
-            //Utils.OnFinishGeneratingLevel.AddListener(GetLights);
+            lightCamera.clearFlags = CameraClearFlags.SolidColor;
+            lightCamera.backgroundColor = Color.black;
+            lightCamera.cullingMask = 1 << LayerMask.NameToLayer("Props");
         }
 
         public override void Update()
@@ -283,10 +275,9 @@ namespace ItemSCPs.SCP
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
-            //if (heldByLocalPlayer) { return !isLit; } // TODO: Test this
-            if (heldByLocalPlayer) { return /*isLit && */!TESTING.immunity; } // TODO: Test this
+            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; } // TODO: Test this
             if (distance > maxRange) { return false; }
-            //if (!isLit) { return false; } // TODO: Test this
+            if (!isLit) { return false; } // TODO: Test this
             if (TESTING.immunity) { return false; }
             return true;
         }
@@ -298,29 +289,36 @@ namespace ItemSCPs.SCP
             PlayFinalSpeechServerRpc();
         }
 
-        public static float GetLightAt(Vector3 pos) // TODO: Figure this out more
+        public bool IsLit()
         {
-            float brightness = 0f;
+            lightCamera.Render();
 
-            foreach (Light light in lights)
+            RenderTexture.active = lightCamera.targetTexture;
+
+            Texture2D tex = new Texture2D(32, 32, TextureFormat.RGB24, false);
+
+            tex.ReadPixels(
+                new Rect(0, 0, 32, 32),
+                0,
+                0);
+
+            tex.Apply();
+
+            Color[] pixels = tex.GetPixels();
+
+            float totalBrightness = 0f;
+
+            foreach (Color c in pixels)
             {
-                if (light == null || !light.enabled) { continue; }
-                float distance = Vector3.Distance(light.transform.position, pos);
-                if (distance > light.range) { continue; }
-
-                if (Physics.Raycast(light.transform.position, pos - light.transform.position, distance, StartOfRound.Instance.collidersAndRoomMask)) { continue; }
-
-                float contribution = light.intensity * (1f - distance / light.range);
-                brightness += contribution;
+                totalBrightness += c.grayscale;
             }
 
-            logger.LogDebug(brightness);
-            return brightness;
-        }
+            float average =
+                totalBrightness / pixels.Length;
 
-        public static void GetLights()
-        {
-            lights = FindObjectsOfType<Light>();
+            logger.LogDebug(average);
+
+            return average > 0.01f; // TODO: Test this and get the right value
         }
 
         [ServerRpc(RequireOwnership = false)]

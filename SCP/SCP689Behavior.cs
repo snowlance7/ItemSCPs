@@ -5,6 +5,7 @@ using SnowyLib;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Services.Authentication.Generated;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -40,6 +41,7 @@ namespace ItemSCPs.SCP
             itemProperties.rotationOffset = new Vector3(90, 90, 0);
             itemProperties.floorYOffset = 90;
             itemProperties.verticalOffset = -0.05f;
+            itemProperties.twoHanded = false;
         }
 
         public static void StaticUpdate() // Called by network handler update
@@ -53,6 +55,8 @@ namespace ItemSCPs.SCP
                 if (!player.isPlayerControlled)
                     targetPlayers.Remove(player);
             }
+
+            //localPlayer.drop
 
             if (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) { return; }
 
@@ -100,6 +104,9 @@ namespace ItemSCPs.SCP
         {
             base.Update();
 
+            inLOS = localPlayer.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000);
+            return;
+
             if (!IsServer) { return; }
 
             timeSinceAppearing += isVisible ? Time.deltaTime : 0f;
@@ -111,7 +118,7 @@ namespace ItemSCPs.SCP
             foreach (var player in StartOfRound.Instance.allPlayerScripts)
             {
                 if (player == null || !player.isPlayerControlled) { continue; }
-                if (!player.HasLineOfSightToPosition(transform.position)) { continue; }
+                if (!player.HasLineOfSightToPosition(collider.bounds.center)) { continue; }
                 if (!TESTING.immunity)
                     targetPlayers.Add(player);
                 inLOS = true;

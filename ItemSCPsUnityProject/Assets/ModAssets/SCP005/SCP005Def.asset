@@ -13,9 +13,7 @@ MonoBehaviour:
   m_Name: SCP005Def
   m_EditorClassIdentifier: 
   _configEntries: []
-  _tags:
-  - _namespace: itemscps
-    _key: scp
+  _tags: []
   <Key>k__BackingField:
     _namespace: itemscps
     _key: scpzerozerofive

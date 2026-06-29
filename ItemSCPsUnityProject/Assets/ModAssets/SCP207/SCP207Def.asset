@@ -15,7 +15,7 @@ MonoBehaviour:
   _configEntries: []
   _tags: []
   <Key>k__BackingField:
-    _namespace: <None>
+    _namespace: itemscps
     _key: scptwozeroseven
   <Item>k__BackingField: {fileID: 11400000, guid: fb3d266d53be8eb48a0d90ebe3e5c356,
     type: 2}
