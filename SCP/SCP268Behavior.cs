@@ -13,19 +13,10 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.Items.Snowy
 {
-    public class SCP268Behavior : WearableObject, ISCP // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject, ISCP, ISingletonItem // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP268Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
 #pragma warning disable CS8618
         public AudioSource audioSource;

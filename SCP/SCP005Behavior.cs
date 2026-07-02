@@ -3,24 +3,16 @@ using PSCPLibrary.Interfaces;
 using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp, ISCP // TODO: Use a spherecast instead of raycasting
+    internal class SCP005Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Use a spherecast instead of raycasting
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
         const float unlockableDistance = 1f;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP005Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
         public void Awake()
         {

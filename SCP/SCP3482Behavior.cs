@@ -8,19 +8,10 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP3482Behavior : PhysicsProp, ISCP // ANTI LEFT POSTER
+    internal class SCP3482Behavior : PhysicsProp, ISCP, ISingletonItem // ANTI LEFT POSTER
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP3482Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
         public static bool localPlayerAffected;
 

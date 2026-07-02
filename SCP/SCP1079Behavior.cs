@@ -12,19 +12,10 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp, ISCP // TODO: Add bloody footprints
+    internal class SCP1079Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Add bloody footprints
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP1079Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
 #pragma warning disable CS8618
         public AudioClip[] chewingSounds;

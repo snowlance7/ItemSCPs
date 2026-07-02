@@ -1,24 +1,16 @@
 ﻿using PSCPLibrary;
 using PSCPLibrary.Interfaces;
+using SnowyLib;
 using UnityEngine;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject, ISCP // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
+    internal class SCP714Behavior : WearableObject, ISCP, ISingletonItem // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP714Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
         public static bool localPlayerAffected { get; private set; }
 

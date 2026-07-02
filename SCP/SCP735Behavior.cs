@@ -12,19 +12,10 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp, ISCP // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
+    internal class SCP735Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP735Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
         public AudioSource audioSource = null!;
 

@@ -19,19 +19,10 @@ using static ItemSCPs.SCP.SCP9831Behavior;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP983Behavior : PhysicsProp, ISCP
+    public class SCP983Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
-
-        public override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
-            if (Configs.MultipleInstances[itemProperties.itemName]) { return; }
-            if (FindObjectsOfType<SCP983Behavior>().Length <= 1) { return; }
-            logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-            NetworkObject.Despawn(destroy: true);
-        }
 
 #pragma warning disable CS8618
         public AudioSource audioSource;
