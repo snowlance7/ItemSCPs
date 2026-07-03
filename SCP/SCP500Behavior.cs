@@ -8,7 +8,7 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-namespace ItemSCPs
+namespace ItemSCPs.SCP
 {
     internal class SCP500Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Gulp SFX not playing
     {

@@ -60,7 +60,7 @@ namespace ItemSCPs.SCP
                     localPlayer.playQuickSpecialAnimation(1.5f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_Typing");
                     ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
-                    //VignetteOverlay.Instance.SetIntensity(0.2f);
+                    VignetteOverlay.SetIntensity(0.2f);
                     if (localPlayer.health > 1)
                     {
                         localPlayer.inSpecialInteractAnimation = true;
@@ -71,7 +71,7 @@ namespace ItemSCPs.SCP
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
                     ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
-                    //VignetteOverlay.Instance.SetIntensity(0.05f);
+                    VignetteOverlay.SetIntensity(0.05f);
                 }, "scp1025", "lung cancer cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
             // 3 Appendicitis
@@ -95,7 +95,7 @@ namespace ItemSCPs.SCP
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
                     ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
-                    //VignetteOverlay.Instance.SetIntensity(0.05f);
+                    VignetteOverlay.SetIntensity(0.05f);
                 }, false, "scp1025", 5f, id: "asthmaCough"));
             },
             // 5 Cardiac Arrest
@@ -103,7 +103,7 @@ namespace ItemSCPs.SCP
             {
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 20), () =>
                 {
-                    //VignetteOverlay.Instance.SetIntensity(0.4f);
+                    VignetteOverlay.SetIntensity(0.4f);
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
                 }, "scp1025", "heartbeatSlow"));
                 localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>

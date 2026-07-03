@@ -12,7 +12,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP012Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Set up light functionality
+    internal class SCP012Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -110,7 +110,7 @@ namespace ItemSCPs.SCP
                 if (heldByLocalPlayer && localPlayer.activatingItem)
                 {
                     localPlayer.activatingItem = false;
-                    MufflePlayerServerRpc(localPlayer.actualClientId, false);
+                    NetworkHandler.Instance.MufflePlayerRpc(localPlayer.actualClientId, false);
                 }
                 localPlayerPlayingFinalSpeech = false;
                 return;
@@ -130,8 +130,8 @@ namespace ItemSCPs.SCP
             localPlayer.sprintMeter = 0f;
             localPlayer.isExhausted = true;
 
-            //if (localPlayer.health > 0)
-            //    VignetteOverlay.Instance.SetIntensity(1 - (100 / localPlayer.health)); // TODO: Find how to do the vignette effect the game uses when spawn player animation gets run
+            if (localPlayer.health > 0)
+                VignetteOverlay.SetIntensity(1 - (100 / localPlayer.health));
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -193,7 +193,7 @@ namespace ItemSCPs.SCP
 
             localPlayer.drunkness = 0.3f;
 
-            PlaySpeechServerRpc();
+            PlaySpeechRpc();
         }
 
         void MovePlayerTowardsPosition(Vector3 targetPosition, float force)
@@ -217,7 +217,7 @@ namespace ItemSCPs.SCP
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
-            //VignetteOverlay.Instance.SetIntensity(normalized); // TODO: Set this up correctly
+            VignetteOverlay.SetIntensity(normalized);
 
             MovePlayerTowardsPosition(transform.position, normalized);
 
@@ -266,9 +266,10 @@ namespace ItemSCPs.SCP
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
-            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; } // TODO: Test this
+            if (isPocketed) { return false; }
+            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; }
             if (distance > maxRange) { return false; }
-            if (!isLit) { return false; } // TODO: Test this
+            if (!isLit) { return false; }
             if (TESTING.immunity) { return false; }
             return true;
         }
@@ -277,7 +278,7 @@ namespace ItemSCPs.SCP
         {
             localPlayerPlayingFinalSpeech = true;
             timeSinceStartFinalSpeech = 0f;
-            PlayFinalSpeechServerRpc();
+            PlayFinalSpeechRpc();
         }
 
         public bool IsLit()
@@ -309,33 +310,11 @@ namespace ItemSCPs.SCP
 
             logger.LogDebug(average);
 
-            return average > 0.01f; // TODO: Test this and get the right value
+            return average > 0.015f; // TODO: Test this and get the right value
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void MufflePlayerServerRpc(ulong clientId, bool value)
-        {
-            if (!IsServer) { return; }
-            MufflePlayerClientRpc(clientId, value);
-        }
-
-        [ClientRpc]
-        public void MufflePlayerClientRpc(ulong clientId, bool value)
-        {
-            PlayerControllerB? player = PlayerFromId(clientId);
-            if (player == null) { return; }
-            player.MufflePlayer(value);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PlaySpeechServerRpc()
-        {
-            if (!IsServer) { return; }
-            PlaySpeechClientRpc();
-        }
-
-        [ClientRpc]
-        public void PlaySpeechClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void PlaySpeechRpc()
         {
             if (playerVoice == null) { return; }
             playerHeldBy.MufflePlayer(true);
@@ -346,15 +325,8 @@ namespace ItemSCPs.SCP
             playerVoice.PlayOneShot(speechSFX[index]);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void PlayFinalSpeechServerRpc()
-        {
-            if (!IsServer) { return; }
-            PlayFinalSpeechClientRpc();
-        }
-
-        [ClientRpc]
-        public void PlayFinalSpeechClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void PlayFinalSpeechRpc()
         {
             if (playerVoice == null) { logger.LogWarning("PlayerVoice is null"); return; }
             playerVoice.pitch = UnityEngine.Random.Range(0.94f, 1.06f);

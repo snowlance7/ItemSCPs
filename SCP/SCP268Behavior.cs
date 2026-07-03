@@ -11,7 +11,7 @@ using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
 
-namespace ItemSCPs.Items.Snowy
+namespace ItemSCPs.SCP
 {
     public class SCP268Behavior : WearableObject, ISCP, ISingletonItem // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {

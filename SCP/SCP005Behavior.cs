@@ -1,13 +1,12 @@
 ﻿using PSCPLibrary;
 using PSCPLibrary.Interfaces;
+using SnowyLib;
 using System.Linq;
 using UnityEngine;
-using static ItemSCPs.Plugin;
-using SnowyLib;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP005Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Use a spherecast instead of raycasting
+    internal class SCP005Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -27,19 +26,9 @@ namespace ItemSCPs.SCP
         {
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
-            /*if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out var hitInfo, doorDistance, 2816))
-            {
-                DoorLock component = hitInfo.transform.GetComponent<DoorLock>();
-                if (component != null && component.isLocked && !component.isPickingLock)
-                {
-                    component.UnlockDoorSyncWithServer();
-                }
-                return;
-            }*/
 
-            //RaycastHit[] hits = Physics.RaycastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), doorDistance);
-            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), unlockableDistance); // TODO
-            foreach (var hit in hits) // TODO: Test this
+            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), unlockableDistance);
+            foreach (var hit in hits)
             {
                 if (hit.collider.CompareTag("PoweredObject"))
                 {
@@ -53,7 +42,7 @@ namespace ItemSCPs.SCP
                     component.UnlockDoorSyncWithServer();
             }
 
-            foreach (MonoBehaviour unlockable in FindObjectsOfType<MonoBehaviour>().OfType<ISCP005Unlockable>()) // TODO: Test this
+            foreach (MonoBehaviour unlockable in FindObjectsOfType<MonoBehaviour>().OfType<ISCP005Unlockable>())
             {
                 if ((unlockable.gameObject.transform.position - playerHeldBy.gameplayCamera.transform.position).sqrMagnitude < unlockableDistance * unlockableDistance)
                     ((ISCP005Unlockable)unlockable).Unlock();
