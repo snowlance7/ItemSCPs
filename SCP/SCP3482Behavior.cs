@@ -33,11 +33,11 @@ namespace ItemSCPs.SCP
     }
 
     [HarmonyPatch]
-    class SCP3482Patches // TODO: Test this
+    static class SCP3482Patches // TODO: Test this
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.CalculateNormalLookingInput))]
-        private static void CalculateNormalLookingInputPrefix(ref Vector2 inputVector, PlayerControllerB __instance)
+        private static void PlayerControllerB_CalculateNormalLookingInput_Prefix(ref Vector2 inputVector, PlayerControllerB __instance)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ItemSCPs.SCP
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.CalculateSmoothLookingInput))]
-        private static void CalculateSmoothLookingInputPrefix(ref Vector2 inputVector, PlayerControllerB __instance)
+        private static void PlayerControllerB_CalculateSmoothLookingInput_Prefix(ref Vector2 inputVector, PlayerControllerB __instance)
         {
             try
             {

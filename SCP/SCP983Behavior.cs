@@ -120,7 +120,7 @@ namespace ItemSCPs.SCP
             if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
                 activated = true;
-                ActivateClientRpc();
+                ActivateRpc();
             }
 
             if (!songPlaying || !isTargetPlayer) { return; }
@@ -204,7 +204,7 @@ namespace ItemSCPs.SCP
             if (!IsServer) { return; }
             logger.LogDebug("Dispensing candy " + candyType.ToString());
             var candy = Utils.SpawnItem(ItemSCPsKeys.SCP9831, candyDropPosition.position);
-            (candy as SCP9831Behavior)?.ChangeCandyTypeClientRpc(candyType);
+            (candy as SCP9831Behavior)?.ChangeCandyTypeRpc(candyType);
             songPlaying = false;
         }
 
@@ -274,15 +274,15 @@ namespace ItemSCPs.SCP
 
                 if (score >= 1f)
                 {
-                    DispenseCandyServerRpc(CandyType.Perfect);
+                    DispenseCandyRpc(CandyType.Perfect);
                 }
                 else if (score >= minAccuracyRequired)
                 {
-                    DispenseCandyServerRpc(CandyType.Good);
+                    DispenseCandyRpc(CandyType.Good);
                 }
                 else
                 {
-                    PlaySongServerRpc();
+                    PlaySongRpc();
                 }
             }
 
@@ -306,8 +306,8 @@ namespace ItemSCPs.SCP
 
         // RPCs
 
-        [ClientRpc]
-        private void ActivateClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        private void ActivateRpc()
         {
             activated = true;
             grabbable = false;
@@ -316,21 +316,14 @@ namespace ItemSCPs.SCP
             audioSource.PlayOneShot(monkeyFlipSFX, 1f);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void PlaySongServerRpc()
-        {
-            if (!IsServer) { return; }
-            PlaySongClientRpc();
-        }
-
-        [ClientRpc]
-        private void PlaySongClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        private void PlaySongRpc()
         {
             PlaySongOnLocalClient();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void DispenseCandyServerRpc(CandyType candyType)
+        [Rpc(SendTo.Server, RequireOwnership = false)]
+        private void DispenseCandyRpc(CandyType candyType)
         {
             if (!IsServer) { return; }
             DispenseCandy(candyType);
@@ -340,7 +333,7 @@ namespace ItemSCPs.SCP
     [Serializable]
     public struct Note(float startTime, float endTime, float grace)
     {
-        public float startTime = startTime/* - grace*/;
+        public float startTime = startTime - grace;
         public float endTime = endTime + grace;
         public float duration => endTime - startTime;
         public float heldTime;
@@ -391,8 +384,8 @@ namespace ItemSCPs.SCP
             playerHeldBy.DespawnHeldObject();
         }
 
-        [ClientRpc]
-        public void ChangeCandyTypeClientRpc(CandyType candyType)
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void ChangeCandyTypeRpc(CandyType candyType)
         {
             this.candyType = candyType;
 

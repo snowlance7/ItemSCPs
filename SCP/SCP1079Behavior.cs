@@ -89,10 +89,10 @@ namespace ItemSCPs.SCP
                 {
                     logger.LogDebug("Dropping blood");
                     Vector3 pos = localPlayer.gameplayCamera.transform.position.GetFloorPosition();
-                    ItemSCPsNetworkHandler.Instance.DropPinkBloodServerRpc(pos);
+                    ItemSCPsNetworkHandler.Instance.DropPinkBloodRpc(pos);
                 }, bloodDropAmount, "SCP-1079", "Dropping Pink Blood", 10f, (existing, incoming) => ConflictResult.Replace)); // TODO: Test if this still works after item is destroyed
 
-                ItemSCPsNetworkHandler.Instance.AddPinkBloodToBodyServerRpc(localPlayer.actualClientId);
+                ItemSCPsNetworkHandler.Instance.AddPinkBloodToBodyRpc(localPlayer.actualClientId);
 
                 int damagePerSecond = Mathf.RoundToInt(Mathf.Pow(2.5f, candiesEatenByLocalPlayer) / 10);
                 if (damagePerSecond == 0) { return; }
@@ -153,7 +153,7 @@ namespace ItemSCPs.SCP
     {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ResetPlayerBloodObjects))]
-        private static void ResetPlayerBloodObjectsPostfix(PlayerControllerB __instance, bool resetBodyBlood)
+        private static void PlayerControllerB_ResetPlayerBloodObjects_Postfix(PlayerControllerB __instance, bool resetBodyBlood)
         {
             try
             {
@@ -173,7 +173,7 @@ namespace ItemSCPs.SCP
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.RemoveBloodFromBody))]
-        private static void RemoveBloodFromBodyPostfix(PlayerControllerB __instance)
+        private static void PlayerControllerB_RemoveBloodFromBody_Postfix(PlayerControllerB __instance)
         {
             try
             {

@@ -31,7 +31,7 @@ namespace ItemSCPs.SCP
                 float time = UnityEngine.Random.Range(1200, 1800);
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
                 {
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, 0, 0.5f, 1, 10, 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, 0, 0.5f, 1, 10, 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
                 }, "scp1025", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
@@ -59,7 +59,7 @@ namespace ItemSCPs.SCP
                 {
                     localPlayer.playQuickSpecialAnimation(1.5f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_Typing");
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.2f);
                     if (localPlayer.health > 1)
                     {
@@ -70,7 +70,7 @@ namespace ItemSCPs.SCP
                 }, "scp1025", "lung cancer coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.05f);
                 }, "scp1025", "lung cancer cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
@@ -94,7 +94,7 @@ namespace ItemSCPs.SCP
                 localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectServerRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.05f);
                 }, false, "scp1025", 5f, id: "asthmaCough"));
             },
@@ -139,59 +139,52 @@ namespace ItemSCPs.SCP
         public override void EquipItem()
         {
             base.EquipItem();
-            if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
             if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
-            {
-                int index = UnityEngine.Random.Range(0, diseases.Length);
-                OpenBookServerRpc(index);
-                diseases[index].Invoke();
-            }
+                OpenBook();
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!buttonDown || TESTING.immunity) { return; }
-
-            int index = UnityEngine.Random.Range(0, diseases.Length);
-            OpenBookServerRpc(index);
-            diseases[index].Invoke();
+            if (!buttonDown) { return; }
+            OpenBook();
         }
 
         public override void DiscardItem()
         {
             base.DiscardItem();
-            CloseBookServerRpc();
+            CloseBookRpc();
         }
 
         public override void PocketItem()
         {
             base.PocketItem();
-            CloseBookServerRpc();
+            CloseBookRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void CloseBookServerRpc()
+        void OpenBook()
         {
-            if (!IsServer) { return; }
-            CloseBookClientRpc();
+            int index = UnityEngine.Random.Range(0, diseases.Length);
+            OpenBookRpc(index);
+            if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
+
+            if (LethalDiseasesCompatibility.enabled) // TODO: Set up UI for pages for lethal diseases
+            {
+                LethalDiseasesCompatibility.InfectPlayer(localPlayer);
+                return;
+            }
+
+            diseases[index].Invoke();
         }
 
-        [ClientRpc]
-        public void CloseBookClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void CloseBookRpc()
         {
             animator.SetBool("open", false);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void OpenBookServerRpc(int pageIndex)
-        {
-            if (!IsServer) { return; }
-            OpenBookClientRpc(pageIndex);
-        }
-
-        [ClientRpc]
-        public void OpenBookClientRpc(int pageIndex)
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void OpenBookRpc(int pageIndex)
         {
             var mats = renderer.materials;
             mats[2] = diseasePageMaterials[pageIndex];

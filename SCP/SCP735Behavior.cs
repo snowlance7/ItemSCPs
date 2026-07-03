@@ -102,18 +102,11 @@ namespace ItemSCPs.SCP
             phraseCooldown = phraseCooldownRange.GetRandomInRange(Utils.randomLocal);
 
             int index = UnityEngine.Random.Range(0, phrases[phrase].Length);
-            SpeakPhraseServerRpc(phrase, index);
+            SpeakPhraseRpc(phrase, index);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void SpeakPhraseServerRpc(Phrase phrase, int index)
-        {
-            if (!IsServer) { return; }
-            SpeakPhraseClientRpc(phrase, index);
-        }
-
-        [ClientRpc]
-        private void SpeakPhraseClientRpc(Phrase phrase, int index)
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        private void SpeakPhraseRpc(Phrase phrase, int index)
         {
             logger.LogDebug("Speaking phrase: " + phrase.ToString());
 

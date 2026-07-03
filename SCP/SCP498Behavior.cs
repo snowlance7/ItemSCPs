@@ -79,14 +79,14 @@ namespace ItemSCPs.SCP
         public override void InteractItem()
         {
             snoozing = true;
-            SnoozeServerRpc();
+            SnoozeRpc();
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (!buttonDown || snoozing) { snoozing = false; return; }
-            SnoozeServerRpc();
+            SnoozeRpc();
         }
 
         void SetTimeDisplay()
@@ -141,15 +141,8 @@ namespace ItemSCPs.SCP
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void SnoozeServerRpc()
-        {
-            if (!IsServer) { return; }
-            SnoozeClientRpc();
-        }
-
-        [ClientRpc]
-        public void SnoozeClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void SnoozeRpc()
         {
             audioSource.Stop();
             audioSource2D.Stop();

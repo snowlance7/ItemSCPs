@@ -47,7 +47,7 @@ namespace ItemSCPs.SCP
 
             if (buttonDown && !itemUsedUp)
             {
-                RemovePillFromBottleServerRpc();
+                RemovePillFromBottleRpc();
                 TakePill();
                 playerHeldBy.itemAudio.PlayOneShot(pillSwallowSFX, 1f);
             }
@@ -87,15 +87,8 @@ namespace ItemSCPs.SCP
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void RemovePillFromBottleServerRpc()
-        {
-            if (!IsServer) { return; }
-            RemovePillFromBottleClientRpc();
-        }
-
-        [ClientRpc]
-        public void RemovePillFromBottleClientRpc()
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void RemovePillFromBottleRpc()
         {
             RemovePillFromBottle();
         }

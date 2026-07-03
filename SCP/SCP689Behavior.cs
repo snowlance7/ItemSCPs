@@ -66,7 +66,7 @@ namespace ItemSCPs.SCP
             PlayerControllerB? targetPlayer = GetRandomPlayer();
             if (targetPlayer == null) { return; }
             Utils.SpawnItem(ItemSCPsKeys.SCP689, targetPlayer.transform.position);
-            ItemSCPsNetworkHandler.Instance.KillPlayerClientRpc(targetPlayer.actualClientId);
+            NetworkHandler.Instance.KillPlayerRpc(targetPlayer.actualClientId);
             timeSinceDisappearing = 0f;
         }
 
@@ -138,7 +138,7 @@ namespace ItemSCPs.SCP
                 isVisible = false;
                 nextAppearTime = UnityEngine.Random.Range(15, 20);
                 lastPosition = transform.position;
-                TeleportClientRpc(Vector3.zero, false);
+                TeleportRpc(Vector3.zero, false);
             }
             else
             {
@@ -147,7 +147,7 @@ namespace ItemSCPs.SCP
                 if (targetPlayers.Count == 0)
                 {
                     isVisible = true;
-                    TeleportClientRpc(lastPosition, true);
+                    TeleportRpc(lastPosition, true);
                     return;
                 }
 
@@ -155,7 +155,7 @@ namespace ItemSCPs.SCP
                 if (targetPlayer == null || !targetPlayer.isPlayerControlled) { return; }
                 isVisible = true;
                 lastPosition = transform.position;
-                TeleportClientRpc(targetPlayer.transform.position, true, (int)targetPlayer.actualClientId);
+                TeleportRpc(targetPlayer.transform.position, true, (int)targetPlayer.actualClientId);
             }
         }
 
@@ -167,8 +167,8 @@ namespace ItemSCPs.SCP
             return targetPlayers.Where(x => !x.isPlayerAlone && x.isPlayerControlled).GetRandom();
         }
 
-        [ClientRpc]
-        public void TeleportClientRpc(Vector3 position, bool visible, int killPlayerId = -1)
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void TeleportRpc(Vector3 position, bool visible, int killPlayerId = -1)
         {
             logger.LogDebug($"Teleporting to {position}, visible: {visible}");
             parentObject = null;

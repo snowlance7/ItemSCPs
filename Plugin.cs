@@ -17,6 +17,8 @@ namespace ItemSCPs
     [BepInDependency(DawnLib.PLUGIN_GUID)]
     [BepInDependency(SnowyLib.MyPluginInfo.PLUGIN_GUID)]
     [BepInDependency(PSCPLibrary.MyPluginInfo.PLUGIN_GUID)]
+    [BepInDependency(WearableItemsAPI.MyPluginInfo.PLUGIN_GUID)]
+    [BepInDependency("Snowlance.LethalDiseases", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; } = null!;
