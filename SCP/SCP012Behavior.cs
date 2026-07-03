@@ -45,6 +45,8 @@ namespace ItemSCPs.SCP
 
         bool localPlayerAffected;
 
+        static bool hinderingLocalPlayer;
+
         // Configs
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
@@ -185,7 +187,18 @@ namespace ItemSCPs.SCP
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
 
-            // TODO: Hinder movement?
+            if (!hinderingLocalPlayer)
+            {
+                hinderingLocalPlayer = true;
+                localPlayer.isMovementHindered++;
+                localPlayer.hinderedMultiplier *= 2f;
+                localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                {
+                    hinderingLocalPlayer = false;
+                    localPlayer.isMovementHindered--;
+                    localPlayer.hinderedMultiplier *= 0.5f;
+                }, "SCP-012", "Hindering Local Player", 10f, (existing, incoming) => StatusEffectController.ConflictResult.Replace));
+            }
 
             localPlayer.drunkness = 0.3f;
 

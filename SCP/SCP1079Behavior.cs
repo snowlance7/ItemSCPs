@@ -12,7 +12,7 @@ using static SnowyLib.StatusEffectController;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP1079Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Add bloody footprints
+    internal class SCP1079Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
