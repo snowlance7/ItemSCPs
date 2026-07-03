@@ -17,14 +17,11 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-#pragma warning disable CS8618
-        public AudioSource audioSource;
-        public AudioClip[] speechSFX;
-        public AudioClip finalSpeechSFX;
-        public AudioClip[] stabSFX;
-
-        public Camera lightCamera;
-#pragma warning restore CS8618
+        public AudioSource audioSource = null!;
+        public AudioClip[] speechSFX = null!;
+        public AudioClip finalSpeechSFX = null!;
+        public AudioClip[] stabSFX = null!;
+        public Camera lightCamera = null!;
 
         int localPlayerStabAmount;
 
@@ -49,7 +46,6 @@ namespace ItemSCPs.SCP
         bool localPlayerAffected;
 
         // Configs
-        public static bool configEnabled => ItemSCPsContentHandler.Instance.SCP012 != null; // TODO: Test this
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
         const int speechDamage = 5;

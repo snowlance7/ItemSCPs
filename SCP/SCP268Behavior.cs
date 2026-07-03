@@ -13,10 +13,12 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP268Behavior : WearableObject, ISCP, ISingletonItem // TODO: Set wearable offsets // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject, ISCP, ISingletonItem // TODO: MAKE IT SO TURRET DOESNT SEE YOU
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
+
+        public static SCP268Behavior? Instance { get; private set; }
 
 #pragma warning disable CS8618
         public AudioSource audioSource;
@@ -25,7 +27,7 @@ namespace ItemSCPs.SCP
         public GameObject mesh;
 #pragma warning restore CS8618
 
-        bool useAltInvisibility = false;
+        bool useAltInvisibility = false; // TODO: Setup config
 
         public void Awake()
         {
@@ -35,6 +37,18 @@ namespace ItemSCPs.SCP
 
             wearableItemProperties.wornPositionOffset = new Vector3(0, 0.27f, 0.07f);
             wearableItemProperties.wornRotationOffset = new Vector3(-30, 0, 0);
+        }
+
+        public override void OnNetworkPostSpawn()
+        {
+            base.OnNetworkPostSpawn();
+            Instance ??= this;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (Instance == this) { Instance = null; }
+            base.OnNetworkDespawn();
         }
 
         public override void Update()
@@ -81,69 +95,95 @@ namespace ItemSCPs.SCP
     }
 
     [HarmonyPatch]
-    internal class SCP268Patches
+    internal static class SCP268Patches
     {
-        // Player invisibility
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.GetAllPlayersInLineOfSight))]
-        private static void GetAllPlayersInLineOfSightPostfixPatch(EnemyAI __instance, ref PlayerControllerB[] __result)
+        private static void EnemyAI_GetAllPlayersInLineOfSight_Postfix(EnemyAI __instance, ref PlayerControllerB[] __result)
         {
-            // SCP268 for making player invisible to enemies
-            List<PlayerControllerB> invisiblePlayers = new List<PlayerControllerB>();
-
-            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
+            try
             {
-                if (scp268.playerWornBy != null)
-                {
-                    invisiblePlayers.Add(scp268.playerWornBy);
-                }
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+
+                if (__result != null)
+                    __result = __result.Where(x => x != SCP268Behavior.Instance.playerWornBy).ToArray();
             }
-
-            if (__result != null)
+            catch (System.Exception e)
             {
-                __result = __result.Where(x => !invisiblePlayers.Contains(x)).ToArray();
+                logger.LogError(e);
+                return;
             }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.CheckLineOfSightForPlayer))]
-        private static void CheckLineOfSightForPlayerPostfixPatch(EnemyAI __instance, ref PlayerControllerB __result)
+        private static void EnemyAI_CheckLineOfSightForPlayer_Postfix(EnemyAI __instance, ref PlayerControllerB __result)
         {
-            // SCP268 for making player invisible to enemies
-            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
+            try
             {
-                if (scp268.playerWornBy != null && scp268.playerWornBy == __result)
-                {
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+
+                if (SCP268Behavior.Instance.playerWornBy == __result)
                     __result = null;
-                }
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
             }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.CheckLineOfSightForClosestPlayer))]
-        private static void CheckLineOfSightForClosestPlayerPostfixPatch(EnemyAI __instance, ref PlayerControllerB __result)
+        private static void EnemyAI_CheckLineOfSightForClosestPlayer_Postfix(EnemyAI __instance, ref PlayerControllerB __result)
         {
-            // SCP268 for making player invisible to enemies
-            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
+            try
             {
-                if (scp268.playerWornBy != null && scp268.playerWornBy == __result)
-                {
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+
+                if (SCP268Behavior.Instance.playerWornBy == __result)
                     __result = null;
-                }
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
             }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.CheckLineOfSightForPosition))]
-        private static void CheckLineOfSightForPositionPostfixPatch(EnemyAI __instance, Vector3 objectPosition, ref bool __result)
+        private static void EnemyAI_CheckLineOfSightForPosition_Postfix(EnemyAI __instance, Vector3 objectPosition, ref bool __result)
         {
-            // SCP268 for making player invisible to enemies
-            foreach (var scp268 in GameObject.FindObjectsOfType<SCP268Behavior>())
+            try
             {
-                if (scp268.playerWornBy != null && objectPosition == scp268.playerWornBy.gameplayCamera.transform.position)
-                {
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+
+                if (objectPosition == SCP268Behavior.Instance.playerWornBy.gameplayCamera.transform.position)
                     __result = false;
-                }
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.PlayerIsTargetable))]
+        private static void EnemyAI_PlayerIsTargetable_Postfix(EnemyAI __instance, PlayerControllerB playerScript, ref bool __result)
+        {
+            try
+            {
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+
+                if (SCP268Behavior.Instance.playerWornBy == playerScript)
+                    __result = false;
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
             }
         }
     }

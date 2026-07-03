@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 0
   itemName: SCP-689
   spawnPositionTypes: []
-  twoHanded: 1
+  twoHanded: 0
   twoHandedAnimation: 0
   disableHandsOnWall: 0
   canBeGrabbedBeforeGameStart: 1
@@ -42,8 +42,8 @@ MonoBehaviour:
   pocketAnim: 
   throwAnim: 
   grabAnimationTime: 0
-  grabSFX: {fileID: 8300000, guid: 40c1f032a4d955347aceb5d61e228efa, type: 3}
-  dropSFX: {fileID: 8300000, guid: 9b8199783e1a5f0468f7ea46b4900056, type: 3}
+  grabSFX: {fileID: 8300000, guid: 9af40caa9b79e1349943023b31799240, type: 3}
+  dropSFX: {fileID: 8300000, guid: 29c4c26fa9866a749864b698b0f1a718, type: 3}
   pocketSFX: {fileID: 0}
   throwSFX: {fileID: 0}
   syncGrabFunction: 0
