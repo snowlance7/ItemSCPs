@@ -29,6 +29,7 @@ namespace ItemSCPs
         {
             if (!Utils.testing) { return; }
             //HUDManager.Instance.HUDAnimator.SetTrigger("SpawnUI"); // TODO: VIGNETTE FOUND!
+
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]

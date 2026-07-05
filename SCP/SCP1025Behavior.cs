@@ -31,7 +31,7 @@ namespace ItemSCPs.SCP
                 float time = UnityEngine.Random.Range(1200, 1800);
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
                 {
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, 0, 0.5f, 1, 10, 1500);
+                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, bodyPartIndex: 0, volume: 0.5f, min3DDistance: 1, max3DDistance: 10, cutoffFrequency: 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
                 }, "scp1025", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
@@ -113,7 +113,7 @@ namespace ItemSCPs.SCP
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
                     }, "scp1025", "heart attack", 6f));
-                    //localPlayer.StatusEffectController().ApplyEffect(new LerpValueEffect((x) => VignetteOverlay.Instance.SetIntensity(x), 0.1f, 1f, 5f, "scp1025", "vignette"));
+                    localPlayer.StatusEffectController().ApplyEffect(new LerpValueEffect((x) => VignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "scp1025", "vignette"));
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
@@ -134,13 +134,6 @@ namespace ItemSCPs.SCP
             itemProperties.canBeInspected = true;
             itemProperties.canBeGrabbedBeforeGameStart = true;
             itemProperties.toolTips = ["Open Book [LMB]"];
-        }
-
-        public override void EquipItem()
-        {
-            base.EquipItem();
-            if (UnityEngine.Random.Range(0f, 1f) < openBookChance)
-                OpenBook();
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)

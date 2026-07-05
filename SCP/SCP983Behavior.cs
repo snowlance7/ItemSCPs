@@ -62,8 +62,8 @@ namespace ItemSCPs.SCP
 
         public void Awake() // TODO: Set these
         {
-            itemProperties.positionOffset = new Vector3(0f, 0f, 0f);
-            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.positionOffset = new Vector3(-0.13f, 0.01f, -0.15f);
+            itemProperties.rotationOffset = new Vector3(120f, 0f, -90f);
             itemProperties.floorYOffset = 90;
         }
 
@@ -71,10 +71,6 @@ namespace ItemSCPs.SCP
         {
             base.Start();
 
-            itemProperties.positionOffset = new Vector3(-0.13f, 0.01f, -0.15f);
-            itemProperties.rotationOffset = new Vector3(120f, 0f, -90f);
-            itemProperties.floorYOffset = 90;
-            
             Material mat = eyesRenderer.material;
             mat.SetFloat("_EmissiveIntensity", 1f);
 

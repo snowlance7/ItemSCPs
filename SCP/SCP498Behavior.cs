@@ -29,6 +29,8 @@ namespace ItemSCPs.SCP
 
         bool snoozing;
 
+        public float angleToPlayer;
+
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
         const float maxDistanceOffset = 10f;
@@ -43,6 +45,8 @@ namespace ItemSCPs.SCP
         public override void Update()
         {
             base.Update();
+
+            angleToPlayer = Vector3.Angle(localPlayer.playerEye.transform.forward, transform.position - localPlayer.playerEye.transform.position);
 
             if (StartOfRound.Instance.inShipPhase)
             {
