@@ -21,7 +21,7 @@ namespace ItemSCPs
     [BepInDependency("Snowlance.LethalDiseases", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        public static Plugin Instance { get; private set; } = null!;
+        public static Plugin PluginInstance { get; private set; } = null!;
         public static ManualLogSource logger { get; private set; } = null!;
         public static DuskMod Mod { get; private set; } = null!;
         public static SCPDatabase SCPDatabase { get; private set; } = null!;
@@ -33,12 +33,12 @@ namespace ItemSCPs
 
         private void Awake()
         {
-            if (Instance == null)
+            if (PluginInstance == null)
             {
-                Instance = this;
+                PluginInstance = this;
             }
 
-            logger = Instance.Logger;
+            logger = PluginInstance.Logger;
 
             harmony.PatchAll();
 

@@ -1412,7 +1412,6 @@ GameObject:
   - component: {fileID: 893057089348137042}
   - component: {fileID: 2523880467288127025}
   - component: {fileID: 2178184553573694266}
-  - component: {fileID: 895801142953478438}
   - component: {fileID: 9145702545680481678}
   m_Layer: 6
   m_Name: SCP498
@@ -1452,7 +1451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1984556512
+  GlobalObjectIdHash: 228700414
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1506,7 +1505,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 10
   Pan2D: 0
-  rolloffMode: 1
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1579,22 +1578,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &895801142953478438
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8517923538342812898}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useReverb: 0
-  overridingLowPass: 0
-  lowPassOverride: 20000
-  debugLog: 0
 --- !u!114 &9145702545680481678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1647,7 +1630,8 @@ MonoBehaviour:
   info: {fileID: 11400000, guid: a63dc19bacc017c488068887aab9bdcd, type: 2}
   scanNode: {fileID: 4226057036293876562}
   audioSource: {fileID: 2178184553573694266}
-  audioSource2D: {fileID: 898217566895489348}
+  audioSourcePrefab: {fileID: 3183336342543760555, guid: 07574666598a55c42a8871e7935a8a44,
+    type: 3}
   timeDisplay: {fileID: 6129828621549462245}
 --- !u!1 &9009592907752307198
 GameObject:

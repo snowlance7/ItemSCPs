@@ -16,7 +16,7 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-        public static SCP689Behavior? Instance { get; private set; }
+        public static SCP689Behavior? Instance {  get; private set; }
 
         public SkinnedMeshRenderer renderer = null!;
         public Collider collider = null!;
@@ -48,15 +48,9 @@ namespace ItemSCPs.SCP
         {
             if (Instance != null || targetPlayers.Count == 0) { return; }
 
-            foreach (var player in targetPlayers)
-            {
-                if (player == null) { continue; }
+            targetPlayers.RemoveWhere(p => p == null || !p.isPlayerControlled);
 
-                if (!player.isPlayerControlled)
-                    targetPlayers.Remove(player);
-            }
-
-            //localPlayer.drop
+            if (targetPlayers.Count == 0) { return; }
 
             if (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) { return; }
 
@@ -72,25 +66,17 @@ namespace ItemSCPs.SCP
 
         public override void OnNetworkPostSpawn()
         {
-            base.OnNetworkPostSpawn();
-            if (Instance != null && Instance != this)
-            {
-                logger.LogDebug($"Only one {itemProperties.name} instance can be spawned, despawning duplicate");
-                NetworkObject.Despawn(destroy: true);
-                return;
-            }
+            if (Instance != null && Instance != this) { return; }
 
             Instance = this;
+            base.OnNetworkPostSpawn();
         }
 
         public override void OnNetworkDespawn()
         {
-            if (Instance != null && Instance == this)
-            {
-                nextAppearTime = UnityEngine.Random.Range(15, 20);
-                Instance = null;
-            }
-
+            nextAppearTime = UnityEngine.Random.Range(15, 20);
+            if (Instance == null || Instance != this) { return; }
+            Instance = null;
             base.OnNetworkDespawn();
         }
 
@@ -104,33 +90,29 @@ namespace ItemSCPs.SCP
         {
             base.Update();
 
-            inLOS = localPlayer.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000);
-            return;
+            inLOS = localPlayer.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000); // TODO: Test this
 
             if (!IsServer) { return; }
 
-            timeSinceAppearing += isVisible ? Time.deltaTime : 0f;
-            timeSinceDisappearing += !isVisible ? Time.deltaTime : 0f;
+            timeSinceAppearing = isVisible ? timeSinceAppearing + Time.deltaTime : 0f;
+            timeSinceDisappearing = !isVisible ? timeSinceDisappearing + Time.deltaTime : 0f;
 
             // Visibility check
             inLOS = isHeld || isHeldByEnemy || playerHeldBy != null || StartOfRound.Instance.shipIsLeaving || StartOfRound.Instance.inShipPhase;
 
-            foreach (var player in StartOfRound.Instance.allPlayerScripts)
+            if (isVisible)
             {
-                if (player == null || !player.isPlayerControlled) { continue; }
-                if (!player.HasLineOfSightToPosition(collider.bounds.center)) { continue; }
-                if (!TESTING.immunity)
-                    targetPlayers.Add(player);
-                inLOS = true;
+                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                {
+                    if (player == null || !player.isPlayerControlled) { continue; }
+                    if (!player.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000)) { continue; }
+                    if (!TESTING.immunity)
+                        targetPlayers.Add(player);
+                    inLOS = true;
+                }
             }
 
-            foreach (var player in targetPlayers)
-            {
-                if (player == null) { continue; }
-
-                if (!player.isPlayerControlled)
-                    targetPlayers.Remove(player);
-            }
+            targetPlayers.RemoveWhere(p => p == null || !p.isPlayerControlled);
 
             if (isVisible)
             {
@@ -153,18 +135,18 @@ namespace ItemSCPs.SCP
 
                 PlayerControllerB? targetPlayer = GetRandomPlayer();
                 if (targetPlayer == null || !targetPlayer.isPlayerControlled) { return; }
+                targetPlayers.Remove(targetPlayer);
                 isVisible = true;
-                lastPosition = transform.position;
                 TeleportRpc(targetPlayer.transform.position, true, (int)targetPlayer.actualClientId);
             }
         }
 
         public static PlayerControllerB? GetRandomPlayer()
         {
-            if (!targetPlayers.Any(x => !x.isPlayerAlone && x.isPlayerControlled))
+            if (!targetPlayers.Any(x => x != null && !x.isPlayerAlone && x.isPlayerControlled))
                 return targetPlayers.GetRandom();
 
-            return targetPlayers.Where(x => !x.isPlayerAlone && x.isPlayerControlled).GetRandom();
+            return targetPlayers.Where(x => x != null && !x.isPlayerAlone && x.isPlayerControlled).GetRandom();
         }
 
         [Rpc(SendTo.Everyone, RequireOwnership = false)]

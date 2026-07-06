@@ -122,9 +122,6 @@ namespace ItemSCPs.SCP
             }
         };
 
-        // Configs
-        const float openBookChance = 0.1f;
-
         public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.1f, 0.13f, -0.19f);

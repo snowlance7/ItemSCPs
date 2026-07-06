@@ -13,12 +13,10 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-#pragma warning disable CS8618
-        public AudioSource audioSource;
-        public GameObject capObject;
-        public AnimationCurve intensityOverTime;
-        public Animator animator;
-#pragma warning restore CS8618
+        public AudioSource audioSource = null!;
+        public GameObject capObject = null!;
+        public AnimationCurve intensityOverTime = null!;
+        public Animator animator = null!;
 
         public static Dictionary<int, float> contributions = new();
 
@@ -38,11 +36,13 @@ namespace ItemSCPs.SCP
         float effectDuration = 1200f;
         float drinkTimePerBottle = 10f;
 
-        public void Awake() // TODO: Set these
+        public void Awake()
         {
-            itemProperties.positionOffset = new Vector3(0, 0, 0);
-            itemProperties.rotationOffset = new Vector3(0, 0, 0);
+            itemProperties.positionOffset = new Vector3(-0.05f, 0.13f, 0.01f);
+            itemProperties.rotationOffset = new Vector3(90, 100, 0);
             itemProperties.floorYOffset = 90;
+
+            itemProperties.grabAnim = "HoldPatcherTool";
 
             itemProperties.syncUseFunction = true;
 
@@ -85,6 +85,8 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true) // Synced
         {
             base.ItemActivate(used, buttonDown);
+
+            capObject.SetActive(false);
 
             if (buttonDown)
             {

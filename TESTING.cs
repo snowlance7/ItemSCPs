@@ -1,5 +1,6 @@
 using HarmonyLib;
 using SnowyLib;
+using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -29,6 +30,24 @@ namespace ItemSCPs
         {
             if (!Utils.testing) { return; }
             //HUDManager.Instance.HUDAnimator.SetTrigger("SpawnUI"); // TODO: VIGNETTE FOUND!
+
+            var entrances = GameObject.FindObjectsOfType<EntranceTeleport>(includeInactive: true).ToList();
+
+            foreach (var entrance in entrances)
+            {
+                if (!entrance.gotExitPoint)
+                {
+                    if (entrance.FindExitPoint())
+                        entrance.gotExitPoint = true;
+                    else
+                    {
+                        logger.LogDebug($"Skipping {entrance.name}, no exit point found");
+                        continue;
+                    }
+                }
+
+                Utils.Ping(entrance.transform.position, entrance.name, entrance.exitScript.name);
+            }
 
         }
 
