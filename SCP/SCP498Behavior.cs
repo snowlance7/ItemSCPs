@@ -29,6 +29,8 @@ namespace ItemSCPs.SCP
 
         float volumeIncreaseMultiplier => 1 / timeToMaxVolume;
 
+        float alarmIntensity;
+
         float timeSinceLastSnooze;
         float timeSinceCalculateMaxDistance;
 
@@ -68,8 +70,8 @@ namespace ItemSCPs.SCP
 
             if (StartOfRound.Instance.inShipPhase)
             {
-                if (audioSource.isPlaying)
-                    audioSource.Stop();
+                if (IsServer && alarmActive)
+                    SnoozeRpc();
                 return;
             }
 
@@ -82,6 +84,11 @@ namespace ItemSCPs.SCP
                 {
                     audioSource.volume = 0f;
                     audioSource.Play();
+                    foreach (var source in audioSources.Values)
+                    {
+                        source.volume = 0f;
+                        source.Play();
+                    }
                     grabbable = false;
                     grabbableToEnemies = false;
                     customGrabTooltip = "Snooze [E]";
@@ -92,6 +99,8 @@ namespace ItemSCPs.SCP
                 {
                     timeSinceCalculateMaxDistance = 0f;
                     CalculateVolumes();
+                    SyncAudios();
+                    DoPlayerEffects();
                 }
             }
         }
@@ -102,7 +111,7 @@ namespace ItemSCPs.SCP
             snoozing = true;
             IEnumerator SnoozeDelay()
             {
-                yield return new WaitForSeconds(1f);
+                yield return null;
                 SnoozeRpc();
                 snoozing = false;
             }
@@ -122,82 +131,52 @@ namespace ItemSCPs.SCP
             timeDisplay.text = time;
         }
 
-        /*void CalculateMaxDistance()
+        void CalculateVolumes()
         {
-            Vector3 origin = transform.position;
+            alarmIntensity = Mathf.Clamp01(timeSinceAlarmActive * volumeIncreaseMultiplier);
 
-            GameObject farthestNode = Utils.insideAINodes.GetFarthestFromPosition(origin, x => x.transform.position)!;
+            Utils.allAINodes.GetFarthestFromPosition(
+                transform.position,
+                x => x.transform.position,
+                out float farthestDistance,
+                fastDistanceCheck: true);
 
-            float maxDistance = Vector3.Distance(origin, farthestNode.transform.position) + 10f;
+            audioSource.volume = localPlayer.isInsideFactory == isInFactory ? alarmIntensity : 0;
+            audioSource.maxDistance = Mathf.Lerp(10f, farthestDistance + 10f, alarmIntensity);
 
-            audioSource.maxDistance = maxDistance;
-
-            foreach (var src in audioSources)
+            if (localPlayer.isInsideFactory == isInFactory)
             {
-                var entrance = src.Key;
-                var audio = src.Value;
-
-                if (isInFactory == entrance.isEntranceToBuilding)
-                    continue;
-
-                float dist = Vector3.Distance(origin, entrance.transform.position);
-
-                if (dist > maxDistance)
-                {
-                    audio.volume = 0f;
-                    continue;
-                }
-
-                if (entrance.exitScript == null ||
-                    (entrance.exitPointDoesntExist || !entrance.FindExitPoint()))
-                {
-                    continue;
-                }
-
-                var exitSource = audioSources.FirstOrDefault(x => x.entrance == entrance.exitScript);
-                if (exitSource == null)
-                    continue;
-
-                float t = 1f - (dist / maxDistance);
-
-                float originalVolume = audio.volume;
-
-                exitSource.audioSource.maxDistance = maxDistance - dist;
-                exitSource.audioSource.volume = originalVolume * t;
+                foreach (var source in audioSources.Values)
+                    source.volume = 0f;
+                return;
             }
-        }*/
-
-        void CalculateVolumes() // TODO
-        {
-            Vector3 origin = transform.position;
-
-            var farthestNode = Utils.allAINodes.GetFarthestFromPosition(origin, (x) => x.transform.position, out float farthestDistance, fastDistanceCheck: true);
-            farthestDistance += 10f;
-
-            audioSource.maxDistance = farthestDistance;
-
-
 
             foreach (var entrance in Utils.entrances)
             {
-                var insideSource = audioSources[entrance.exitScript];
-                var outsideSource = audioSources[entrance];
+                AudioSource localSource = isInFactory
+                    ? audioSources[entrance.exitScript]
+                    : audioSources[entrance];
 
-                if (isInFactory)
-                {
-                    insideSource.volume = 0f;
+                AudioSource remoteSource = isInFactory
+                    ? audioSources[entrance]
+                    : audioSources[entrance.exitScript];
 
+                localSource.volume = 0f;
 
-                }
-                else
-                {
+                float distanceToPortal = Vector3.Distance(transform.position, localSource.transform.position);
+                if (distanceToPortal > audioSource.maxDistance)
+                    continue;
 
-                }
+                float attenuation = 1f - distanceToPortal / audioSource.maxDistance;
+
+                remoteSource.maxDistance = audioSource.maxDistance - distanceToPortal;
+                remoteSource.volume = (alarmIntensity / 3) * attenuation;
             }
         }
 
         void CreateAudioSources()
         {
+            logger.LogDebug("Creating audio sources for 498");
             audioSources.Clear();
             foreach (var entrance in Utils.entrances)
             {
@@ -208,19 +187,50 @@ namespace ItemSCPs.SCP
                     else continue;
                 }
 
-                AudioSource audioSource1 = Instantiate(audioSourcePrefab, entrance.transform.position, Quaternion.identity).GetComponent<AudioSource>();
+                AudioSource audioSource1 = Instantiate(audioSourcePrefab, GetPointBehindDoor(entrance), Quaternion.identity).GetComponent<AudioSource>();
                 audioSource1.gameObject.name = $"SCP498_{entrance.name}_TempAudioSource";
                 audioSources.Add(entrance, audioSource1);
 
-                AudioSource audioSource2 = Instantiate(audioSourcePrefab, entrance.exitScript.transform.position, Quaternion.identity).GetComponent<AudioSource>();
+                AudioSource audioSource2 = Instantiate(audioSourcePrefab, GetPointBehindDoor(entrance.exitScript), Quaternion.identity).GetComponent<AudioSource>();
                 audioSource2.gameObject.name = $"SCP498_{entrance.exitScript.name}_TempAudioSource";
                 audioSources.Add(entrance.exitScript, audioSource2);
             }
         }
 
+        Vector3 GetPointBehindDoor(EntranceTeleport entrance)
+        {
+            Vector3 local = entrance.transform.InverseTransformPoint(entrance.entrancePoint.position);
+
+            local.x = -local.x;
+            local.z = -local.z;
+
+            local.y += 0.5f;
+
+            Vector3 oppositePoint = entrance.transform.TransformPoint(local);
+            return oppositePoint;
+        }
+
+        void SyncAudios()
+        {
+            foreach (var source in audioSources.Values)
+                source.time = audioSource.time;
+        }
+
+        void DoPlayerEffects()
+        {
+            var distanceToAlarm = Utils.SmartDistance(localPlayer.transform.position, transform.position, fastDistanceCheck: true);
+            var playerIntensity = 
+        }
+
         [Rpc(SendTo.Everyone, RequireOwnership = false)]
         public void SnoozeRpc()
         {
+            foreach (var source in audioSources.Values)
+            {
+                source.volume = 0f;
+                source.Stop();
+            }
+            audioSource.volume = 0f;
             audioSource.Stop();
             timeSinceLastSnooze = 0f;
             grabbable = true;

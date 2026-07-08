@@ -46,7 +46,15 @@ namespace ItemSCPs
                     }
                 }
 
-                Utils.Ping(entrance.transform.position, entrance.name, entrance.exitScript.name);
+                /*Vector3 local = entrance.transform.InverseTransformPoint(entrance.entrancePoint.position);
+
+                local.x = -local.x;
+                local.z = -local.z;
+
+                local.y += 0.5f;
+
+                Vector3 oppositePoint = entrance.transform.TransformPoint(local);
+                Utils.Ping(oppositePoint, "Inverse Point");*/
             }
 
         }
