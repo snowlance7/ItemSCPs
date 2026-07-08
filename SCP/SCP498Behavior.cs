@@ -29,16 +29,27 @@ namespace ItemSCPs.SCP
 
         float volumeIncreaseMultiplier => 1 / timeToMaxVolume;
 
+        float farthestNodeDistance;
+
+        Vector3 lastPosition;
+
         float alarmIntensity;
+        float playerIntensity;
+
+        float localPlayerDistance;
 
         float timeSinceLastSnooze;
-        float timeSinceCalculateMaxDistance;
+        float timeSinceCalculateVolumes;
+        float timeSinceDoPlayerEffects = 2f;
 
         bool snoozing;
 
+        float minDistance;
+        float maxDistance;
+
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
-        const float maxDistanceOffset = 10f;
+        const float minDistanceOffset = 0.5f;
 
         public void Awake()
         {
@@ -53,6 +64,8 @@ namespace ItemSCPs.SCP
             Utils.OnShipLanded.AddListener(CreateAudioSources);
             if (StartOfRound.Instance.shipHasLanded)
                 CreateAudioSources();
+            Utils.allAINodes.GetFarthestFromPosition(transform.position, x => x.transform.position, out farthestNodeDistance, fastDistanceCheck: true);
+            lastPosition = transform.position;
         }
 
         public override void OnDestroy()
@@ -70,6 +83,7 @@ namespace ItemSCPs.SCP
 
             if (StartOfRound.Instance.inShipPhase)
             {
+
                 if (IsServer && alarmActive)
                     SnoozeRpc();
                 return;
@@ -94,14 +108,13 @@ namespace ItemSCPs.SCP
                     customGrabTooltip = "Snooze [E]";
                 }
 
-                timeSinceCalculateMaxDistance += Time.deltaTime;
-                if (timeSinceCalculateMaxDistance > 1f)
-                {
-                    timeSinceCalculateMaxDistance = 0f;
-                    CalculateVolumes();
-                    SyncAudios();
-                    DoPlayerEffects();
-                }
+                if (IsServer && alarmIntensity >= 1 && !TimeOfDay.Instance.shipLeavingAlertCalled)
+                    NetworkHandler.Instance.SetShipLeaveEarlyServerRpc(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, $"WARNING! Due to unsafe conditions, the autopilot ship will leave early. Please return by {HUDManager.Instance.GetClockTimeFormatted(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, TimeOfDay.Instance.numberOfHours, createNewLine: false)}.");
+
+                CalculateVolumes();
+                DoPlayerEffects();
+                PushPlayer();
+                SyncAudios();
             }
         }
 
@@ -121,7 +134,7 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!buttonDown) { return; }
+            if (!buttonDown || !alarmActive) { return; }
             SnoozeRpc();
         }
 
@@ -133,16 +146,23 @@ namespace ItemSCPs.SCP
 
         void CalculateVolumes()
         {
+            timeSinceCalculateVolumes += Time.deltaTime;
+            if (timeSinceCalculateVolumes < 1f) { return; }
+            timeSinceCalculateVolumes = 0f;
+
             alarmIntensity = Mathf.Clamp01(timeSinceAlarmActive * volumeIncreaseMultiplier);
 
-            Utils.allAINodes.GetFarthestFromPosition(
-                transform.position,
-                x => x.transform.position,
-                out float farthestDistance,
-                fastDistanceCheck: true);
+            if (lastPosition != transform.position)
+                Utils.allAINodes.GetFarthestFromPosition(transform.position, x => x.transform.position, out farthestNodeDistance, fastDistanceCheck: true);
+            lastPosition = transform.position;
+
+            if (farthestNodeDistance <= 0) { return; }
 
             audioSource.volume = localPlayer.isInsideFactory == isInFactory ? alarmIntensity : 0;
-            audioSource.maxDistance = Mathf.Lerp(10f, farthestDistance + 10f, alarmIntensity);
+            audioSource.maxDistance = Mathf.Lerp(10f, farthestNodeDistance + 10f, alarmIntensity);
+            audioSource.minDistance = audioSource.maxDistance * minDistanceOffset;
+            minDistance = audioSource.minDistance;
+            maxDistance = audioSource.maxDistance;
 
             if (localPlayer.isInsideFactory == isInFactory)
             {
@@ -153,6 +173,8 @@ namespace ItemSCPs.SCP
 
             foreach (var entrance in Utils.entrances)
             {
+                if (!entrance.isEntranceToBuilding) { continue; }
+
                 AudioSource localSource = isInFactory
                     ? audioSources[entrance.exitScript]
                     : audioSources[entrance];
@@ -169,8 +191,9 @@ namespace ItemSCPs.SCP
 
                 float attenuation = 1f - distanceToPortal / audioSource.maxDistance;
 
-                remoteSource.maxDistance = audioSource.maxDistance - distanceToPortal;
                 remoteSource.volume = (alarmIntensity / 3) * attenuation;
+                remoteSource.maxDistance = audioSource.maxDistance - distanceToPortal;
+                remoteSource.minDistance = remoteSource.maxDistance * minDistanceOffset;
             }
         }
 
@@ -188,11 +211,11 @@ namespace ItemSCPs.SCP
                 }
 
                 AudioSource audioSource1 = Instantiate(audioSourcePrefab, GetPointBehindDoor(entrance), Quaternion.identity).GetComponent<AudioSource>();
-                audioSource1.gameObject.name = $"SCP498_{entrance.name}_TempAudioSource";
+                audioSource1.gameObject.name = $"SCP498_{entrance.name}_AudioPortal";
                 audioSources.Add(entrance, audioSource1);
 
                 AudioSource audioSource2 = Instantiate(audioSourcePrefab, GetPointBehindDoor(entrance.exitScript), Quaternion.identity).GetComponent<AudioSource>();
-                audioSource2.gameObject.name = $"SCP498_{entrance.exitScript.name}_TempAudioSource";
+                audioSource2.gameObject.name = $"SCP498_{entrance.exitScript.name}_AudioPortal";
                 audioSources.Add(entrance.exitScript, audioSource2);
             }
         }
@@ -216,10 +239,51 @@ namespace ItemSCPs.SCP
                 source.time = audioSource.time;
         }
 
-        void DoPlayerEffects()
+        void DoPlayerEffects() // TODO: ADJUST THIS, CURRENTLY SENDS THE PLAYER FLYING
         {
-            var distanceToAlarm = Utils.SmartDistance(localPlayer.transform.position, transform.position, fastDistanceCheck: true);
-            var playerIntensity = 
+            timeSinceDoPlayerEffects += Time.deltaTime;
+            if (timeSinceDoPlayerEffects < 2f) { return; }
+            timeSinceDoPlayerEffects = 0f;
+
+            localPlayerDistance = Utils.SmartDistance(localPlayer.transform.position, transform.position, fastDistanceCheck: true);
+            playerIntensity = alarmIntensity * (Mathf.Clamp01(1f - localPlayerDistance / audioSource.maxDistance));
+            logger.LogDebug(playerIntensity);
+
+            if (playerIntensity > 0.5f)
+            {
+                float drunknessSet = Mathf.Lerp(0f, 0.25f, playerIntensity);
+                localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, drunknessSet);
+            }
+            if (playerIntensity > 0.75f)
+            {
+                if (!HUDManager.Instance.playerScreenShakeAnimator.GetBool("ShakingConstant"))
+                    HUDManager.Instance.ShakeCamera(ScreenShakeType.Constant);
+            }
+            if (playerIntensity > 0.85f)
+            {
+                int damageAmount = playerIntensity > 0.95f ? 2 : 1;
+                localPlayer.inSpecialInteractAnimation = true;
+                localPlayer.DamagePlayer(damageAmount, hasDamageSFX: false);
+                localPlayer.inSpecialInteractAnimation = false;
+
+                float vignetteIntensity = Mathf.Lerp(0f, 0.4f, playerIntensity);
+                VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, vignetteIntensity));
+            }
+        }
+
+        void PushPlayer()
+        {
+            if (playerIntensity < 0.8f) { return; }
+            float pushForce = 10 * playerIntensity;
+            float pushDistance = audioSource.minDistance / 2;
+
+            if (localPlayerDistance > pushDistance) { return; }
+
+            Vector3 pushDirection = (localPlayer.playerCollider.transform.position - transform.position).normalized;
+            Vector3 targetPosition = localPlayer.playerCollider.transform.position + (pushDirection * pushForce);
+
+            float pushForceMultiplier = 1 - (localPlayerDistance / pushDistance);
+            localPlayer.playerCollider.transform.position = Vector3.Lerp(localPlayer.playerCollider.transform.position, targetPosition, pushForce * pushForceMultiplier * Time.fixedDeltaTime);
         }
 
         [Rpc(SendTo.Everyone, RequireOwnership = false)]
@@ -236,6 +300,11 @@ namespace ItemSCPs.SCP
             grabbable = true;
             grabbableToEnemies = true;
             customGrabTooltip = "";
+
+            if (HUDManager.Instance.playerScreenShakeAnimator.GetBool("ShakingConstant"))
+                HUDManager.Instance.StopShakingCamera();
+
+            SoundManager.Instance.earsRingingTimer = 5 * playerIntensity;
         }
     }
 }

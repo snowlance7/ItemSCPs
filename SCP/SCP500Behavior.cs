@@ -20,7 +20,7 @@ namespace ItemSCPs.SCP
 
         BoundedRange pillAmountRange = new BoundedRange(2, 15);
 
-        public void Awake() // TODO
+        public void Awake()
         {
             itemProperties.positionOffset = new Vector3(-0.08f, 0.11f, 0);
             itemProperties.rotationOffset = new Vector3(0, 0, -90);

@@ -29,34 +29,7 @@ namespace ItemSCPs
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
-            //HUDManager.Instance.HUDAnimator.SetTrigger("SpawnUI"); // TODO: VIGNETTE FOUND!
-
-            var entrances = GameObject.FindObjectsOfType<EntranceTeleport>(includeInactive: true).ToList();
-
-            foreach (var entrance in entrances)
-            {
-                if (!entrance.gotExitPoint)
-                {
-                    if (entrance.FindExitPoint())
-                        entrance.gotExitPoint = true;
-                    else
-                    {
-                        logger.LogDebug($"Skipping {entrance.name}, no exit point found");
-                        continue;
-                    }
-                }
-
-                /*Vector3 local = entrance.transform.InverseTransformPoint(entrance.entrancePoint.position);
-
-                local.x = -local.x;
-                local.z = -local.z;
-
-                local.y += 0.5f;
-
-                Vector3 oppositePoint = entrance.transform.TransformPoint(local);
-                Utils.Ping(oppositePoint, "Inverse Point");*/
-            }
-
+            SoundManager.Instance.earsRingingTimer = 5f;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
