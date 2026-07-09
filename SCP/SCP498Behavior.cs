@@ -46,7 +46,7 @@ namespace ItemSCPs.SCP
 
         float minDistance;
         float maxDistance;
-
+        const float basePushForce = 1.5f; // TODO: Test this
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
         const float minDistanceOffset = 0.5f;
@@ -191,7 +191,7 @@ namespace ItemSCPs.SCP
 
                 float attenuation = 1f - distanceToPortal / audioSource.maxDistance;
 
-                remoteSource.volume = (alarmIntensity / 3) * attenuation;
+                remoteSource.volume = (alarmIntensity / 2) * attenuation;
                 remoteSource.maxDistance = audioSource.maxDistance - distanceToPortal;
                 remoteSource.minDistance = remoteSource.maxDistance * minDistanceOffset;
             }
@@ -239,7 +239,7 @@ namespace ItemSCPs.SCP
                 source.time = audioSource.time;
         }
 
-        void DoPlayerEffects() // TODO: ADJUST THIS, CURRENTLY SENDS THE PLAYER FLYING
+        void DoPlayerEffects()
         {
             timeSinceDoPlayerEffects += Time.deltaTime;
             if (timeSinceDoPlayerEffects < 2f) { return; }
@@ -247,7 +247,6 @@ namespace ItemSCPs.SCP
 
             localPlayerDistance = Utils.SmartDistance(localPlayer.transform.position, transform.position, fastDistanceCheck: true);
             playerIntensity = alarmIntensity * (Mathf.Clamp01(1f - localPlayerDistance / audioSource.maxDistance));
-            logger.LogDebug(playerIntensity);
 
             if (playerIntensity > 0.5f)
             {
@@ -271,10 +270,10 @@ namespace ItemSCPs.SCP
             }
         }
 
-        void PushPlayer()
+        void PushPlayer() // TODO: ADJUST THIS, CURRENTLY SENDS THE PLAYER FLYING
         {
             if (playerIntensity < 0.8f) { return; }
-            float pushForce = 10 * playerIntensity;
+            float pushForce = basePushForce * playerIntensity;
             float pushDistance = audioSource.minDistance / 2;
 
             if (localPlayerDistance > pushDistance) { return; }

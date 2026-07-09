@@ -29,7 +29,6 @@ namespace ItemSCPs
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
-            SoundManager.Instance.earsRingingTimer = 5f;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
