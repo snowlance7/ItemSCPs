@@ -15,8 +15,8 @@ MonoBehaviour:
   itemId: 0
   itemName: SCP-3482
   spawnPositionTypes: []
-  twoHanded: 1
-  twoHandedAnimation: 1
+  twoHanded: 0
+  twoHandedAnimation: 0
   disableHandsOnWall: 1
   canBeGrabbedBeforeGameStart: 1
   disallowUtilitySlot: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
   highestSalePercentage: 80
   maxValue: 100
   minValue: 200
-  spawnPrefab: {fileID: 2243885020743378187, guid: d222700a99f0242429631505f04a4e8b,
+  spawnPrefab: {fileID: 6457889936090245200, guid: d222700a99f0242429631505f04a4e8b,
     type: 3}
   requiresBattery: 0
   batteryUsage: 0
@@ -56,7 +56,7 @@ MonoBehaviour:
   verticalOffset: 0
   floorYOffset: 0
   allowDroppingAheadOfPlayer: 1
-  restingRotation: {x: 0, y: 0, z: 90}
+  restingRotation: {x: 0, y: 0, z: 0}
   rotationOffset: {x: 0, y: 0, z: 0}
   positionOffset: {x: 0, y: 0, z: 0}
   meshOffset: 1
@@ -64,4 +64,4 @@ MonoBehaviour:
   materialVariants: []
   clinkAudios: []
   usableInSpecialAnimations: 0
-  canBeInspected: 1
+  canBeInspected: 0

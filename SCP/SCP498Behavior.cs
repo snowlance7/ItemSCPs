@@ -44,8 +44,6 @@ namespace ItemSCPs.SCP
 
         bool snoozing;
 
-        float minDistance;
-        float maxDistance;
         const float basePushForce = 1.5f; // TODO: Test this
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
@@ -161,8 +159,6 @@ namespace ItemSCPs.SCP
             audioSource.volume = localPlayer.isInsideFactory == isInFactory ? alarmIntensity : 0;
             audioSource.maxDistance = Mathf.Lerp(10f, farthestNodeDistance + 10f, alarmIntensity);
             audioSource.minDistance = audioSource.maxDistance * minDistanceOffset;
-            minDistance = audioSource.minDistance;
-            maxDistance = audioSource.maxDistance;
 
             if (localPlayer.isInsideFactory == isInFactory)
             {
@@ -270,7 +266,7 @@ namespace ItemSCPs.SCP
             }
         }
 
-        void PushPlayer() // TODO: ADJUST THIS, CURRENTLY SENDS THE PLAYER FLYING
+        void PushPlayer()
         {
             if (playerIntensity < 0.8f) { return; }
             float pushForce = basePushForce * playerIntensity;

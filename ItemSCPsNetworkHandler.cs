@@ -33,8 +33,8 @@ namespace ItemSCPs
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer)
-                Instance?.gameObject.GetComponent<NetworkObject>().Despawn(destroy: true);
+            if (IsServer && Instance != null)
+                Instance.gameObject.GetComponent<NetworkObject>().Despawn(destroy: true);
             Instance = this;
             logger.LogDebug("NetworkHandler spawned");
             base.OnNetworkSpawn();

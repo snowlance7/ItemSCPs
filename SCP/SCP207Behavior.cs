@@ -2,7 +2,9 @@
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -23,7 +25,7 @@ namespace ItemSCPs.SCP
         public static int previousContributionsID = 0;
         public static bool heartAttackLocalPlayer = false;
 
-        PlayerControllerB? previousPlayerHeldBy;
+        PlayerControllerB previousPlayerHeldBy = null!;
 
         bool drinking;
         float drinkAmountLeft;
@@ -32,14 +34,19 @@ namespace ItemSCPs.SCP
 
         int hashDrinkTime;
 
+        Coroutine? drinkingRoutine;
+
+        Vector3 drinkingPositionOffset = new Vector3(0f, 0.1f, 0.1f);
+        Vector3 drinkingRotationOffset = new Vector3(50, 170, 0);
+
         // Configs
         float effectDuration = 1200f;
         float drinkTimePerBottle = 10f;
 
         public void Awake()
         {
-            itemProperties.positionOffset = new Vector3(-0.05f, 0.13f, 0.01f);
-            itemProperties.rotationOffset = new Vector3(90, 100, 0);
+            itemProperties.positionOffset = new Vector3(-0.07f, 0.1f, -0.01f);
+            itemProperties.rotationOffset = new Vector3(80, 90, 0);
             itemProperties.floorYOffset = 90;
 
             itemProperties.grabAnim = "HoldPatcherTool";
@@ -82,6 +89,27 @@ namespace ItemSCPs.SCP
             }
         }
 
+        public override void LateUpdate()
+        {
+            if (parentObject != null)
+            {
+                base.transform.rotation = parentObject.rotation;
+                base.transform.Rotate(drinking ? drinkingRotationOffset : itemProperties.rotationOffset);
+                base.transform.position = parentObject.position;
+                Vector3 positionOffset = drinking ? drinkingPositionOffset : itemProperties.positionOffset;
+                positionOffset = parentObject.rotation * positionOffset;
+                base.transform.position += positionOffset;
+            }
+            if (rotateObject)
+            {
+                base.transform.Rotate(new Vector3(0f, Time.deltaTime * 60f, 0f), Space.World);
+            }
+            if (radarIcon != null)
+            {
+                radarIcon.position = base.transform.position;
+            }
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true) // Synced
         {
             base.ItemActivate(used, buttonDown);
@@ -95,20 +123,21 @@ namespace ItemSCPs.SCP
                 drinkingTime = 0f;
                 if (drinkAmountLeft <= 0f)
                 {
-                    previousPlayerHeldBy.playerBodyAnimator.SetTrigger("shakeItem");
+                    if (base.IsOwner)
+                        previousPlayerHeldBy.playerBodyAnimator.SetTrigger("shakeItem");
                     return;
                 }
 
-                drinking = true;
-                if (base.IsOwner)
-                    audioSource.Play();
+                StopDrinkRoutine();
+                drinkingRoutine = StartCoroutine(DrinkRoutine());
             }
             else
             {
+                StopDrinkRoutine();
                 drinking = false;
                 audioSource.Stop();
 
-                if (base.IsOwner && drinkingTime > 0f && TESTING.immunity)
+                if (base.IsOwner && drinkingTime > 0f && !TESTING.immunity)
                 {
                     ApplyEffect(drinkingTime);
                 }
@@ -116,9 +145,28 @@ namespace ItemSCPs.SCP
 
             if (base.IsOwner)
             {
-                previousPlayerHeldBy!.activatingItem = buttonDown;
-                previousPlayerHeldBy!.playerBodyAnimator.SetBool("useTZPItem", buttonDown);
+                previousPlayerHeldBy.activatingItem = buttonDown;
+                previousPlayerHeldBy.playerBodyAnimator.SetBool("useTZPItem", buttonDown);
             }
+        }
+
+        void StopDrinkRoutine()
+        {
+            if (drinkingRoutine != null)
+            {
+                StopCoroutine(drinkingRoutine);
+                drinkingRoutine = null;
+            }
+        }
+
+        IEnumerator DrinkRoutine()
+        {
+            yield return new WaitForSeconds(1f);
+
+            drinking = true;
+            if (base.IsOwner)
+                audioSource.Play();
+            drinkingRoutine = null;
         }
 
         void ApplyEffect(float amount)
@@ -141,15 +189,15 @@ namespace ItemSCPs.SCP
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
                         heartAttackLocalPlayer = false;
-                    }, "scp207_1", "heart attack", 6));
+                    }, "scp207", "heart attack", 6));
                 }
-            }, intensityOverTime, effectDuration, "scp207_1", $"scp207_1_{id}", onRemove: (effect) =>
+            }, intensityOverTime, effectDuration, "scp207", $"scp207_{id}", onRemove: (effect) =>
             {
                 contributions.Remove(id);
                 localPlayer.sprintTime = GetTotalContributions();
             }));
 
-            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207_1", 30, 0, "scp207_1_heartbeatSlow", effectDuration));
+            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));
         }
 
         static float GetTotalContributions()
