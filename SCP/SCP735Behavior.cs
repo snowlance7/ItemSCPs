@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+using static ItemSCPs.SCP.SCP735Behavior;
 
 namespace ItemSCPs.SCP
 {
@@ -43,7 +44,7 @@ namespace ItemSCPs.SCP
         }
 
         // Configs
-        BoundedRange phraseCooldownRange = new BoundedRange(5f, 10f);
+        BoundedRange phraseCooldownRange = new BoundedRange(5, 15);
         float nearPlayersRadius = 10f;
 
         public void Awake() // TODO: Set these
@@ -76,11 +77,6 @@ namespace ItemSCPs.SCP
 
             if (phraseCooldown > 0)
                 phraseCooldown -= Time.deltaTime;
-
-            if (previousPlayerHeldBy.takingFallDamage)
-            {
-                SpeakPhrase(Phrase.PlayerFallDamagePhrases);
-            }
 
             if (phraseCooldown <= 0)
             {
@@ -115,7 +111,7 @@ namespace ItemSCPs.SCP
             audioSource.Stop();
             audioSource.clip = clip;
             audioSource.Play();
-            RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance);
+            RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance, audioSource.volume);
             WalkieTalkie.TransmitOneShotAudio(audioSource, clip, 0.85f);
         }
     }
@@ -144,8 +140,24 @@ namespace ItemSCPs.SCP
         public static void DamagePlayerPostfix(PlayerControllerB __instance, CauseOfDeath causeOfDeath)
         {
             if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
-            if (causeOfDeath != CauseOfDeath.Mauling || causeOfDeath != CauseOfDeath.Stabbing || causeOfDeath != CauseOfDeath.Scratching) { return; }
-            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.MonsterDamagePhrases);
+
+            switch (causeOfDeath)
+            {
+                case CauseOfDeath.Gravity:
+                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.PlayerFallDamagePhrases);
+                    break;
+                case CauseOfDeath.Mauling:
+                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    break;
+                case CauseOfDeath.Stabbing:
+                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    break;
+                case CauseOfDeath.Scratching:
+                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    break;
+                default:
+                    break;
+            }
         }
 
         [HarmonyPostfix]
@@ -153,7 +165,7 @@ namespace ItemSCPs.SCP
         public static void DamagePlayerFromOtherClientClientRpcPostfix(PlayerControllerB __instance)
         {
             if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
-            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.PlayerDamagePhrases);
+            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.PlayerDamagePhrases);
         }
     }
 }
