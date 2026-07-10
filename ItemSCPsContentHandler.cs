@@ -44,7 +44,11 @@ namespace ItemSCPs
         public class SCP268Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP268Assets>(mod, filePath) { }
         public SCP268Assets? SCP268;
 
-        public class SCP3482Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP3482Assets>(mod, filePath) { }
+        public class SCP3482Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP3482Assets>(mod, filePath)
+        {
+            [LoadFromBundle("SCP3482Overlay.prefab")]
+            public GameObject Overlay { get; private set; } = null!;
+        }
         public SCP3482Assets? SCP3482;
 
         public class SCP420JAssets(DuskMod mod, string filePath) : AssetBundleLoader<SCP420JAssets>(mod, filePath) { }

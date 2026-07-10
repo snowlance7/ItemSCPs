@@ -7,7 +7,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating???
+    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating??? // TODO: Cant use charger to light???
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;

@@ -16,6 +16,7 @@ using static ItemSCPs.SCP.SCP9831Behavior;
 // TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand
 // happy birthday to you, happy birthday to you, happy birthday dear player, bad luck go with you! A ding ding ding its your birthday!
 // TODO: Change to player voice instead of using item
+// TODO: DisplayPlayerMicVolume.Update LOOK AT THIS
 
 namespace ItemSCPs.SCP
 {
