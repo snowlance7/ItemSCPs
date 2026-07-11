@@ -9,6 +9,8 @@ using static ItemSCPs.Plugin;
 
 // TODO: Make spawn rates on scp interiors in dawnlib interior spawn weights super high
 // TODO: WearableItemsAPI cant move when exiting the ui by pressing escape
+// TODO: Screws up players audio/listening
+// TODO: Light detection not working while holding it and already being affected
 
 namespace ItemSCPs.SCP
 {

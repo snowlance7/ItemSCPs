@@ -46,6 +46,10 @@ namespace ItemSCPs.SCP
             itemProperties.floorYOffset = 90;
             itemProperties.syncUseFunction = true;
             itemProperties.syncDiscardFunction = true;
+            itemProperties.itemIsTrigger = true;
+            itemProperties.requiresBattery = true;
+            itemProperties.batteryUsage = 0;
+            itemProperties.holdButtonUse = true;
         }
 
         public override void Update()

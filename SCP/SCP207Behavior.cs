@@ -10,7 +10,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing and gulp sound not playing
+    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing and gulp sound not playing // TODO: Sprint speed settings not working, regens fast but instantly get depleted
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;

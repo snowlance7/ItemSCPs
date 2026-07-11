@@ -1,6 +1,6 @@
 {
   "name": "ItemSCPs",
-  "version_number": "1.0.0",
+  "version_number": "0.1.0",
   "website_url": "https://github.com/snowlance7/ItemSCPs",
   "description": "A collection of fully functional item SCPs",
   "dependencies": [
