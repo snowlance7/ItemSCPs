@@ -8,7 +8,6 @@ using UnityEngine;
 using static ItemSCPs.Plugin;
 
 // TODO: Make spawn rates on scp interiors in dawnlib interior spawn weights super high
-// TODO: WearableItemsAPI cant move when exiting the ui by pressing escape
 // TODO: Screws up players audio/listening
 // TODO: Light detection not working while holding it and already being affected
 
@@ -20,6 +19,7 @@ namespace ItemSCPs.SCP
         public SCPInfo SCPInfo => info;
 
         public AudioSource audioSource = null!;
+        public AudioSource audioSource2D = null!;
         public AudioClip[] speechSFX = null!;
         public AudioClip finalSpeechSFX = null!;
         public AudioClip[] stabSFX = null!;
@@ -32,7 +32,6 @@ namespace ItemSCPs.SCP
 
         bool isLit => IsLit();
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
-        AudioSource? playerVoice => playerHeldBy?.itemAudio;
 
         float timeSinceLastSpeechStart;
         float timeSinceIntervalUpdate;
@@ -102,7 +101,7 @@ namespace ItemSCPs.SCP
 
             localPlayerAffected = CanAffectPlayer();
 
-            audioSource.volume = localPlayerAffected ? 1 : 0; // TODO: Test this
+            audioSource.volume = localPlayerAffected ? 1 : 0;
             audioSource.maxDistance = maxRange;
 
             if (!localPlayerAffected)
@@ -110,7 +109,6 @@ namespace ItemSCPs.SCP
                 if (heldByLocalPlayer && localPlayer.activatingItem)
                 {
                     localPlayer.activatingItem = false;
-                    NetworkHandler.Instance.MufflePlayerRpc(localPlayer.actualClientId, false);
                 }
                 localPlayerPlayingFinalSpeech = false;
                 return;
@@ -204,7 +202,7 @@ namespace ItemSCPs.SCP
 
             localPlayer.drunkness = 0.3f;
 
-            PlaySpeechRpc();
+            RoundManager.PlayRandomClip(audioSource, speechSFX);
         }
 
         void MovePlayerTowardsPosition(Vector3 targetPosition, float force)
@@ -289,7 +287,10 @@ namespace ItemSCPs.SCP
         {
             localPlayerPlayingFinalSpeech = true;
             timeSinceStartFinalSpeech = 0f;
-            PlayFinalSpeechRpc();
+
+            audioSource.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
+            audioSource.volume = 1f;
+            audioSource.PlayOneShot(finalSpeechSFX);
         }
 
         public bool IsLit()
@@ -322,27 +323,6 @@ namespace ItemSCPs.SCP
             logger.LogDebug(average);
 
             return average > 0.015f; // TODO: Test this and get the right value
-        }
-
-        [Rpc(SendTo.Everyone, RequireOwnership = false)]
-        public void PlaySpeechRpc()
-        {
-            if (playerVoice == null) { return; }
-            playerHeldBy.MufflePlayer(true);
-            playerVoice.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
-            playerVoice.volume = 1f;
-
-            int index = Utils.randomGlobal.Next(0, speechSFX.Length);
-            playerVoice.PlayOneShot(speechSFX[index]);
-        }
-
-        [Rpc(SendTo.Everyone, RequireOwnership = false)]
-        public void PlayFinalSpeechRpc()
-        {
-            if (playerVoice == null) { logger.LogWarning("PlayerVoice is null"); return; }
-            playerVoice.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
-            playerVoice.volume = 1f;
-            playerVoice.PlayOneShot(finalSpeechSFX);
         }
     }
 }

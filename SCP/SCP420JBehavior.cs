@@ -17,7 +17,6 @@ namespace ItemSCPs.SCP
         public SkinnedMeshRenderer renderer = null!;
         public AudioClip exhaleSFX = null!;
 
-
         PlayerControllerB previousPlayerHeldBy = null!;
 
         bool hasFuel => fuel > 0;

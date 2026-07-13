@@ -158,7 +158,7 @@ namespace ItemSCPs.SCP
             OpenBookRpc(index);
             if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
 
-            if (LethalDiseasesCompatibility.enabled) // TODO: Set up UI for pages for lethal diseases
+            if (LethalDiseasesCompatibility.enabled) // UPDATE: Set up UI for pages for lethal diseases
             {
                 LethalDiseasesCompatibility.InfectPlayer(localPlayer);
                 return;

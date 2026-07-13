@@ -17,11 +17,9 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-#pragma warning disable CS8618
-        public AudioClip[] chewingSounds;
-        public GameObject pinkBloodSplatterProjectorPrefab;
-        public AudioClip sizzleSFX;
-#pragma warning restore CS8618
+        public AudioClip[] chewingSounds = null!;
+        public GameObject pinkBloodSplatterProjectorPrefab = null!;
+        public AudioClip sizzleSFX = null!;
 
         public static Dictionary<PlayerControllerB, List<GameObject>> PlayerPinkBodyBloodDecals = new Dictionary<PlayerControllerB, List<GameObject>>();
 
