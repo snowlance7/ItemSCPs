@@ -12,7 +12,7 @@ namespace ItemSCPs
     {
         public static ItemSCPsNetworkHandler Instance { get; private set; } = null!;
 
-        public AudioClip[] sneezeSFX = null!; // TODO: Assign in unity
+        public AudioClip[] sneezeSFX = null!;
         public AudioClip[] coughSFX = null!;
         public AudioClip[] coughHeavySFX = null!;
         public AudioClip[] heartbeatSlowSFX = null!;

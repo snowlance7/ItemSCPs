@@ -7,7 +7,6 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-// TODO: Make spawn rates on scp interiors in dawnlib interior spawn weights super high
 // TODO: Screws up players audio/listening
 // TODO: Light detection not working while holding it and already being affected
 
@@ -272,14 +271,14 @@ namespace ItemSCPs.SCP
         bool CanAffectPlayer()
         {
             if (SCP714Behavior.localPlayerAffected) { return false; }
+            if (TESTING.immunity) { return false; }
             if (localPlayerPlayingFinalSpeech) { return true; }
             if (StartOfRound.Instance.inShipPhase && !Utils.inTestRoom) { return false; }
             if (playerHeldBy != null && localPlayer != playerHeldBy) { return false; }
             if (isPocketed) { return false; }
-            if (heldByLocalPlayer) { return isLit && !TESTING.immunity; }
+            if (heldByLocalPlayer) { return isLit; }
             if (distance > maxRange) { return false; }
             if (!isLit) { return false; }
-            if (TESTING.immunity) { return false; }
             return true;
         }
 

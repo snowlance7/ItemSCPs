@@ -45,6 +45,10 @@ namespace ItemSCPs
                         immunity = !immunity;
                         HUDManager.Instance.DisplayTip("ItemSCPs", "Immunity: " + immunity);
                         break;
+                    case "/immune":
+                        immunity = !immunity;
+                        HUDManager.Instance.DisplayTip("ItemSCPs", "Immunity: " + immunity);
+                        break;
                     default:
                         break;
                 }

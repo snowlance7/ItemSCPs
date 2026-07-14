@@ -14,13 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <AuthorName>k__BackingField: ProjectSCP
   <ModName>k__BackingField: ItemSCPs
-  <Version>k__BackingField: 1.0.0
+  <Version>k__BackingField: 0.1.0
   <READMEFile>k__BackingField: {fileID: 4900000, guid: 62e4d42a6314b64428722682d9da1997,
     type: 3}
   <ChangelogFile>k__BackingField: {fileID: 4900000, guid: 140e7ce99bf2b5d49bef20e04a7c7d32,
     type: 3}
   <ModDescription>k__BackingField: A collection of functional item SCPs
-  <ExtraDependencies>k__BackingField: []
+  <ExtraDependencies>k__BackingField:
+  - Snowlance-SnowyLib-1.5.0
+  - ProjectSCP-PSCPLibrary-0.1.0
   <WebsiteUrl>k__BackingField: https://github.com/snowlance7/ItemSCPs
   <ModIcon>k__BackingField: {fileID: 21300000, guid: 7574c17b64c8cdf4eaa4e0d9cb567e78,
     type: 3}

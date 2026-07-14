@@ -1673,7 +1673,7 @@ GameObject:
   - component: {fileID: 150900446874673570}
   - component: {fileID: 4628336739050850802}
   - component: {fileID: 4757933716335124178}
-  - component: {fileID: 4223703390895886051}
+  - component: {fileID: 8046117883068336583}
   m_Layer: 6
   m_Name: SCP500
   m_TagString: PhysicsProp
@@ -1732,7 +1732,7 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1844,7 +1844,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2491622894
+  GlobalObjectIdHash: 3531854496
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1853,7 +1853,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 1
   AutoObjectParentSync: 0
---- !u!114 &4223703390895886051
+--- !u!114 &8046117883068336583
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1862,7 +1862,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4539279797118431910}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1125109420, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
+  m_Script: {fileID: 1296352304, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   grabbable: 1
@@ -1903,8 +1903,8 @@ MonoBehaviour:
   hasBeenHeld: 0
   rotateObject: 0
   info: {fileID: 11400000, guid: 6a9c8ec499c890f4aa42db16123f680d, type: 2}
-  scpInfo: {fileID: 0}
   pillsInBottle:
+  - {fileID: 8133586672801760865}
   - {fileID: 4737698090716164860}
   - {fileID: 7581219084158312530}
   - {fileID: 8485669929759747095}

@@ -22,13 +22,13 @@ namespace ItemSCPs.SCP
         public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.21f, 0.08f, -0.25f);
-            itemProperties.rotationOffset = new Vector3(0, -80, 180); // TODO: Set this correctly
+            itemProperties.rotationOffset = new Vector3(0, -80, 0);
             itemProperties.floorYOffset = 0;
         }
 
         public static void StaticUpdate()
         {
-            if (localPlayerAffected && !SCP714Behavior.localPlayerAffected)
+            if (localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity)
             {
                 if (overlay == null)
                     overlay = Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay, localPlayer.transform);
@@ -67,7 +67,7 @@ namespace ItemSCPs.SCP
         {
             try
             {
-                if (SCP3482Behavior.localPlayerAffected && !SCP714Behavior.localPlayerAffected)
+                if (SCP3482Behavior.localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity)
                 {
                     inputVector.x = Mathf.Max(inputVector.x, 0f);
                 }
@@ -85,7 +85,7 @@ namespace ItemSCPs.SCP
         {
             try
             {
-                if (SCP3482Behavior.localPlayerAffected && !SCP714Behavior.localPlayerAffected)
+                if (SCP3482Behavior.localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity)
                 {
                     inputVector.x = Mathf.Max(inputVector.x, 0f);
                 }
@@ -120,7 +120,7 @@ namespace ItemSCPs.SCP
         {
             try
             {
-                if (!SCP3482Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected) { return; }
+                if (!SCP3482Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected || TESTING.immunity) { return; }
                 string msg = __instance.chatTextField.text.Replace("left", "", System.StringComparison.OrdinalIgnoreCase);
                 __instance.chatTextField.text = msg;
             }
@@ -162,7 +162,7 @@ namespace ItemSCPs.SCP
 
         public static void ClampMoveInput(PlayerControllerB player)
         {
-            if (player != localPlayer || !SCP3482Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected)
+            if (player != localPlayer || !SCP3482Behavior.localPlayerAffected || SCP714Behavior.localPlayerAffected || TESTING.immunity)
                 return;
 
             player.moveInputVector.x = Mathf.Max(player.moveInputVector.x, 0f);

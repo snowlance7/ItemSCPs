@@ -7,7 +7,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP420JBehavior : PhysicsProp, ISCP // TODO: Floating??? // TODO: Cant use charger to light???
+    public class SCP420JBehavior : PhysicsProp, ISCP
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -45,7 +45,7 @@ namespace ItemSCPs.SCP
             itemProperties.floorYOffset = 90;
             itemProperties.syncUseFunction = true;
             itemProperties.syncDiscardFunction = true;
-            itemProperties.itemIsTrigger = true;
+            //itemProperties.itemIsTrigger = true;
             itemProperties.requiresBattery = true;
             itemProperties.batteryUsage = 0;
             itemProperties.holdButtonUse = true;
@@ -53,6 +53,8 @@ namespace ItemSCPs.SCP
 
         public override void Update()
         {
+            base.Update();
+
             if (hasBeenLit)
             {
                 if (!hasFuel)
@@ -64,17 +66,16 @@ namespace ItemSCPs.SCP
                 if (inhaling && previousPlayerHeldBy == localPlayer)
                 {
                     timeInhaling += Time.deltaTime;
-                    previousPlayerHeldBy.drunknessInertia = Mathf.Clamp(previousPlayerHeldBy.drunknessInertia + Time.deltaTime / 1.75f * previousPlayerHeldBy.drunknessSpeed, 0.1f, 3f);
+                    //previousPlayerHeldBy.drunknessInertia = Mathf.Clamp(previousPlayerHeldBy.drunknessInertia + Time.deltaTime / 1.75f * previousPlayerHeldBy.drunknessSpeed, 0.1f, 3f);
                     previousPlayerHeldBy.increasingDrunknessThisFrame = true;
-                    previousPlayerHeldBy.sprintMeter = Mathf.Clamp(previousPlayerHeldBy.sprintMeter + Time.deltaTime / (previousPlayerHeldBy.sprintTime + 9f), 0f, 1f);
+                    //previousPlayerHeldBy.sprintMeter = Mathf.Clamp(previousPlayerHeldBy.sprintMeter + Time.deltaTime / (previousPlayerHeldBy.sprintTime + 9f), 0f, 1f);
                 }
 
                 audioSource.volume = inhaling ? 1f : 0.5f;
-                fuel -= Time.deltaTime / (38f * fuelUseMultiplier);
+                fuel -= Time.deltaTime / (50f * fuelUseMultiplier);
                 renderer.SetBlendShapeWeight(0, Mathf.Lerp(100f, 0f, fuel));
                 particleSystem.transform.localPosition = Vector3.Lerp(particleSystemEnd, particleSystemStart, fuel);
             }
-            base.Update();
         }
 
         public override void LateUpdate()
