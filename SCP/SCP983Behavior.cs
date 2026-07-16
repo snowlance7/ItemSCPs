@@ -25,15 +25,15 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-        public AudioSource audioSource;
-        public AudioClip monkeyFlipSFX;
-        public AudioClip[] birthdaySongsSFX;
+        public AudioSource audioSource = null!;
+        public AudioClip monkeyFlipSFX = null!;
+        public AudioClip[] birthdaySongsSFX = null!;
 
-        public Animator animator;
-        public Transform candyDropPosition;
-        public MeshRenderer eyesRenderer;
+        public Animator animator = null!;
+        public Transform candyDropPosition = null!;
+        public MeshRenderer eyesRenderer = null!;
 
-        PlayerControllerB targetPlayer;
+        PlayerControllerB targetPlayer = null!;
 
         string defaultNoteTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
@@ -46,6 +46,7 @@ namespace ItemSCPs.SCP
         bool inWindow;
 
         int timesPlayed;
+        float score;
 
         Note[] notes = [];
 
@@ -53,6 +54,7 @@ namespace ItemSCPs.SCP
         const float distanceToActivate = 2f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
 
+        const bool tipEnabled = true;
         const float minAccuracyRequired = 0.5f;
         const int maxPlays = 5;
         const float calculateTime = 2.5f;
@@ -120,6 +122,9 @@ namespace ItemSCPs.SCP
 
             if (!songPlaying || !isTargetPlayer) { return; }
 
+            if (!Utils.IsLocalPlayerMuted())
+                isHolding = Utils.IsLocalPlayerSpeaking();
+
             float songTime = audioSource.time;
             inWindow = false;
 
@@ -158,6 +163,7 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
+            if (!Utils.IsLocalPlayerMuted()) { return; }
             isHolding = buttonDown;
         }
 
@@ -264,7 +270,7 @@ namespace ItemSCPs.SCP
                 yield return null;
                 yield return new WaitForSeconds(calculateTime);
 
-                float score = CalculateResult();
+                score = CalculateResult();
                 logger.LogDebug("Score: " + score);
 
                 if (score >= 1f)
@@ -297,6 +303,14 @@ namespace ItemSCPs.SCP
             audioSource.Play();
             songPlaying = true;
             timesPlayed++;
+
+            if (tipEnabled && timesPlayed > 2 && isTargetPlayer && score < 0.2f)
+            {
+                if (Utils.IsLocalPlayerMuted())
+                    HUDManager.Instance.DisplayTip("Tip", "Pick up and use [LMB] the monkey toy to sing along", useSave: true, prefsKey: "SCP983Tip1");
+                else
+                    HUDManager.Instance.DisplayTip("Tip", "Sing along with your microphone", useSave: true, prefsKey: "SCP983Tip2");
+            }
         }
 
         // RPCs

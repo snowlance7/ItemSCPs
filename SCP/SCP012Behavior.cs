@@ -125,7 +125,7 @@ namespace ItemSCPs.SCP
 
             localPlayer.activatingItem = true;
             localPlayer.sprintMeter = 0f;
-            localPlayer.isExhausted = true;
+            localPlayer.isExhausted = true; // TODO: Do this correctly
 
             if (localPlayer.health > 0)
                 VignetteOverlay.SetIntensity(1 - (100 / localPlayer.health));

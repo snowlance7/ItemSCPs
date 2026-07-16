@@ -51,7 +51,7 @@ namespace ItemSCPs.SCP
             base.OnNetworkDespawn();
         }
 
-        public override void Update()
+        public override void Update() // TODO: Make it so the effects pause when the player is speaking or interacting with the player
         {
             base.Update();
             if (playerWornBy != null)
@@ -62,7 +62,8 @@ namespace ItemSCPs.SCP
                     if (player == playerWornBy) { continue; }
                     if (TESTING.immunity) { continue; }
                     if (SCP714Behavior.localPlayerAffected) { continue; }
-                    if (player.HasLineOfSightToPosition(playerWornBy.transform.position))
+                    bool setInvisible = !TESTING.immunity && !SCP714Behavior.localPlayerAffected && !(PlayerSpeaking() && playerWornBy.HasLineOfSightToPosition(localPlayer.bodyParts[0].position, width: 35));
+                    if (player.HasLineOfSightToPosition(playerWornBy.transform.position, width: 50))
                     {
                         Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;
                         Vector3 directionAwayFromItem = -directionToItem;
@@ -73,6 +74,16 @@ namespace ItemSCPs.SCP
                     }
                 }
             }
+        }
+
+        bool PlayerSpeaking()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void SetPlayerInvisible(bool value)
+        {
+            
         }
 
         public override void OnWear()

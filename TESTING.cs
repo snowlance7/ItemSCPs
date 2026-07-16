@@ -23,12 +23,12 @@ namespace ItemSCPs
     public class TESTING : MonoBehaviour
     {
         public static bool immunity { get; private set; }
-        public static string currentAnim = "";
 
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
+            Utils.DisplayAd();
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]

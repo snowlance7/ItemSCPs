@@ -11,9 +11,11 @@ using UnityEngine;
 using static ItemSCPs.Plugin;
 using static ItemSCPs.SCP.SCP735Behavior;
 
+// TODO: Add config to unlock scp documents after you scan the scps
+
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Repeating fall damage phrases, need to rework each phrase detection so its more accurate
+    internal class SCP735Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Player cant hear it when theyre dead
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -47,7 +49,7 @@ namespace ItemSCPs.SCP
         BoundedRange phraseCooldownRange = new BoundedRange(5, 15);
         float nearPlayersRadius = 10f;
 
-        public void Awake() // TODO: Set these
+        public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.07f, 0.2f, -0.25f);
             itemProperties.rotationOffset = new Vector3(80, 0, 90);
@@ -109,6 +111,7 @@ namespace ItemSCPs.SCP
             AudioClip[] clips = phrases[phrase];
             AudioClip clip = clips[index];
             audioSource.Stop();
+            audioSource.spatialBlend = previousPlayerHeldBy != null && previousPlayerHeldBy == localPlayer ? 0 : 1;
             audioSource.clip = clip;
             audioSource.Play();
             RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance, audioSource.volume);

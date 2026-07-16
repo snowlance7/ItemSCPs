@@ -4,29 +4,32 @@ using SnowyLib;
 using UnityEngine;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
-
+// TODO: Do singleton or maxSpawned using transpiler on spawnscrapinlevel
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject, ISCP, ISingletonItem // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted // TODO: Set up wearable offsets correctly, rework wearableitemsapi?
+    internal class SCP714Behavior : WearableObject, ISCP//, ISingletonItem // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
         public static bool localPlayerAffected { get; private set; }
 
-        public void Awake() // TODO: Set these
+        public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.07f, 0.1f, 0f);
             itemProperties.rotationOffset = new Vector3(0, 0, 0);
             itemProperties.floorYOffset = 90;
 
-            wearableItemProperties.showWearableOnClient = false;
-            wearableItemProperties.showWearable = false;
+            wearableItemProperties.showWearableOnClient = true;
+            wearableItemProperties.showWearable = true;
 
-            wearableItemProperties.boneTransform = "";
-            wearableItemProperties.boneTransformLocal = ""; // TODO: Set these up
-            //wearableItemProperties.wornPositionOffset = new Vector3(0, 0, 0);
-            //wearableItemProperties.wornRotationOffset = new Vector3(0, 0, 0);
+            wearableItemProperties.useLocalOffsets = true;
+            wearableItemProperties.boneTransform = "spine.001/spine.002/spine.003/shoulder.R/arm.R_upper/arm.R_lower/hand.R/finger4.R/finger4.R.001";
+            wearableItemProperties.boneTransformLocal = "metarig/spine.003/shoulder.R/arm.R_upper/arm.R_lower/hand.R/finger4.R/finger4.R.001";
+            wearableItemProperties.wornPositionOffsetLocal = new Vector3(0.02f, -0.03f, 0f);
+            wearableItemProperties.wornRotationOffsetLocal = new Vector3(0, 0, 20);
+            wearableItemProperties.wornPositionOffset = new Vector3(0.03f, -0.06f, -0.01f);
+            wearableItemProperties.wornRotationOffset = new Vector3(0, 0, 30);
         }
 
         public override void Update()
@@ -37,7 +40,7 @@ namespace ItemSCPs.SCP
 
             playerWornBy.insanityLevel = 0;
             playerWornBy.drunkness = 0;
-            playerWornBy.isExhausted = true; // TODO: Test this
+            playerWornBy.isExhausted = true; // TODO
         }
 
         public override void OnWear()
