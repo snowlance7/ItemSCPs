@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3032639575248222517}
   - component: {fileID: 5241706011996183487}
-  - component: {fileID: 4821151666231519459}
+  - component: {fileID: 9041385944087529439}
   m_Layer: 0
   m_Name: ItemSCPsNetworkHandler
   m_TagString: Untagged
@@ -54,7 +54,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 0
---- !u!114 &4821151666231519459
+--- !u!114 &9041385944087529439
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63,7 +63,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4253271701572809234}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1580003133, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
+  m_Script: {fileID: 144453262, guid: 1e62cc7257700d8479d190929e2ea0e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   sneezeSFX:

@@ -1,0 +1,1 @@
+- Ship upgrade thats like a scp database upgrade that affects your scanner and makes any scps scannode read its actual name (like "SCP-207" instead of "Cola Bottle") and also colors the scan node based on risk and stuff

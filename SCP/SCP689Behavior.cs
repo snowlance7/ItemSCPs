@@ -60,7 +60,7 @@ namespace ItemSCPs.SCP
             PlayerControllerB? targetPlayer = GetRandomPlayer();
             if (targetPlayer == null) { return; }
             Utils.SpawnItem(ItemSCPsKeys.SCP689, targetPlayer.transform.position);
-            NetworkHandler.Instance.KillPlayerRpc(targetPlayer.actualClientId);
+            SnowyLib.NetworkHandler.Instance.KillPlayerRpc(targetPlayer.actualClientId);
             timeSinceDisappearing = 0f;
         }
 

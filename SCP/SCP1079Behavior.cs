@@ -87,10 +87,10 @@ namespace ItemSCPs.SCP
                 {
                     logger.LogDebug("Dropping blood");
                     Vector3 pos = localPlayer.gameplayCamera.transform.position.GetFloorPosition();
-                    ItemSCPsNetworkHandler.Instance.DropPinkBloodRpc(pos);
+                    NetworkHandler.Instance.DropPinkBloodRpc(pos);
                 }, bloodDropAmount, "SCP-1079", "Dropping Pink Blood", 10f, (existing, incoming) => ConflictResult.Replace)); // TODO: Test if this still works after item is destroyed
 
-                ItemSCPsNetworkHandler.Instance.AddPinkBloodToBodyRpc(localPlayer.actualClientId);
+                NetworkHandler.Instance.AddPinkBloodToBodyRpc(localPlayer.actualClientId);
 
                 int damagePerSecond = Mathf.RoundToInt(Mathf.Pow(2.5f, candiesEatenByLocalPlayer) / 10);
                 if (damagePerSecond == 0) { return; }

@@ -7,8 +7,7 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-// TODO: Screws up players audio/listening
-// TODO: Light detection not working while holding it and already being affected
+// TODO: Screws up players audio/listening?
 
 namespace ItemSCPs.SCP
 {
@@ -45,8 +44,6 @@ namespace ItemSCPs.SCP
 
         bool localPlayerAffected;
 
-        static bool hinderingLocalPlayer;
-
         // Configs
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
@@ -60,7 +57,7 @@ namespace ItemSCPs.SCP
 
             itemProperties.canBeGrabbedBeforeGameStart = true;
             itemProperties.canBeInspected = true;
-            //itemProperties.twoHanded = true;
+            itemProperties.twoHanded = false;
             lightCamera.clearFlags = CameraClearFlags.SolidColor;
             lightCamera.backgroundColor = Color.black;
             lightCamera.cullingMask = 1 << LayerMask.NameToLayer("Props");
@@ -125,7 +122,7 @@ namespace ItemSCPs.SCP
 
             localPlayer.activatingItem = true;
             localPlayer.sprintMeter = 0f;
-            localPlayer.isExhausted = true; // TODO: Do this correctly
+            localPlayer.isExhausted = true;
 
             if (localPlayer.health > 0)
                 VignetteOverlay.SetIntensity(1 - (100 / localPlayer.health));
@@ -186,7 +183,7 @@ namespace ItemSCPs.SCP
             if (!localPlayer.criticallyInjured)
                 localPlayer.MakeCriticallyInjured(true);
 
-            if (!hinderingLocalPlayer)
+            /*if (!hinderingLocalPlayer)
             {
                 hinderingLocalPlayer = true;
                 localPlayer.isMovementHindered++;
@@ -197,11 +194,11 @@ namespace ItemSCPs.SCP
                     localPlayer.isMovementHindered--;
                     localPlayer.hinderedMultiplier *= 0.5f;
                 }, "SCP-012", "Hindering Local Player", 10f, (existing, incoming) => StatusEffectController.ConflictResult.Replace));
-            }
+            }*/
 
             localPlayer.drunkness = 0.3f;
 
-            RoundManager.PlayRandomClip(audioSource, speechSFX);
+            RoundManager.PlayRandomClip(audioSource2D, speechSFX);
         }
 
         void MovePlayerTowardsPosition(Vector3 targetPosition, float force)
@@ -287,9 +284,8 @@ namespace ItemSCPs.SCP
             localPlayerPlayingFinalSpeech = true;
             timeSinceStartFinalSpeech = 0f;
 
-            audioSource.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
-            audioSource.volume = 1f;
-            audioSource.PlayOneShot(finalSpeechSFX);
+            audioSource2D.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
+            audioSource2D.PlayOneShot(finalSpeechSFX);
         }
 
         public bool IsLit()
@@ -321,7 +317,7 @@ namespace ItemSCPs.SCP
 
             logger.LogDebug(average);
 
-            return average > 0.015f; // TODO: Test this and get the right value
+            return average > 0.015f;
         }
     }
 }

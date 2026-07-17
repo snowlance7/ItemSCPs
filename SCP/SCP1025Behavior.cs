@@ -31,7 +31,7 @@ namespace ItemSCPs.SCP
                 float time = UnityEngine.Random.Range(1200, 1800);
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
                 {
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Sneeze, bodyPartIndex: 0, volume: 0.5f, min3DDistance: 1, max3DDistance: 10, cutoffFrequency: 1500);
+                    NetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, NetworkHandler.SoundEffect.Sneeze, bodyPartIndex: 0, volume: 0.5f, min3DDistance: 1, max3DDistance: 10, cutoffFrequency: 1500);
                     localPlayer.playQuickSpecialAnimation(1f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_PushLeverBack");
                 }, "scp1025", "sneeze", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
@@ -59,7 +59,7 @@ namespace ItemSCPs.SCP
                 {
                     localPlayer.playQuickSpecialAnimation(1.5f);
                     localPlayer.playerBodyAnimator.SetTrigger("SA_Typing");
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
+                    NetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, NetworkHandler.SoundEffect.CoughHeavy, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.2f);
                     if (localPlayer.health > 1)
                     {
@@ -70,7 +70,7 @@ namespace ItemSCPs.SCP
                 }, "scp1025", "lung cancer coughHeavy", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(15, 40), () =>
                 {
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
+                    NetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, NetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.05f);
                 }, "scp1025", "lung cancer cough", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
@@ -94,7 +94,7 @@ namespace ItemSCPs.SCP
                 localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => localPlayer.sprintMeter < 0.5f, () =>
                 {
                     if (UnityEngine.Random.Range(0, 2) == 0) { return; }
-                    ItemSCPsNetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, ItemSCPsNetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
+                    NetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, NetworkHandler.SoundEffect.Cough, 0, 0.5f, cutoffFrequency: 1500);
                     VignetteOverlay.SetIntensity(0.05f);
                 }, false, "scp1025", 5f, id: "asthmaCough"));
             },
@@ -104,7 +104,7 @@ namespace ItemSCPs.SCP
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 20), () =>
                 {
                     VignetteOverlay.SetIntensity(0.4f);
-                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
                 }, "scp1025", "heartbeatSlow"));
                 localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                 {
@@ -114,7 +114,7 @@ namespace ItemSCPs.SCP
                             localPlayer.KillPlayer(Vector3.zero);
                     }, "scp1025", "heart attack", 6f));
                     localPlayer.StatusEffectController().ApplyEffect(new LerpValueEffect((x) => VignetteOverlay.SetIntensity(x), 0.1f, 1f, 5f, "scp1025", "vignette"));
-                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
                     localPlayer.MakeCriticallyInjured(true);
                     localPlayer.bleedingHeavily = false;
                     localPlayer.sprintMeter = 0;

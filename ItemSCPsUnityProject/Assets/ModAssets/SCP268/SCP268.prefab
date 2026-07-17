@@ -169,7 +169,6 @@ GameObject:
   - component: {fileID: 7572607228422385293}
   - component: {fileID: 2642654521097689338}
   - component: {fileID: 5309334842336332758}
-  - component: {fileID: 898421930165530335}
   - component: {fileID: 5568000256431019544}
   m_Layer: 6
   m_Name: SCP268
@@ -334,22 +333,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &898421930165530335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291208632695706065}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useReverb: 0
-  overridingLowPass: 0
-  lowPassOverride: 20000
-  debugLog: 0
 --- !u!114 &5568000256431019544
 MonoBehaviour:
   m_ObjectHideFlags: 0

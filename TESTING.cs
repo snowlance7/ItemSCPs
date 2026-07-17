@@ -49,6 +49,10 @@ namespace ItemSCPs
                         immunity = !immunity;
                         HUDManager.Instance.DisplayTip("ItemSCPs", "Immunity: " + immunity);
                         break;
+                    case "/testlight":
+                        Vector3 spawnPosition = localPlayer.bodyParts[5].transform.position + localPlayer.transform.forward * 2f;
+                        NetworkHandler.Instance.CreateLightFlashRpc(spawnPosition);
+                        break;
                     default:
                         break;
                 }

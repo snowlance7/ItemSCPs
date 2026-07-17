@@ -11,7 +11,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP498Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Make this work with SCP-714 // TODO: Use ears ringing timer in soundmanager for scp498 // TODO: Set up 2D audio and fake it or set up 3d audio by doors to be more accurate, set panning depending on direction to player
+    internal class SCP498Behavior : PhysicsProp, ISCP, ISingletonItem, IVisibleThreat
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -29,6 +29,8 @@ namespace ItemSCPs.SCP
 
         float volumeIncreaseMultiplier => 1 / timeToMaxVolume;
 
+        public ThreatType type => ThreatType.Item;
+
         float farthestNodeDistance;
 
         Vector3 lastPosition;
@@ -44,7 +46,7 @@ namespace ItemSCPs.SCP
 
         bool snoozing;
 
-        const float basePushForce = 1.5f; // TODO: Test this
+        const float basePushForce = 1.5f;
         const float snoozeTime = 120f;
         const float timeToMaxVolume = 300f;
         const float minDistanceOffset = 0.5f;
@@ -107,7 +109,7 @@ namespace ItemSCPs.SCP
                 }
 
                 if (IsServer && alarmIntensity >= 1 && !TimeOfDay.Instance.shipLeavingAlertCalled)
-                    NetworkHandler.Instance.SetShipLeaveEarlyServerRpc(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, $"WARNING! Due to unsafe conditions, the autopilot ship will leave early. Please return by {HUDManager.Instance.GetClockTimeFormatted(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, TimeOfDay.Instance.numberOfHours, createNewLine: false)}.");
+                    SnowyLib.NetworkHandler.Instance.SetShipLeaveEarlyServerRpc(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, $"WARNING! Due to unsafe conditions, the autopilot ship will leave early. Please return by {(HUDManager.Instance.GetClockTimeFormatted(TimeOfDay.Instance.normalizedTimeOfDay + 0.1f, TimeOfDay.Instance.numberOfHours, createNewLine: false))}.");
 
                 CalculateVolumes();
                 DoPlayerEffects();
@@ -237,6 +239,7 @@ namespace ItemSCPs.SCP
 
         void DoPlayerEffects()
         {
+            if (TESTING.immunity) { return; }
             timeSinceDoPlayerEffects += Time.deltaTime;
             if (timeSinceDoPlayerEffects < 2f) { return; }
             timeSinceDoPlayerEffects = 0f;
@@ -244,12 +247,12 @@ namespace ItemSCPs.SCP
             localPlayerDistance = Utils.SmartDistance(localPlayer.transform.position, transform.position, fastDistanceCheck: true);
             playerIntensity = alarmIntensity * (Mathf.Clamp01(1f - localPlayerDistance / audioSource.maxDistance));
 
-            if (playerIntensity > 0.5f)
+            if (playerIntensity > 0.5f && !SCP714Behavior.localPlayerAffected)
             {
                 float drunknessSet = Mathf.Lerp(0f, 0.25f, playerIntensity);
                 localPlayer.drunkness = Mathf.Max(localPlayer.drunkness, drunknessSet);
             }
-            if (playerIntensity > 0.75f)
+            if (playerIntensity > 0.75f && !SCP714Behavior.localPlayerAffected)
             {
                 if (!HUDManager.Instance.playerScreenShakeAnimator.GetBool("ShakingConstant"))
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Constant);
@@ -261,8 +264,11 @@ namespace ItemSCPs.SCP
                 localPlayer.DamagePlayer(damageAmount, hasDamageSFX: false);
                 localPlayer.inSpecialInteractAnimation = false;
 
-                float vignetteIntensity = Mathf.Lerp(0f, 0.4f, playerIntensity);
-                VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, vignetteIntensity));
+                if (!SCP714Behavior.localPlayerAffected)
+                {
+                    float vignetteIntensity = Mathf.Lerp(0f, 0.4f, playerIntensity);
+                    VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, vignetteIntensity));
+                }
             }
         }
 
@@ -299,7 +305,58 @@ namespace ItemSCPs.SCP
             if (HUDManager.Instance.playerScreenShakeAnimator.GetBool("ShakingConstant"))
                 HUDManager.Instance.StopShakingCamera();
 
-            SoundManager.Instance.earsRingingTimer = 5 * playerIntensity;
+            if (!SCP714Behavior.localPlayerAffected)
+                SoundManager.Instance.earsRingingTimer = 2.5f * playerIntensity;
+        }
+
+        public int GetThreatLevel(Vector3 seenByPosition)
+        {
+            if (!alarmActive) { return 0; }
+            return (int)Mathf.Lerp(0, 30, alarmIntensity);
+        }
+
+        public int GetInterestLevel()
+        {
+            return 0;
+        }
+
+        public Transform GetThreatLookTransform()
+        {
+            return transform;
+        }
+
+        public Transform GetThreatTransform()
+        {
+            return transform;
+        }
+
+        public Vector3 GetThreatVelocity()
+        {
+            if (playerHeldBy != null)
+                return playerHeldBy.GetPlayerVelocity();
+            return Vector3.zero;
+        }
+
+        public float GetVisibility()
+        {
+            if (isPocketed)
+                return 0f;
+            return 1f;
+        }
+
+        public int SendSpecialBehaviour(int id)
+        {
+            return 0;
+        }
+
+        public GrabbableObject GetHeldObject()
+        {
+            return null;
+        }
+
+        public bool IsThreatDead()
+        {
+            return false;
         }
     }
 }

@@ -30,12 +30,12 @@ MonoBehaviour:
       _namespace: lethal_company
       _key: vanilla
     MathOperation: 0
-    Weight: 5
+    Weight: 1
   - NamespacedKey:
       _namespace: lethal_company
       _key: custom
     MathOperation: 0
-    Weight: 10
+    Weight: 1
   - NamespacedKey:
       _namespace: secret_labs
       _key: secret_labs

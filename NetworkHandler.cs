@@ -2,15 +2,16 @@
 using HarmonyLib;
 using ItemSCPs.SCP;
 using SnowyLib;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
 namespace ItemSCPs
 {
-    internal class ItemSCPsNetworkHandler : NetworkBehaviour
+    internal class NetworkHandler : NetworkBehaviour
     {
-        public static ItemSCPsNetworkHandler Instance { get; private set; } = null!;
+        public static NetworkHandler Instance { get; private set; } = null!;
 
         public AudioClip[] sneezeSFX = null!;
         public AudioClip[] coughSFX = null!;
@@ -79,6 +80,15 @@ namespace ItemSCPs
             PlayerControllerB? player = PlayerFromId(clientId);
             if (player == null) { return; }
             SCP1079Behavior.AddPinkBloodToBodyOnLocalClient(player);
+        }
+
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void CreateLightFlashRpc(Vector3 position)
+        {
+            var prefab = ItemSCPsContentHandler.Instance.SCP983?.LightFlashPrefab;
+            if (prefab == null) { logger.LogError("Unable to get LightFlashPrefab in CreateLightFlash"); return; }
+            Instantiate(prefab, position, Quaternion.identity);
+            StunGrenadeItem.StunExplosion(base.transform.position, affectAudio: true, 1f, 10f, 1f, false, null, null);
         }
     }
 

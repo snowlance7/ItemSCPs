@@ -4,10 +4,10 @@ using SnowyLib;
 using UnityEngine;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
-// TODO: Do singleton or maxSpawned using transpiler on spawnscrapinlevel
+// UPDATE: Do singleton or maxSpawned using transpiler on spawnscrapinlevel
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject, ISCP//, ISingletonItem // TODO: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted // TODO: Make the player tired and exhausted
+    internal class SCP714Behavior : WearableObject, ISCP//, ISingletonItem // UPDATE: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -40,7 +40,10 @@ namespace ItemSCPs.SCP
 
             playerWornBy.insanityLevel = 0;
             playerWornBy.drunkness = 0;
-            playerWornBy.isExhausted = true; // TODO
+
+            playerWornBy.sprintMeter = 0f;
+            playerWornBy.isExhausted = true;
+            VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, 0.1f));
         }
 
         public override void OnWear()

@@ -69,7 +69,11 @@ namespace ItemSCPs
         public class SCP735Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP735Assets>(mod, filePath) { }
         public SCP735Assets? SCP735;
 
-        public class SCP983Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP983Assets>(mod, filePath) { }
+        public class SCP983Assets(DuskMod mod, string filePath) : AssetBundleLoader<SCP983Assets>(mod, filePath)
+        {
+            [LoadFromBundle("LightFlash.prefab")]
+            public GameObject LightFlashPrefab { get; private set; } = null!;
+        }
         public SCP983Assets? SCP983;
 
         public ItemSCPsContentHandler(DuskMod mod) : base(mod)

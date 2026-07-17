@@ -8,9 +8,14 @@ using System.Reflection;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
+
+//localPlayer.sprintMeter 0-1
+//localPlayer.sprintTime 11, idk what this does
+//localPlayer.sprintMultiplier 1-2.5, controls sprint speed
+
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing and gulp sound not playing // TODO: Sprint speed settings not working, regens fast but instantly get depleted
+    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing // TODO: Sprint speed settings not working, regens fast but instantly get depleted
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -183,10 +188,10 @@ namespace ItemSCPs.SCP
                 if (total > 10 && !heartAttackLocalPlayer)
                 {
                     heartAttackLocalPlayer = true;
-                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
+                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
                     localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                     {
-                        if (!localPlayer.isPlayerDead)
+                        if (!localPlayer.isPlayerDead && localPlayer.isPlayerControlled)
                             localPlayer.KillPlayer(Vector3.zero);
                         heartAttackLocalPlayer = false;
                     }, "scp207", "heart attack", 6));
@@ -197,7 +202,7 @@ namespace ItemSCPs.SCP
                 localPlayer.sprintTime = GetTotalContributions();
             }));
 
-            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], ItemSCPsNetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));
+            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));
         }
 
         static float GetTotalContributions()
