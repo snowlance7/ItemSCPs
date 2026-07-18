@@ -33,8 +33,6 @@ namespace ItemSCPs
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
-            logger.LogDebug(StartOfRound.Instance.voiceChatModule.LocalPlayerName);
-            logger.LogDebug(localPlayer.playerUsername);
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
