@@ -12,8 +12,7 @@ using UnityEngine;
 using static ItemSCPs.Plugin;
 using static ItemSCPs.SCP.SCP9831Behavior;
 
-// SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] TODO: USE THIS FOR PITCH DETECTION?
-// TODO: Use a holding hand out animation for holding the monkey, with it sitting on your hand?
+// SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId] UPDATE: USE THIS FOR PITCH DETECTION?
 // happy birthday to you, happy birthday to you, happy birthday dear player, bad luck go with you! A ding ding ding its your birthday!
 
 namespace ItemSCPs.SCP
@@ -33,6 +32,8 @@ namespace ItemSCPs.SCP
 
         PlayerControllerB targetPlayer = null!;
 
+        Material eyesMaterial = null!;
+
         string defaultNoteTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
         bool isTargetPlayer => targetPlayer == localPlayer;
@@ -40,7 +41,7 @@ namespace ItemSCPs.SCP
         bool activated;
         bool songPlaying;
 
-        bool isHolding;
+        bool isSinging;
         bool inWindow;
 
         int timesPlayed;
@@ -49,6 +50,8 @@ namespace ItemSCPs.SCP
         public static float scpVignetteIntensity;
 
         Note[] notes = [];
+        private float amplitude;
+        private float amplitudeRelative;
 
         // Configs
         const float distanceToActivate = 2f;
@@ -72,8 +75,8 @@ namespace ItemSCPs.SCP
         {
             base.Start();
 
-            Material mat = eyesRenderer.material;
-            mat.SetFloat("_EmissiveIntensity", 1f);
+            eyesMaterial = eyesRenderer.material;
+            eyesMaterial.SetFloat("_EmissiveIntensity", 1f);
 
             targetPlayer = Utils.GetRandomPlayer(Utils.randomGlobal);
             notes = ParseNoteTimesConfig(cfgNoteHoldTimes).ToArray();
@@ -110,11 +113,12 @@ namespace ItemSCPs.SCP
 
             return result;
         }
+
         public override void Update()
         {
             base.Update();
 
-            if (IsServer && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
+            if (IsServer && !TESTING.immunity && !activated && targetPlayer != null && targetPlayer.isPlayerControlled && Vector3.Distance(targetPlayer.transform.position, transform.position) < distanceToActivate)
             {
                 activated = true;
                 ActivateRpc();
@@ -122,8 +126,8 @@ namespace ItemSCPs.SCP
 
             if (!songPlaying || !isTargetPlayer) { return; }
 
-            if (!Utils.IsLocalPlayerMuted())
-                isHolding = Utils.IsLocalPlayerSpeaking();
+            if (!Utils.IsPlayerMuted())
+                isSinging = Utils.IsPlayerSpeaking(amplitudeThreshold: 0.3f, useRelativeAmplitude: true);
 
             float songTime = audioSource.time;
             inWindow = false;
@@ -134,7 +138,7 @@ namespace ItemSCPs.SCP
 
                 if (inWindow)
                 {
-                    if (isHolding)
+                    if (isSinging)
                         notes[i].heldTime += Time.deltaTime;
                     break;
                 }
@@ -145,16 +149,14 @@ namespace ItemSCPs.SCP
 
         void SetEyes()
         {
-            Material mat = eyesRenderer.material;
-
             Color emissiveColor = Color.black;
 
             if (inWindow)
-                emissiveColor = isHolding ? Color.green : Color.white;
-            else if (isHolding)
+                emissiveColor = isSinging ? Color.green : Color.white;
+            else if (isSinging)
                 emissiveColor = Color.red;
 
-            mat.SetColor("_EmissiveColor", emissiveColor);
+            eyesMaterial.SetColor("_EmissiveColor", emissiveColor);
         }
 
         public override int GetItemDataToSave() => activated ? 1 : 0;
@@ -163,8 +165,8 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!Utils.IsLocalPlayerMuted()) { return; }
-            isHolding = buttonDown;
+            if (!Utils.IsPlayerMuted()) { return; }
+            isSinging = buttonDown;
         }
 
         public void PlaySongOnLocalClient()
@@ -173,6 +175,7 @@ namespace ItemSCPs.SCP
             {
                 targetPlayer.KillPlayer(Vector3.zero);
                 DispenseCandy(CandyType.Bad);
+                eyesMaterial.SetColor("_EmissiveColor", Color.black);
                 return;
             }
 
@@ -183,6 +186,7 @@ namespace ItemSCPs.SCP
         void DoStatusEffects(int songIndex) // TODO: Test this
         {
             if (!isTargetPlayer) { return; }
+            logger.LogDebug("Doing player effects " + songIndex);
 
             if (songIndex > 0)
                 Utils.DisplayStatusEffect("WARNING: You are aging rapidly");
@@ -329,10 +333,12 @@ namespace ItemSCPs.SCP
                 if (score >= 1f)
                 {
                     DispenseCandyRpc(CandyType.Perfect);
+                    eyesMaterial.SetColor("_EmissiveColor", Color.black);
                 }
                 else if (score >= minAccuracyRequired)
                 {
                     DispenseCandyRpc(CandyType.Good);
+                    eyesMaterial.SetColor("_EmissiveColor", Color.black);
                 }
                 else
                 {
@@ -359,7 +365,7 @@ namespace ItemSCPs.SCP
 
             if (tipEnabled && timesPlayed > 2 && isTargetPlayer && score < 0.2f)
             {
-                if (Utils.IsLocalPlayerMuted())
+                if (Utils.IsPlayerMuted())
                     HUDManager.Instance.DisplayTip("Tip", "Pick up and use [LMB] the monkey toy to sing along", useSave: true, prefsKey: "SCP983Tip1");
                 else
                     HUDManager.Instance.DisplayTip("Tip", "Sing along with your microphone", useSave: true, prefsKey: "SCP983Tip2");
@@ -416,9 +422,9 @@ namespace ItemSCPs.SCP
 
         CandyType candyType;
 
-        public void Awake() // TODO: Set these
+        public void Awake()
         {
-            itemProperties.positionOffset = new Vector3(0f, 0f, 0f);
+            itemProperties.positionOffset = new Vector3(0.08f, 0.1f, 0f);
             itemProperties.rotationOffset = new Vector3(0, 0, 0);
             itemProperties.floorYOffset = 90;
         }
@@ -438,15 +444,18 @@ namespace ItemSCPs.SCP
 
                     localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                     {
+                        logger.LogDebug("PerfectCandyEffect start");
                         if (!localPlayer.isPlayerControlled || localPlayer.isPlayerDead || StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) { return; }
                         if (UnityEngine.Random.Range(0f, 1f) > 0.2f) { return; }
-                        NetworkHandler.Instance.CreateLightFlashRpc(localPlayer.transform.position);
+                        NetworkHandler.Instance.CreateLightFlashRpc(localPlayer.bodyParts[5].transform.position);
                         localPlayer.KillPlayer(Vector3.zero, spawnBody: false);
 
                         localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                         {
+                            logger.LogDebug("PerfectCandyExtraLife start");
                             localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                             {
+                                logger.LogDebug("PerfectCandyRevive start");
                                 if (localPlayer.isPlayerControlled && !localPlayer.isPlayerDead) { return; }
                                 localPlayer.RevivePlayer();
                                 localPlayer.health = 200;
@@ -465,6 +474,7 @@ namespace ItemSCPs.SCP
 
                     localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                     {
+                        logger.LogDebug("PerfectCandyExtraLife start");
                         if (!localPlayer.isPlayerControlled || localPlayer.isPlayerDead) { return; }
 
                         Utils.DisplayStatusEffect("WARNING: You are aging extremely fast");
@@ -483,6 +493,7 @@ namespace ItemSCPs.SCP
 
                         }, 0f, 1f, 10f, "SCP-983-1", "BadCandyAging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Deny, curable: false, onRemove: (effect) =>
                         {
+                            logger.LogDebug("BadCandyAging OnRemove");
                             if (!localPlayer.isPlayerControlled || localPlayer.isPlayerDead) { return; }
                             localPlayer.KillPlayer(Vector3.zero);
                             AudioListener.volume = IngamePlayerSettings.Instance.settings.masterVolume;
@@ -513,20 +524,11 @@ namespace ItemSCPs.SCP
 
     public class LightFlash : MonoBehaviour
     {
-        [SerializeField] MeshRenderer meshRenderer = null!;
         [SerializeField] Light light = null!;
         [SerializeField] AnimationCurve intensityCurve = null!;
 
-        Material emissionMaterial = null!;
-
         float timeSinceSpawned;
         const float destroyTime = 60;
-
-        void Start()
-        {
-            emissionMaterial = meshRenderer.material;
-            emissionMaterial.EnableKeyword("_EMISSION");
-        }
 
         void Update()
         {
@@ -540,9 +542,6 @@ namespace ItemSCPs.SCP
 
             float timeNormalized = timeSinceSpawned / destroyTime;
             float intensityNormalized = intensityCurve.Evaluate(timeNormalized);
-
-            float emissiveIntensity = Mathf.Lerp(0, 100, intensityNormalized);
-            emissionMaterial.SetColor("_EmissionColor", Color.white * emissiveIntensity);
 
             float lightIntensity = Mathf.Lerp(0, 40000, intensityNormalized);
             light.intensity = lightIntensity;

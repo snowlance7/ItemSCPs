@@ -209,7 +209,7 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -342,8 +342,6 @@ MonoBehaviour:
   grabbableToEnemies: 1
   hasBeenHeld: 0
   rotateObject: 0
-  lightFlashPrefab: {fileID: 4561702719394032001, guid: 9f781eeadc19ade4f8c154576058afcc,
-    type: 3}
   eatCandySFX: {fileID: 8300000, guid: 9f24ed8e2a25ea34e90d51b1b1797eed, type: 3}
   renderers:
   - {fileID: 2153907727716260900}

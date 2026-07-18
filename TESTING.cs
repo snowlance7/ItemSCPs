@@ -24,11 +24,17 @@ namespace ItemSCPs
     {
         public static bool immunity { get; private set; }
 
+        public static void Update()
+        {
+            if (!Utils.testing) { return; }
+        }
+
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
-            Utils.DisplayAd();
+            logger.LogDebug(StartOfRound.Instance.voiceChatModule.LocalPlayerName);
+            logger.LogDebug(localPlayer.playerUsername);
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
@@ -50,7 +56,7 @@ namespace ItemSCPs
                         HUDManager.Instance.DisplayTip("ItemSCPs", "Immunity: " + immunity);
                         break;
                     case "/testlight":
-                        Vector3 spawnPosition = localPlayer.bodyParts[5].transform.position + localPlayer.transform.forward * 2f;
+                        Vector3 spawnPosition = localPlayer.bodyParts[5].transform.position;
                         NetworkHandler.Instance.CreateLightFlashRpc(spawnPosition);
                         break;
                     default:

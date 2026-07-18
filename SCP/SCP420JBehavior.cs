@@ -5,6 +5,8 @@ using System.Collections;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
+// TODO: Make smoke coming out of players mouth after a hit
+
 namespace ItemSCPs.SCP
 {
     public class SCP420JBehavior : PhysicsProp, ISCP
@@ -38,6 +40,8 @@ namespace ItemSCPs.SCP
         Vector3 particleSystemStart = new Vector3(0f, 0.035f, 0.2f);
         Vector3 particleSystemEnd = new Vector3(0f, 0.0085f, -0.1326f);
 
+        const float baseFuelUse = 75;
+
         public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.03f, 0.3f, 0.12f);
@@ -66,13 +70,13 @@ namespace ItemSCPs.SCP
                 if (inhaling && previousPlayerHeldBy == localPlayer)
                 {
                     timeInhaling += Time.deltaTime;
-                    //previousPlayerHeldBy.drunknessInertia = Mathf.Clamp(previousPlayerHeldBy.drunknessInertia + Time.deltaTime / 1.75f * previousPlayerHeldBy.drunknessSpeed, 0.1f, 3f);
+                    previousPlayerHeldBy.drunknessInertia = Mathf.Clamp(previousPlayerHeldBy.drunknessInertia + Time.deltaTime / 1.75f * previousPlayerHeldBy.drunknessSpeed, 0.1f, 3f);
                     previousPlayerHeldBy.increasingDrunknessThisFrame = true;
                     //previousPlayerHeldBy.sprintMeter = Mathf.Clamp(previousPlayerHeldBy.sprintMeter + Time.deltaTime / (previousPlayerHeldBy.sprintTime + 9f), 0f, 1f);
                 }
 
                 audioSource.volume = inhaling ? 1f : 0.5f;
-                fuel -= Time.deltaTime / (50f * fuelUseMultiplier);
+                fuel -= Time.deltaTime / (baseFuelUse * fuelUseMultiplier);
                 renderer.SetBlendShapeWeight(0, Mathf.Lerp(100f, 0f, fuel));
                 particleSystem.transform.localPosition = Vector3.Lerp(particleSystemEnd, particleSystemStart, fuel);
             }

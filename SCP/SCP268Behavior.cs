@@ -6,6 +6,7 @@ using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
@@ -20,14 +21,13 @@ namespace ItemSCPs.SCP
 
         public static SCP268Behavior? Instance { get; private set; }
 
-#pragma warning disable CS8618
-        public AudioSource audioSource;
-        public AudioClip activateSFX;
-        public AudioClip deactivateSFX;
-        public GameObject mesh;
-#pragma warning restore CS8618
+        public AudioSource audioSource = null!;
+        public AudioClip activateSFX = null!;
+        public AudioClip deactivateSFX = null!;
+        public GameObject mesh = null!;
 
-        bool useAltInvisibility = false; // TODO: Setup config
+        string playerWearingVoiceId = "";
+        bool playerWearingInvisible;
 
         public void Awake()
         {
@@ -63,45 +63,55 @@ namespace ItemSCPs.SCP
                     if (TESTING.immunity) { continue; }
                     if (SCP714Behavior.localPlayerAffected) { continue; }
                     bool setInvisible = !TESTING.immunity && !SCP714Behavior.localPlayerAffected && !(PlayerSpeaking() && playerWornBy.HasLineOfSightToPosition(localPlayer.bodyParts[0].position, width: 35));
-                    if (player.HasLineOfSightToPosition(playerWornBy.transform.position, width: 50))
-                    {
-                        Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;
-                        Vector3 directionAwayFromItem = -directionToItem;
+                    SetPlayerInvisible(setInvisible);
+                    //if (player.HasLineOfSightToPosition(playerWornBy.transform.position, width: 50))
+                    //{
+                    //    Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;
+                    //    Vector3 directionAwayFromItem = -directionToItem;
 
-                        Quaternion lookAwayRotation = Quaternion.LookRotation(directionAwayFromItem);
+                    //    Quaternion lookAwayRotation = Quaternion.LookRotation(directionAwayFromItem);
 
-                        player.transform.rotation = Quaternion.Lerp(player.transform.rotation, lookAwayRotation, 0.5f * Time.deltaTime);
-                    }
+                    //    player.transform.rotation = Quaternion.Lerp(player.transform.rotation, lookAwayRotation, 0.5f * Time.deltaTime);
+                    //}
                 }
             }
         }
-
-        bool PlayerSpeaking()
+        
+        // TODO: Look at walkie talkie and how it gets the players voice
+        bool PlayerSpeaking() // TODO
         {
-            throw new System.NotImplementedException();
+            return Utils.IsPlayerSpeaking(playerWearingVoiceId);
         }
 
-        void SetPlayerInvisible(bool value)
+        void SetPlayerInvisible(bool value) // TODO: Test this
         {
-            
+            if (playerWearingInvisible == value || playerWornBy == null) { return; }
+            playerWornBy.MakePlayerInvisible(value);
+            playerWearingInvisible = value;
         }
 
         public override void OnWear()
         {
             base.OnWear();
             if (localPlayer == playerWornBy)
+            {
                 audioSource.PlayOneShot(activateSFX);
-            if (useAltInvisibility && playerWornBy != null)
-                playerWornBy.MakePlayerInvisible(true);
+                UpdatePlayerVoiceIdRpc(StartOfRound.Instance.voiceChatModule.LocalPlayerName);
+            }
         }
 
         public override void OnUnWear()
         {
             if (localPlayer == playerWornBy)
                 audioSource.PlayOneShot(deactivateSFX);
-            if (useAltInvisibility && playerWornBy != null)
-                playerWornBy.MakePlayerInvisible(false);
+            SetPlayerInvisible(false);
             base.OnUnWear();
+        }
+
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void UpdatePlayerVoiceIdRpc(string voiceId)
+        {
+            playerWearingVoiceId = voiceId;
         }
     }
 

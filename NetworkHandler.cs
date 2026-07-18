@@ -31,6 +31,8 @@ namespace ItemSCPs
             if (IsServer)
                 SCP689Behavior.StaticUpdate();
             SCP3482Behavior.StaticUpdate();
+
+            TESTING.Update();
         }
 
         public override void OnNetworkSpawn()

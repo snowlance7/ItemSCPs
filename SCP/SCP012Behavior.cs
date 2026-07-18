@@ -125,7 +125,7 @@ namespace ItemSCPs.SCP
             localPlayer.isExhausted = true;
 
             if (localPlayer.health > 0)
-                VignetteOverlay.SetIntensity(1 - (100 / localPlayer.health));
+                VignetteOverlay.SetIntensity(1 - (localPlayer.health / 100));
 
             if (localPlayerPlayingFinalSpeech)
             {
@@ -222,7 +222,7 @@ namespace ItemSCPs.SCP
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
-            VignetteOverlay.SetIntensity(normalized);
+            VignetteOverlay.SetIntensity(normalized / 2); // TODO: Test this
 
             MovePlayerTowardsPosition(transform.position, normalized);
 
