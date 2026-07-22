@@ -64,15 +64,15 @@ namespace ItemSCPs.SCP
                     if (SCP714Behavior.localPlayerAffected) { continue; }
                     bool setInvisible = !TESTING.immunity && !SCP714Behavior.localPlayerAffected && !(PlayerSpeaking() && playerWornBy.HasLineOfSightToPosition(localPlayer.bodyParts[0].position, width: 35));
                     SetPlayerInvisible(setInvisible);
-                    //if (player.HasLineOfSightToPosition(playerWornBy.transform.position, width: 50))
-                    //{
-                    //    Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;
-                    //    Vector3 directionAwayFromItem = -directionToItem;
+                    /*if (player.HasLineOfSightToPosition(playerWornBy.transform.position, width: 50))
+                    {
+                        Vector3 directionToItem = playerWornBy.transform.position - player.transform.position;
+                        Vector3 directionAwayFromItem = -directionToItem;
 
-                    //    Quaternion lookAwayRotation = Quaternion.LookRotation(directionAwayFromItem);
+                        Quaternion lookAwayRotation = Quaternion.LookRotation(directionAwayFromItem);
 
-                    //    player.transform.rotation = Quaternion.Lerp(player.transform.rotation, lookAwayRotation, 0.5f * Time.deltaTime);
-                    //}
+                        player.transform.rotation = Quaternion.Lerp(player.transform.rotation, lookAwayRotation, 0.5f * Time.deltaTime);
+                    }*/
                 }
             }
         }
@@ -200,6 +200,24 @@ namespace ItemSCPs.SCP
 
                 if (SCP268Behavior.Instance.playerWornBy == playerScript)
                     __result = false;
+            }
+            catch (System.Exception e)
+            {
+                logger.LogError(e);
+                return;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Turret), nameof(Turret.CheckForPlayersInLineOfSight))]
+        private static void Turret_CheckForPlayersInLineOfSight_Postfix(Turret __instance, ref PlayerControllerB __result)
+        {
+            try
+            {
+                if (SCP268Behavior.Instance == null || SCP268Behavior.Instance.playerWornBy == null) { return; }
+                if (SCP268Behavior.Instance.playerWornBy != __result) { return; }
+
+                __result = null;
             }
             catch (System.Exception e)
             {

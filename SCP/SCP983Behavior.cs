@@ -50,8 +50,6 @@ namespace ItemSCPs.SCP
         public static float scpVignetteIntensity;
 
         Note[] notes = [];
-        private float amplitude;
-        private float amplitudeRelative;
 
         // Configs
         const float distanceToActivate = 2f;

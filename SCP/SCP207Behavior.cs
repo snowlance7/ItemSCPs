@@ -15,7 +15,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing // TODO: Sprint speed settings not working, regens fast but instantly get depleted
+    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -166,7 +166,7 @@ namespace ItemSCPs.SCP
 
         IEnumerator DrinkRoutine()
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.7f);
 
             drinking = true;
             if (base.IsOwner)
@@ -184,7 +184,7 @@ namespace ItemSCPs.SCP
             {
                 contributions[id] = Mathf.Lerp(0f, amount, value);
                 float total = GetTotalContributions();
-                localPlayer.sprintTime = total;
+                localPlayer.sprintTime = 11 + total;
                 if (total > 10 && !heartAttackLocalPlayer)
                 {
                     heartAttackLocalPlayer = true;
@@ -199,7 +199,7 @@ namespace ItemSCPs.SCP
             }, intensityOverTime, effectDuration, "scp207", $"scp207_{id}", onRemove: (effect) =>
             {
                 contributions.Remove(id);
-                localPlayer.sprintTime = GetTotalContributions();
+                localPlayer.sprintTime = 11 + GetTotalContributions();
             }));
 
             localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));

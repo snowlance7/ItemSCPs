@@ -2,6 +2,8 @@
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using System.Collections;
+using System.Reflection;
+using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -16,6 +18,7 @@ namespace ItemSCPs.SCP
 
         public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
+        public GameObject puffParticleSystemPrefab = null!;
         public SkinnedMeshRenderer renderer = null!;
         public AudioClip exhaleSFX = null!;
 
@@ -127,6 +130,7 @@ namespace ItemSCPs.SCP
                     playerHeldBy.itemAudio.PlayOneShot(exhaleSFX, 1f);
                     StartCoroutine(EmitGas(timeInhaling));
                     timeInhaling = 0f;
+                    SmokePuffRpc();
                 }
             }
         }
@@ -173,6 +177,28 @@ namespace ItemSCPs.SCP
             }
 
             base.DiscardItem();
+        }
+
+        [Rpc(SendTo.Everyone, RequireOwnership = false)]
+        public void SmokePuffRpc()
+        {
+            var smokePuffObj = Instantiate(puffParticleSystemPrefab, playerHeldBy.gameplayCamera.transform);
+            smokePuffObj.AddComponent<SmokePuff>();
+            Destroy(smokePuffObj, 5f);
+        }
+    }
+
+    public class SmokePuff : MonoBehaviour
+    {
+        public void LateUpdate()
+        {
+            if (transform.parent != null)
+            {
+                base.transform.position = transform.parent.position;
+                Vector3 positionOffset = new Vector3(0, -0.2f, 0);
+                positionOffset = transform.parent.rotation * positionOffset;
+                base.transform.position += positionOffset;
+            }
         }
     }
 }
