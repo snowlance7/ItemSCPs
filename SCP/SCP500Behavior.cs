@@ -10,7 +10,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP500Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Gulp SFX not playing
+    internal class SCP500Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -18,7 +18,12 @@ namespace ItemSCPs.SCP
         public List<GameObject> pillsInBottle = null!;
         public AudioClip pillSwallowSFX = null!;
 
-        BoundedRange pillAmountRange = new BoundedRange(2, 15);
+        static BoundedRange pillAmountRange = new BoundedRange(2, 15);
+
+        public static void InitConfigs()
+        {
+            pillAmountRange = PluginInstance.Config.Bind("SCP-500 Options", "SCP-500 | Pill Amount Range", new BoundedRange(2, 15), "The amount of pills SCP-500 can have when spawned.").Value;
+        }
 
         public void Awake()
         {

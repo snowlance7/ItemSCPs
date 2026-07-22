@@ -1,4 +1,5 @@
 using HarmonyLib;
+using ItemSCPs.SCP;
 using SnowyLib;
 using System.Linq;
 using UnityEngine;
@@ -56,6 +57,14 @@ namespace ItemSCPs
                     case "/testlight":
                         Vector3 spawnPosition = localPlayer.bodyParts[5].transform.position;
                         NetworkHandler.Instance.CreateLightFlashRpc(spawnPosition);
+                        break;
+                    case "/disease":
+                        if (args.Length == 1 || !int.TryParse(args[1], out int index)) { return; }
+                        if (index > 5 || index < 0) { return; }
+                        SCP1025Behavior.diseases[index].Invoke();
+                        break;
+                    case "/remove3482":
+                        SCP3482Behavior.localPlayerAffected = false;
                         break;
                     default:
                         break;

@@ -55,12 +55,20 @@ namespace ItemSCPs.SCP
         const float distanceToActivate = 2f;
         readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
 
-        const bool tipEnabled = true;
-        const float minAccuracyRequired = 0.5f;
-        const int maxPlays = 5;
-        const float calculateTime = 2.5f;
-        const float grace = 0.1f;
-        const string cfgNoteHoldTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
+        static float minAccuracyRequired = 0.5f;
+        static int maxPlays = 5;
+        static float calculateTime = 2.5f;
+        static float grace = 0.1f;
+        static string noteHoldTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
+
+        public static void InitConfigs()
+        {
+            minAccuracyRequired = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Min Accuracy Required", 0.5f, "The min accuracy required to win the singing minigame.").Value;
+            maxPlays = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Max Plays", 5, "The max amount of times SCP-983 will sing the birthday song before the player dies.").Value;
+            calculateTime = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Calculate Time", 2.5f, "The amount of time it takes between songs to calculate score. Timing has no effect on actual score, just gives a buffer before singing again.").Value;
+            grace = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Grace", 0.1f, "The grace time before and after each note to be counted as holding/singing the note").Value;
+            noteHoldTimes = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Note Hold Times", ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280", "The singing/holding times for each note in the song time that the player should sing for").Value;
+        }
 
         public void Awake()
         {
@@ -77,7 +85,7 @@ namespace ItemSCPs.SCP
             eyesMaterial.SetFloat("_EmissiveIntensity", 1f);
 
             targetPlayer = Utils.GetRandomPlayer(Utils.randomGlobal);
-            notes = ParseNoteTimesConfig(cfgNoteHoldTimes).ToArray();
+            notes = ParseNoteTimesConfig(noteHoldTimes).ToArray();
         }
 
         List<Note> ParseNoteTimesConfig(string cfg)
@@ -124,8 +132,8 @@ namespace ItemSCPs.SCP
 
             if (!songPlaying || !isTargetPlayer) { return; }
 
-            if (!Utils.IsPlayerMuted())
-                isSinging = Utils.IsPlayerSpeaking(amplitudeThreshold: 0.3f, useRelativeAmplitude: true);
+            if (!localPlayer.IsPlayerMuted())
+                isSinging = localPlayer.IsPlayerSpeaking(amplitudeThreshold: 0.3f, useRelativeAmplitude: true);
 
             float songTime = audioSource.time;
             inWindow = false;
@@ -163,7 +171,7 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!Utils.IsPlayerMuted()) { return; }
+            if (!isTargetPlayer || !localPlayer.IsPlayerMuted()) { return; }
             isSinging = buttonDown;
         }
 
@@ -361,9 +369,9 @@ namespace ItemSCPs.SCP
             songPlaying = true;
             timesPlayed++;
 
-            if (tipEnabled && timesPlayed > 2 && isTargetPlayer && score < 0.2f)
+            if (timesPlayed > 2 && isTargetPlayer && score < 0.2f)
             {
-                if (Utils.IsPlayerMuted())
+                if (localPlayer.IsPlayerMuted())
                     HUDManager.Instance.DisplayTip("Tip", "Pick up and use [LMB] the monkey toy to sing along", useSave: true, prefsKey: "SCP983Tip1");
                 else
                     HUDManager.Instance.DisplayTip("Tip", "Sing along with your microphone", useSave: true, prefsKey: "SCP983Tip2");

@@ -14,14 +14,12 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-#pragma warning disable CS8618
-        public Animator animator;
-        public Material[] diseasePageMaterials;
-        public SkinnedMeshRenderer renderer;
-#pragma warning restore CS8618
+        public Animator animator = null!;
+        public Material[] diseasePageMaterials = null!;
+        public SkinnedMeshRenderer renderer = null!;
         
-        public static readonly Action[] diseases = new Action[] // TODO: Test and rework these
-        {
+        public static readonly Action[] diseases = // TODO: Test and rework these?
+        [
             // 0 Common Cold
             () =>
             {
@@ -29,6 +27,7 @@ namespace ItemSCPs.SCP
                 // Decreased movement speed
                 // Reduced stamina
                 float time = UnityEngine.Random.Range(1200, 1800);
+                Utils.DisplayStatusEffect("Minor respiratory infection detected");
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(60, 200), () =>
                 {
                     NetworkHandler.Instance.PlayPlayerSoundEffectRpc(localPlayer.actualClientId, NetworkHandler.SoundEffect.Sneeze, bodyPartIndex: 0, volume: 0.5f, min3DDistance: 1, max3DDistance: 10, cutoffFrequency: 1500);
@@ -48,7 +47,8 @@ namespace ItemSCPs.SCP
                 localPlayer.StatusEffectController().ApplyEffect(new LerpValueEffect((x) => localPlayer.sprintMeter = Mathf.Clamp(localPlayer.sprintMeter, 0f, x), 0.7f, 1f, time, "scp1025", "sprintMeter", onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(30, 120), () =>
                 {
-                        localPlayer.DamagePlayer(1, false);
+                    Utils.DisplayStatusEffect("Localized skin inflammation detected");
+                    localPlayer.DamagePlayer(1, false);
                 }, "scp1025", "chickenpox itch", time));
                 localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() => localPlayer.healthRegenerateTimer = 1, "scp1025", "healthRegenerateTimer", time, onConflict: (existing, incoming) => incoming.duration > existing.timeLeft ? StatusEffectController.ConflictResult.Replace : StatusEffectController.ConflictResult.Deny));
             },
@@ -103,11 +103,13 @@ namespace ItemSCPs.SCP
             {
                 localPlayer.StatusEffectController().ApplyEffect(new RandomIntervalActionEffect(new BoundedRange(10, 20), () =>
                 {
+                    Utils.DisplayStatusEffect("WARNING: Heart rate unstable");
                     VignetteOverlay.SetIntensity(0.4f);
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
                 }, "scp1025", "heartbeatSlow"));
                 localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                 {
+                    Utils.DisplayStatusEffect("WARNING: HEART RATE CRITICALLY UNSTABLE. CIRCULATORY FAILURE IMMINENT.");
                     localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
                     {
                         if (!localPlayer.isPlayerDead)
@@ -120,7 +122,7 @@ namespace ItemSCPs.SCP
                     localPlayer.sprintMeter = 0;
                 }, "scp1025", "incoming heart attack", 60));
             }
-        };
+        ];
 
         public void Awake()
         {

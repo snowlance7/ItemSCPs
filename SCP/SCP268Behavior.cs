@@ -14,7 +14,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    public class SCP268Behavior : WearableObject, ISCP, ISingletonItem // TODO: MAKE IT SO TURRET DOESNT SEE YOU
+    public class SCP268Behavior : WearableObject, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -26,7 +26,6 @@ namespace ItemSCPs.SCP
         public AudioClip deactivateSFX = null!;
         public GameObject mesh = null!;
 
-        string playerWearingVoiceId = "";
         bool playerWearingInvisible;
 
         public void Awake()
@@ -80,7 +79,7 @@ namespace ItemSCPs.SCP
         // TODO: Look at walkie talkie and how it gets the players voice
         bool PlayerSpeaking() // TODO
         {
-            return Utils.IsPlayerSpeaking(playerWearingVoiceId);
+            return playerWornBy != null && playerWornBy.IsPlayerSpeaking();
         }
 
         void SetPlayerInvisible(bool value) // TODO: Test this
@@ -96,7 +95,6 @@ namespace ItemSCPs.SCP
             if (localPlayer == playerWornBy)
             {
                 audioSource.PlayOneShot(activateSFX);
-                UpdatePlayerVoiceIdRpc(StartOfRound.Instance.voiceChatModule.LocalPlayerName);
             }
         }
 
@@ -106,12 +104,6 @@ namespace ItemSCPs.SCP
                 audioSource.PlayOneShot(deactivateSFX);
             SetPlayerInvisible(false);
             base.OnUnWear();
-        }
-
-        [Rpc(SendTo.Everyone, RequireOwnership = false)]
-        public void UpdatePlayerVoiceIdRpc(string voiceId)
-        {
-            playerWearingVoiceId = voiceId;
         }
     }
 

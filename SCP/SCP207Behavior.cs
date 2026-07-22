@@ -4,7 +4,6 @@ using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -15,7 +14,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp, ISCP // TODO: Needs Testing // TODO: Liquid not showing for dissappearing
+    internal class SCP207Behavior : PhysicsProp, ISCP
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -23,7 +22,7 @@ namespace ItemSCPs.SCP
         public AudioSource audioSource = null!;
         public GameObject capObject = null!;
         public AnimationCurve intensityOverTime = null!;
-        public Animator animator = null!;
+        public MeshRenderer liquidRenderer = null!;
 
         public static Dictionary<int, float> contributions = new();
 
@@ -34,19 +33,15 @@ namespace ItemSCPs.SCP
 
         bool drinking;
         float drinkAmountLeft;
-        float drinkAmountNormalized => drinkAmountLeft / drinkTimePerBottle;
         float drinkingTime;
-
-        int hashDrinkTime;
 
         Coroutine? drinkingRoutine;
 
         Vector3 drinkingPositionOffset = new Vector3(0f, 0.1f, 0.1f);
         Vector3 drinkingRotationOffset = new Vector3(50, 170, 0);
 
-        // Configs
-        float effectDuration = 1200f;
-        float drinkTimePerBottle = 10f;
+        const float effectDuration = 1200f;
+        const float drinkTimePerBottle = 10f;
 
         public void Awake()
         {
@@ -65,7 +60,6 @@ namespace ItemSCPs.SCP
         {
             base.Start();
             drinkAmountLeft = drinkTimePerBottle;
-            hashDrinkTime = Animator.StringToHash("drinkTime");
         }
 
         public override void Update()
@@ -75,12 +69,12 @@ namespace ItemSCPs.SCP
             {
                 drinkAmountLeft -= Time.deltaTime;
                 drinkingTime += Time.deltaTime;
-                animator.SetFloat(hashDrinkTime, drinkAmountNormalized);
 
                 if (drinkAmountLeft <= 0f)
                 {
                     drinking = false;
                     audioSource.Stop();
+                    liquidRenderer.enabled = false;
 
                     if (base.IsOwner)
                     {
@@ -141,6 +135,7 @@ namespace ItemSCPs.SCP
                 StopDrinkRoutine();
                 drinking = false;
                 audioSource.Stop();
+                liquidRenderer.enabled = false;
 
                 if (base.IsOwner && drinkingTime > 0f && !TESTING.immunity)
                 {
@@ -184,7 +179,7 @@ namespace ItemSCPs.SCP
             {
                 contributions[id] = Mathf.Lerp(0f, amount, value);
                 float total = GetTotalContributions();
-                localPlayer.sprintTime = 11 + total;
+                localPlayer.sprintTime = Mathf.Max(11 + total, localPlayer.sprintTime);
                 if (total > 10 && !heartAttackLocalPlayer)
                 {
                     heartAttackLocalPlayer = true;
@@ -199,7 +194,7 @@ namespace ItemSCPs.SCP
             }, intensityOverTime, effectDuration, "scp207", $"scp207_{id}", onRemove: (effect) =>
             {
                 contributions.Remove(id);
-                localPlayer.sprintTime = 11 + GetTotalContributions();
+                localPlayer.sprintTime = Mathf.Max(11 + GetTotalContributions(), localPlayer.sprintTime);
             }));
 
             localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));

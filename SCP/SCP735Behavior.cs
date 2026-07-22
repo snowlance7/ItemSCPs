@@ -45,9 +45,14 @@ namespace ItemSCPs.SCP
             RandomPhrases
         }
 
-        // Configs
-        BoundedRange phraseCooldownRange = new BoundedRange(5, 15);
-        float nearPlayersRadius = 10f;
+        const float nearPlayersRadius = 10f;
+
+        static BoundedRange phraseCooldownRange = new BoundedRange(5, 15);
+
+        public static void InitConfigs()
+        {
+            phraseCooldownRange = PluginInstance.Config.Bind("SCP-735 Options", "SCP-735 | Phrase Cooldown", new BoundedRange(5, 15), "The cooldown in which SCP-735 will insult the player while holding it.").Value;
+        }
 
         public void Awake()
         {

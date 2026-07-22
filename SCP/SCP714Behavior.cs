@@ -4,10 +4,10 @@ using SnowyLib;
 using UnityEngine;
 using WearableItemsAPI;
 using static ItemSCPs.Plugin;
-// UPDATE: Do singleton or maxSpawned using transpiler on spawnscrapinlevel
+
 namespace ItemSCPs.SCP
 {
-    internal class SCP714Behavior : WearableObject, ISCP//, ISingletonItem // UPDATE: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up, they should also have no stamina and constantly be exhausted
+    internal class SCP714Behavior : WearableObject, ISCP, ISingletonItem // UPDATE: Make it so a eyes closing animation plays over the players hud, and eventually make it so they can fall asleep and have to spam buttons to wake up
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;

@@ -44,7 +44,6 @@ namespace ItemSCPs.SCP
 
         bool localPlayerAffected;
 
-        // Configs
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
         const int speechDamage = 5;

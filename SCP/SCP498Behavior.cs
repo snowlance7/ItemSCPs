@@ -47,9 +47,16 @@ namespace ItemSCPs.SCP
         bool snoozing;
 
         const float basePushForce = 1.5f;
-        const float snoozeTime = 120f;
-        const float timeToMaxVolume = 300f;
         const float minDistanceOffset = 0.5f;
+
+        static float snoozeTime = 120f;
+        static float timeToMaxVolume = 300f;
+
+        public static void InitConfigs()
+        {
+            snoozeTime = PluginInstance.Config.Bind("SCP-498 Options", "SCP-498 | Snooze Time", 120f, "The amount of time it takes in seconds for the alarm to become active again after snoozing it.").Value;
+            timeToMaxVolume = PluginInstance.Config.Bind("SCP-498 Options", "SCP-498 | Time To Max Volume", 300f, "The amount of time it takes in seconds for the alarm to reach max volume after its activated.").Value;
+        }
 
         public void Awake()
         {

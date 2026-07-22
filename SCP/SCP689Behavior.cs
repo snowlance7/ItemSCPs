@@ -1,4 +1,5 @@
-﻿using GameNetcodeStuff;
+﻿using Dawn.Utils;
+using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
@@ -33,7 +34,12 @@ namespace ItemSCPs.SCP
 
         static float nextAppearTime;
 
-        const float killCooldown = 5f;
+        static float killCooldown = 5f;
+
+        public static void InitConfigs()
+        {
+            killCooldown = PluginInstance.Config.Bind("SCP-689 Options", "SCP-689 | Kill Cooldown", 5f, "The amount of time in seconds for SCP-689 to disappear again after killing someone and not being looked at.").Value;
+        }
 
         public void Awake()
         {

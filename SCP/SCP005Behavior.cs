@@ -11,7 +11,7 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-        const float unlockableDistance = 1f;
+        const float unlockDistance = 1f;
 
         public void Awake()
         {
@@ -27,7 +27,7 @@ namespace ItemSCPs.SCP
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
 
-            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), unlockableDistance);
+            RaycastHit[] hits = Physics.SphereCastAll(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), unlockDistance);
             foreach (var hit in hits)
             {
                 if (hit.collider.CompareTag("PoweredObject"))
@@ -44,7 +44,7 @@ namespace ItemSCPs.SCP
 
             foreach (MonoBehaviour unlockable in FindObjectsOfType<MonoBehaviour>().OfType<ISCP005Unlockable>())
             {
-                if ((unlockable.gameObject.transform.position - playerHeldBy.gameplayCamera.transform.position).sqrMagnitude < unlockableDistance * unlockableDistance)
+                if ((unlockable.gameObject.transform.position - playerHeldBy.gameplayCamera.transform.position).sqrMagnitude < unlockDistance * unlockDistance)
                     ((ISCP005Unlockable)unlockable).Unlock();
             }
         }

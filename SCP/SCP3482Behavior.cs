@@ -19,6 +19,15 @@ namespace ItemSCPs.SCP
         public static GameObject? overlay;
         public static bool localPlayerAffected;
 
+        static bool enableOverlay = true;
+        static bool endEffectIfDestroyed = false;
+
+        public static void InitConfigs()
+        {
+            enableOverlay = PluginInstance.Config.Bind("SCP-3482 Options", "SCP-3482 | Enable Overlay", true, "Set to false to disable the black overlay on the left side of the screen when the effect is active.").Value;
+            endEffectIfDestroyed = PluginInstance.Config.Bind("SCP-3482 Options", "SCP-3482 | End Effect If Destroyed", false, "If set to true, when SCP-3482 is destroyed (left behind or sold), the effect will end.").Value;
+        }
+
         public void Awake()
         {
             itemProperties.positionOffset = new Vector3(0.21f, 0.08f, -0.25f);
@@ -26,11 +35,18 @@ namespace ItemSCPs.SCP
             itemProperties.floorYOffset = 0;
         }
 
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (endEffectIfDestroyed)
+                localPlayerAffected = false;
+        }
+
         public static void StaticUpdate()
         {
             if (localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity)
             {
-                if (overlay == null)
+                if (overlay == null && enableOverlay)
                     overlay = Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay, localPlayer.transform);
             }
             else

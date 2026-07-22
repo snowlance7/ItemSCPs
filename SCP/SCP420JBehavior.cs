@@ -7,8 +7,6 @@ using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-// TODO: Make smoke coming out of players mouth after a hit
-
 namespace ItemSCPs.SCP
 {
     public class SCP420JBehavior : PhysicsProp, ISCP
@@ -18,7 +16,6 @@ namespace ItemSCPs.SCP
 
         public AudioSource audioSource = null!;
         public ParticleSystem particleSystem = null!;
-        public GameObject puffParticleSystemPrefab = null!;
         public SkinnedMeshRenderer renderer = null!;
         public AudioClip exhaleSFX = null!;
 
@@ -43,7 +40,12 @@ namespace ItemSCPs.SCP
         Vector3 particleSystemStart = new Vector3(0f, 0.035f, 0.2f);
         Vector3 particleSystemEnd = new Vector3(0f, 0.0085f, -0.1326f);
 
-        const float baseFuelUse = 75;
+        static float baseFuelUse = 75;
+
+        public static void InitConfigs()
+        {
+            baseFuelUse = PluginInstance.Config.Bind("SCP-420-J Options", "SCP-420-J | Base Fuel Use", 75f, "The base fuel use when lighting SCP-420-J. Increase this to make it last longer.").Value;
+        }
 
         public void Awake()
         {
@@ -130,7 +132,6 @@ namespace ItemSCPs.SCP
                     playerHeldBy.itemAudio.PlayOneShot(exhaleSFX, 1f);
                     StartCoroutine(EmitGas(timeInhaling));
                     timeInhaling = 0f;
-                    SmokePuffRpc();
                 }
             }
         }
@@ -177,28 +178,6 @@ namespace ItemSCPs.SCP
             }
 
             base.DiscardItem();
-        }
-
-        [Rpc(SendTo.Everyone, RequireOwnership = false)]
-        public void SmokePuffRpc()
-        {
-            var smokePuffObj = Instantiate(puffParticleSystemPrefab, playerHeldBy.gameplayCamera.transform);
-            smokePuffObj.AddComponent<SmokePuff>();
-            Destroy(smokePuffObj, 5f);
-        }
-    }
-
-    public class SmokePuff : MonoBehaviour
-    {
-        public void LateUpdate()
-        {
-            if (transform.parent != null)
-            {
-                base.transform.position = transform.parent.position;
-                Vector3 positionOffset = new Vector3(0, -0.2f, 0);
-                positionOffset = transform.parent.rotation * positionOffset;
-                base.transform.position += positionOffset;
-            }
         }
     }
 }
