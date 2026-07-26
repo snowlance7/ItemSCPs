@@ -448,7 +448,7 @@ namespace ItemSCPs.SCP
                     localPlayer.health = 200;
                     localPlayer.MakeCriticallyInjured(false);
 
-                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                     {
                         logger.LogDebug("PerfectCandyEffect start");
                         if (!localPlayer.isPlayerControlled || localPlayer.isPlayerDead || StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) { return; }
@@ -456,14 +456,14 @@ namespace ItemSCPs.SCP
                         NetworkHandler.Instance.CreateLightFlashRpc(localPlayer.bodyParts[5].transform.position);
                         localPlayer.KillPlayer(Vector3.zero, spawnBody: false);
 
-                        localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                        localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                         {
                             logger.LogDebug("PerfectCandyExtraLife start");
-                            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                             {
                                 logger.LogDebug("PerfectCandyRevive start");
                                 if (localPlayer.isPlayerControlled && !localPlayer.isPlayerDead) { return; }
-                                localPlayer.RevivePlayer();
+                                SnowyLib.NetworkHandler.Instance.RevivePlayerRpc(localPlayer.actualClientId);
                                 localPlayer.health = 200;
 
                             }, "SCP-983-1", "PerfectCandyRevive", 10f, onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Deny, curable: false));
@@ -478,9 +478,9 @@ namespace ItemSCPs.SCP
                     break;
                 case CandyType.Bad:
 
-                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                     {
-                        logger.LogDebug("PerfectCandyExtraLife start");
+                        logger.LogDebug("BadCandyEffect start");
                         if (!localPlayer.isPlayerControlled || localPlayer.isPlayerDead) { return; }
 
                         Utils.DisplayStatusEffect("WARNING: You are aging extremely fast");

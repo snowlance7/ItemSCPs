@@ -16,7 +16,8 @@ namespace ItemSCPs.SCP
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
 
-        public static GameObject? overlay;
+        private static GameObject? _overlay;
+        public static GameObject overlay => _overlay ??= Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay, localPlayer.transform);
         public static bool localPlayerAffected;
 
         static bool enableOverlay = true;
@@ -44,19 +45,10 @@ namespace ItemSCPs.SCP
 
         public static void StaticUpdate()
         {
-            if (localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity)
-            {
-                if (overlay == null && enableOverlay)
-                    overlay = Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay, localPlayer.transform);
-            }
-            else
-            {
-                if (overlay != null)
-                {
-                    Destroy(overlay);
-                    overlay = null;
-                }
-            }
+            if (ItemSCPsContentHandler.Instance.SCP3482 == null || ItemSCPsContentHandler.Instance.SCP3482.Overlay == null || !enableOverlay) { return; }
+            bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.inSpecialMenu; // TODO: Test this
+            if (active == overlay.activeSelf) { return; }
+            overlay.SetActive(active);
         }
 
         public override void EquipItem()
@@ -67,7 +59,7 @@ namespace ItemSCPs.SCP
 
             localPlayerAffected = true;
 
-            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
             {
                 localPlayerAffected = false;
             }, "scp3482", "antileft_effect", curable: false));

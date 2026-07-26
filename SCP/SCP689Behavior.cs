@@ -3,12 +3,16 @@ using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Authentication.Generated;
 using UnityEngine;
 using static ItemSCPs.Plugin;
+
+// UPDATE: Add ability to kill enemies too, use Utils.GetTopOfObjectRender to get where it should appear when it kills
+// TODO: Test this!!
 
 namespace ItemSCPs.SCP
 {
@@ -19,7 +23,6 @@ namespace ItemSCPs.SCP
 
         public static SCP689Behavior? Instance {  get; private set; }
 
-        public SkinnedMeshRenderer renderer = null!;
         public Collider collider = null!;
 
         public static HashSet<PlayerControllerB> targetPlayers = new HashSet<PlayerControllerB>();
@@ -27,14 +30,15 @@ namespace ItemSCPs.SCP
         static Vector3 lastPosition;
 
         bool inLOS;
-        bool isVisible = true;
 
         static float timeSinceDisappearing;
-        static float timeSinceAppearing;
+        float timeSinceAppearing;
 
         static float nextAppearTime;
 
         static float killCooldown = 5f;
+
+        static bool inShipPhase => (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) && !Utils.inTestRoom;
 
         public static void InitConfigs()
         {
@@ -52,22 +56,32 @@ namespace ItemSCPs.SCP
 
         public static void StaticUpdate() // Called by network handler update
         {
-            if (Instance != null || targetPlayers.Count == 0) { return; }
+            if (!NetworkHandler.Instance.IsServer) { return; }
 
-            targetPlayers.RemoveWhere(p => p == null || !p.isPlayerControlled);
+            if (targetPlayers.Count > 0)
+                targetPlayers.RemoveWhere(p => p == null || !p.isPlayerControlled);
 
-            if (targetPlayers.Count == 0) { return; }
+            if (Instance != null) { return; }
 
-            if (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) { return; }
+            if (inShipPhase)
+            {
+                lastPosition = Vector3.zero;
+                return;
+            }
 
             timeSinceDisappearing += Time.deltaTime;
 
             if (timeSinceDisappearing < nextAppearTime) { return; }
+
+            if (targetPlayers.Count == 0 && lastPosition == Vector3.zero) { return; }
+
             PlayerControllerB? targetPlayer = GetRandomPlayer();
-            if (targetPlayer == null) { return; }
+            if (targetPlayer == null || !targetPlayer.isPlayerControlled) { return; }
+
+            timeSinceDisappearing = 0f;
             Utils.SpawnItem(ItemSCPsKeys.SCP689, targetPlayer.transform.position);
             SnowyLib.NetworkHandler.Instance.KillPlayerRpc(targetPlayer.actualClientId);
-            timeSinceDisappearing = 0f;
+            targetPlayers.Remove(targetPlayer);
         }
 
         public override void OnNetworkPostSpawn()
@@ -81,9 +95,17 @@ namespace ItemSCPs.SCP
         public override void OnNetworkDespawn()
         {
             nextAppearTime = UnityEngine.Random.Range(15, 20);
+            lastPosition = transform.position;
             if (Instance == null || Instance != this) { return; }
             Instance = null;
             base.OnNetworkDespawn();
+        }
+
+        public override void PocketItem()
+        {
+            base.PocketItem();
+            int slot = Array.IndexOf(playerHeldBy.ItemSlots, this);
+            playerHeldBy.DestroyItemInSlotAndSync(slot);
         }
 
         public override void Start()
@@ -96,55 +118,24 @@ namespace ItemSCPs.SCP
         {
             base.Update();
 
-            inLOS = localPlayer.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000); // TODO: Test this
-
             if (!IsServer) { return; }
 
-            timeSinceAppearing = isVisible ? timeSinceAppearing + Time.deltaTime : 0f;
-            timeSinceDisappearing = !isVisible ? timeSinceDisappearing + Time.deltaTime : 0f;
+            timeSinceAppearing += Time.deltaTime;
 
             // Visibility check
-            inLOS = isHeld || isHeldByEnemy || playerHeldBy != null || StartOfRound.Instance.shipIsLeaving || StartOfRound.Instance.inShipPhase;
+            inLOS = isHeld || isHeldByEnemy || playerHeldBy != null || inShipPhase;
 
-            if (isVisible)
+            foreach (var player in StartOfRound.Instance.allPlayerScripts)
             {
-                foreach (var player in StartOfRound.Instance.allPlayerScripts)
-                {
-                    if (player == null || !player.isPlayerControlled) { continue; }
-                    if (!player.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000)) { continue; }
-                    if (!TESTING.immunity)
-                        targetPlayers.Add(player);
-                    inLOS = true;
-                }
+                if (player == null || !player.isPlayerControlled || TESTING.immunity) { continue; }
+                if (!player.HasLineOfSightToPosition(collider.bounds.center, width: 50, range: 2000)) { continue; }
+                if (!TESTING.immunity)
+                    targetPlayers.Add(player);
+                inLOS = true;
             }
 
-            targetPlayers.RemoveWhere(p => p == null || !p.isPlayerControlled);
-
-            if (isVisible)
-            {
-                if (inLOS || targetPlayers.Count == 0 || timeSinceAppearing < killCooldown) { return; }
-                isVisible = false;
-                nextAppearTime = UnityEngine.Random.Range(15, 20);
-                lastPosition = transform.position;
-                TeleportRpc(Vector3.zero, false);
-            }
-            else
-            {
-                if (timeSinceDisappearing < nextAppearTime) { return; }
-
-                if (targetPlayers.Count == 0)
-                {
-                    isVisible = true;
-                    TeleportRpc(lastPosition, true);
-                    return;
-                }
-
-                PlayerControllerB? targetPlayer = GetRandomPlayer();
-                if (targetPlayer == null || !targetPlayer.isPlayerControlled) { return; }
-                targetPlayers.Remove(targetPlayer);
-                isVisible = true;
-                TeleportRpc(targetPlayer.transform.position, true, (int)targetPlayer.actualClientId);
-            }
+            if (inLOS || targetPlayers.Count == 0 || timeSinceAppearing < killCooldown) { return; }
+            NetworkObject.Despawn(destroy: true);
         }
 
         public static PlayerControllerB? GetRandomPlayer()
@@ -153,30 +144,6 @@ namespace ItemSCPs.SCP
                 return targetPlayers.GetRandom();
 
             return targetPlayers.Where(x => x != null && !x.isPlayerAlone && x.isPlayerControlled).GetRandom();
-        }
-
-        [Rpc(SendTo.Everyone, RequireOwnership = false)]
-        public void TeleportRpc(Vector3 position, bool visible, int killPlayerId = -1)
-        {
-            logger.LogDebug($"Teleporting to {position}, visible: {visible}");
-            parentObject = null;
-            transform.position = position;
-
-            isVisible = visible;
-            renderer.enabled = visible;
-            grabbable = visible;
-            grabbableToEnemies = visible;
-            collider.enabled = visible;
-
-            fallTime = 0f;
-            hasHitGround = false;
-            reachedFloorTarget = false;
-            startFallingPosition = transform.position;
-            targetFloorPosition = GetItemFloorPosition(startFallingPosition);
-            FallToGround(randomizePosition: false, justSpawned: false, startFallingPosition);
-
-            if (localPlayer.actualClientId != (ulong)killPlayerId || !localPlayer.isPlayerControlled) { return; }
-            localPlayer.KillPlayer(Vector3.zero);
         }
     }
 }

@@ -67,8 +67,9 @@ namespace ItemSCPs.SCP
             int bloodDropAmount = 2 * candiesEatenByLocalPlayer;
             AudioClip sizzle = sizzleSFX;
 
-            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+            localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
             {
+                if (!effect.timeExpired) { return; }
                 float peakSizzle = Mathf.Clamp01(0.5f + (candiesEatenByLocalPlayer * 0.15f));
                 logger.LogDebug($"Peak sizzle: {peakSizzle}");
 

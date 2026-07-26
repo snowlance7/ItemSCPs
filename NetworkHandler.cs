@@ -28,8 +28,7 @@ namespace ItemSCPs
 
         public void Update()
         {
-            if (IsServer)
-                SCP689Behavior.StaticUpdate();
+            SCP689Behavior.StaticUpdate();
             SCP3482Behavior.StaticUpdate();
 
             TESTING.Update();

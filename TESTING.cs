@@ -1,3 +1,4 @@
+using Dawn;
 using HarmonyLib;
 using ItemSCPs.SCP;
 using SnowyLib;
@@ -25,13 +26,13 @@ namespace ItemSCPs
     {
         public static bool immunity { get; private set; }
 
-        public static void Update()
+        [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
+        public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
         }
 
-        [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
-        public static void PingScan_performedPostFix()
+        public static void Update()
         {
             if (!Utils.testing) { return; }
         }

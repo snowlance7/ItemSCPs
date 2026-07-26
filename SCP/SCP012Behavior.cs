@@ -3,7 +3,6 @@ using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
-using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -31,7 +30,7 @@ namespace ItemSCPs.SCP
         bool isLit => IsLit();
         bool heldByLocalPlayer => playerHeldBy != null && playerHeldBy == localPlayer && !isPocketed;
 
-        float timeSinceLastSpeechStart;
+        float timeSinceSpeech;
         float timeSinceIntervalUpdate;
 
         float nextSpeechTime;
@@ -46,7 +45,7 @@ namespace ItemSCPs.SCP
 
         readonly BoundedRange speechInterval = new(10f, 15f);
         readonly BoundedRange activationRange = new(3f, 10f);
-        const int speechDamage = 5;
+        const int speechDamage = 10;
 
         public void Awake()
         {
@@ -67,7 +66,7 @@ namespace ItemSCPs.SCP
             base.Update();
 
             timeSinceStartFinalSpeech += Time.deltaTime;
-            timeSinceLastSpeechStart += Time.deltaTime;
+            timeSinceSpeech += Time.deltaTime;
             timeSinceIntervalUpdate += Time.deltaTime;
 
             if (playerHeldBy != null)
@@ -101,11 +100,7 @@ namespace ItemSCPs.SCP
 
             if (!localPlayerAffected)
             {
-                if (heldByLocalPlayer && localPlayer.activatingItem)
-                {
-                    localPlayer.activatingItem = false;
-                }
-                localPlayerPlayingFinalSpeech = false;
+                ResetVariables();
                 return;
             }
 
@@ -133,13 +128,15 @@ namespace ItemSCPs.SCP
                     RoundManager.PlayRandomClip(audioSource, stabSFX);
                     localPlayer.KillPlayer(Vector3.zero, causeOfDeath: CauseOfDeath.Stabbing);
                     localPlayer.activatingItem = false;
+                    timeSinceStartFinalSpeech = 0f;
+                    localPlayerPlayingFinalSpeech = false;
                 }
                 return;
             }
 
-            if (timeSinceLastSpeechStart > nextSpeechTime)
+            if (timeSinceSpeech > nextSpeechTime)
             {
-                timeSinceLastSpeechStart = 0f;
+                timeSinceSpeech = 0f;
                 nextSpeechTime = speechInterval.GetRandomInRange(Utils.randomLocal);
                 DamageSelf();
             }
@@ -157,9 +154,16 @@ namespace ItemSCPs.SCP
         public override void EquipItem()
         {
             base.EquipItem();
-            timeSinceLastSpeechStart = 0f;
+            if (!IsOwner) { return; }
+            timeSinceSpeech = 0f;
             nextSpeechTime = 3f;
             localPlayer.activatingItem = CanAffectPlayer();
+        }
+
+        public override void DiscardItem()
+        {
+            ResetVariables();
+            base.DiscardItem();
         }
 
         void DamageSelf()
@@ -200,30 +204,27 @@ namespace ItemSCPs.SCP
             RoundManager.PlayRandomClip(audioSource2D, speechSFX);
         }
 
-        void MovePlayerTowardsPosition(Vector3 targetPosition, float force)
-        {
-            if (distance <= 1f) { return; }
-            Vector3 direction = (targetPosition - localPlayer.playerCollider.transform.position).normalized;
-            float step = force * Time.fixedDeltaTime;
-
-            if (Vector3.Distance(localPlayer.playerCollider.transform.position, targetPosition) > step)
-            {
-                localPlayer.playerCollider.transform.position += direction * step;
-            }
-            else
-            {
-                localPlayer.playerCollider.transform.position = targetPosition;
-            }
-        }
-
         void ForcePlayerMovementUpdate()
         {
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
             VignetteOverlay.SetIntensity(normalized / 2); // TODO: Test this
+            
+            if (distance > 1f)
+            {
+                Vector3 direction = (transform.position - localPlayer.playerCollider.transform.position).normalized;
+                float step = normalized * Time.fixedDeltaTime;
 
-            MovePlayerTowardsPosition(transform.position, normalized);
+                if (Vector3.Distance(localPlayer.playerCollider.transform.position, transform.position) > step)
+                {
+                    localPlayer.playerCollider.transform.position += direction * step;
+                }
+                else
+                {
+                    localPlayer.playerCollider.transform.position = transform.position;
+                }
+            }
 
             float dt = Mathf.Clamp(Time.deltaTime, 0f, 0.1f);
 
@@ -285,6 +286,18 @@ namespace ItemSCPs.SCP
 
             audioSource2D.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
             audioSource2D.PlayOneShot(finalSpeechSFX);
+        }
+
+        void ResetVariables()
+        {
+            if (heldByLocalPlayer && localPlayer.activatingItem)
+            {
+                localPlayer.activatingItem = false;
+            }
+            timeSinceSpeech = 0f;
+            localPlayerPlayingFinalSpeech = false;
+            timeSinceStartFinalSpeech = 0f;
+            localPlayerStabAmount = 0;
         }
 
         public bool IsLit()

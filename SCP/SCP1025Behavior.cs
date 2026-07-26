@@ -107,11 +107,13 @@ namespace ItemSCPs.SCP
                     VignetteOverlay.SetIntensity(0.4f);
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, 0.7f, audibleNoiseID: -1);
                 }, "scp1025", "heartbeatSlow"));
-                localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                 {
+                    if (!effect.timeExpired) { return; }
                     Utils.DisplayStatusEffect("WARNING: HEART RATE CRITICALLY UNSTABLE. CIRCULATORY FAILURE IMMINENT.");
-                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                     {
+                        if (!effect.timeExpired) { return; }
                         if (!localPlayer.isPlayerDead)
                             localPlayer.KillPlayer(Vector3.zero);
                     }, "scp1025", "heart attack", 6f));

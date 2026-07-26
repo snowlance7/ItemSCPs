@@ -14,7 +14,7 @@ using static ItemSCPs.Plugin;
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP207Behavior : PhysicsProp, ISCP
+    internal class SCP207Behavior : PhysicsProp, ISCP // UPDATE: Make it so liquid slowly depletes visually
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
@@ -40,6 +40,9 @@ namespace ItemSCPs.SCP
         Vector3 drinkingPositionOffset = new Vector3(0f, 0.1f, 0.1f);
         Vector3 drinkingRotationOffset = new Vector3(50, 170, 0);
 
+        Vector3 currentPositionOffset;
+        Vector3 currentRotationOffset;
+
         const float effectDuration = 1200f;
         const float drinkTimePerBottle = 10f;
 
@@ -48,6 +51,9 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(-0.07f, 0.1f, -0.01f);
             itemProperties.rotationOffset = new Vector3(80, 90, 0);
             itemProperties.floorYOffset = 90;
+
+            currentPositionOffset = itemProperties.positionOffset;
+            currentRotationOffset = itemProperties.rotationOffset;
 
             itemProperties.grabAnim = "HoldPatcherTool";
 
@@ -72,9 +78,7 @@ namespace ItemSCPs.SCP
 
                 if (drinkAmountLeft <= 0f)
                 {
-                    drinking = false;
-                    audioSource.Stop();
-                    liquidRenderer.enabled = false;
+                    StopDrinkRoutine();
 
                     if (base.IsOwner)
                     {
@@ -93,9 +97,9 @@ namespace ItemSCPs.SCP
             if (parentObject != null)
             {
                 base.transform.rotation = parentObject.rotation;
-                base.transform.Rotate(drinking ? drinkingRotationOffset : itemProperties.rotationOffset);
+                base.transform.Rotate(currentRotationOffset);
                 base.transform.position = parentObject.position;
-                Vector3 positionOffset = drinking ? drinkingPositionOffset : itemProperties.positionOffset;
+                Vector3 positionOffset = currentPositionOffset;
                 positionOffset = parentObject.rotation * positionOffset;
                 base.transform.position += positionOffset;
             }
@@ -109,10 +113,19 @@ namespace ItemSCPs.SCP
             }
         }
 
+        public override void DiscardItem()
+        {
+            base.DiscardItem();
+            previousPlayerHeldBy.activatingItem = false;
+            previousPlayerHeldBy.playerBodyAnimator.SetBool("useTZPItem", false);
+            StopDrinkRoutine();
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true) // Synced
         {
             base.ItemActivate(used, buttonDown);
 
+            
             capObject.SetActive(false);
 
             if (buttonDown)
@@ -133,9 +146,6 @@ namespace ItemSCPs.SCP
             else
             {
                 StopDrinkRoutine();
-                drinking = false;
-                audioSource.Stop();
-                liquidRenderer.enabled = false;
 
                 if (base.IsOwner && drinkingTime > 0f && !TESTING.immunity)
                 {
@@ -157,11 +167,29 @@ namespace ItemSCPs.SCP
                 StopCoroutine(drinkingRoutine);
                 drinkingRoutine = null;
             }
+
+            currentRotationOffset = itemProperties.rotationOffset;
+            currentPositionOffset = itemProperties.positionOffset;
+
+            drinking = false;
+            audioSource.Stop();
+            liquidRenderer.enabled = drinkAmountLeft > 0f;
         }
 
         IEnumerator DrinkRoutine()
         {
-            yield return new WaitForSeconds(0.7f);
+            float elapsedTime = 0f;
+
+            while (elapsedTime < 1f)
+            {
+                elapsedTime += Time.deltaTime;
+
+                float t = Mathf.Clamp01(elapsedTime / 0.5f);
+
+                currentPositionOffset = Vector3.Lerp(itemProperties.positionOffset, drinkingPositionOffset, t);
+                currentRotationOffset = Vector3.Lerp(itemProperties.rotationOffset, drinkingRotationOffset, t);
+                yield return null;
+            }
 
             drinking = true;
             if (base.IsOwner)
@@ -184,11 +212,12 @@ namespace ItemSCPs.SCP
                 {
                     heartAttackLocalPlayer = true;
                     Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
-                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect(() =>
+                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
                     {
+                        heartAttackLocalPlayer = false;
+                        if (!effect.timeExpired) { return; }
                         if (!localPlayer.isPlayerDead && localPlayer.isPlayerControlled)
                             localPlayer.KillPlayer(Vector3.zero);
-                        heartAttackLocalPlayer = false;
                     }, "scp207", "heart attack", 6));
                 }
             }, intensityOverTime, effectDuration, "scp207", $"scp207_{id}", onRemove: (effect) =>
