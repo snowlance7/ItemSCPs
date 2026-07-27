@@ -30,6 +30,10 @@ namespace ItemSCPs
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
+            foreach (var item in FindObjectOfType<SCP983Behavior>().birthdaySongsSFX)
+            {
+                logger.LogDebug(item.length);
+            }
         }
 
         public static void Update()
@@ -64,7 +68,7 @@ namespace ItemSCPs
                         if (index > 5 || index < 0) { return; }
                         SCP1025Behavior.diseases[index].Invoke();
                         break;
-                    case "/remove3482":
+                    case "/3482":
                         SCP3482Behavior.localPlayerAffected = false;
                         break;
                     default:

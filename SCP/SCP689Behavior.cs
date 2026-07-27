@@ -31,18 +31,21 @@ namespace ItemSCPs.SCP
 
         bool inLOS;
 
+        float timeNotInLOS;
         static float timeSinceDisappearing;
         float timeSinceAppearing;
 
         static float nextAppearTime;
 
         static float killCooldown = 5f;
+        static float grace = 0.1f;
 
         static bool inShipPhase => (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) && !Utils.inTestRoom;
 
         public static void InitConfigs()
         {
             killCooldown = PluginInstance.Config.Bind("SCP-689 Options", "SCP-689 | Kill Cooldown", 5f, "The amount of time in seconds for SCP-689 to disappear again after killing someone and not being looked at.").Value;
+            grace = PluginInstance.Config.Bind("SCP-689 Options", "SCP-689 | Grace", 0.1f, "The amount of time in seconds SCP-689 needs to be out of sight to disappear").Value;
         }
 
         public void Awake()
@@ -52,6 +55,7 @@ namespace ItemSCPs.SCP
             itemProperties.floorYOffset = 90;
             itemProperties.verticalOffset = -0.05f;
             itemProperties.twoHanded = false;
+            itemProperties.allowDroppingAheadOfPlayer = true;
         }
 
         public static void StaticUpdate() // Called by network handler update
@@ -94,8 +98,6 @@ namespace ItemSCPs.SCP
 
         public override void OnNetworkDespawn()
         {
-            nextAppearTime = UnityEngine.Random.Range(15, 20);
-            lastPosition = transform.position;
             if (Instance == null || Instance != this) { return; }
             Instance = null;
             base.OnNetworkDespawn();
@@ -104,6 +106,8 @@ namespace ItemSCPs.SCP
         public override void PocketItem()
         {
             base.PocketItem();
+            if (!base.IsOwner || !isPocketed) { return; }
+            SetNextAppearTimeRpc();
             int slot = Array.IndexOf(playerHeldBy.ItemSlots, this);
             playerHeldBy.DestroyItemInSlotAndSync(slot);
         }
@@ -134,7 +138,17 @@ namespace ItemSCPs.SCP
                 inLOS = true;
             }
 
-            if (inLOS || targetPlayers.Count == 0 || timeSinceAppearing < killCooldown) { return; }
+            if (inLOS || targetPlayers.Count == 0 || timeSinceAppearing < killCooldown)
+            {
+                timeNotInLOS = 0f;
+                return;
+            }
+
+            timeNotInLOS += Time.deltaTime;
+            if (timeNotInLOS < grace) { return; }
+
+            nextAppearTime = UnityEngine.Random.Range(15, 20);
+            lastPosition = transform.position;
             NetworkObject.Despawn(destroy: true);
         }
 
@@ -144,6 +158,13 @@ namespace ItemSCPs.SCP
                 return targetPlayers.GetRandom();
 
             return targetPlayers.Where(x => x != null && !x.isPlayerAlone && x.isPlayerControlled).GetRandom();
+        }
+
+        [Rpc(SendTo.Server)]
+        public void SetNextAppearTimeRpc()
+        {
+            nextAppearTime = UnityEngine.Random.Range(15, 20);
+            lastPosition = transform.position;
         }
     }
 }

@@ -17,8 +17,10 @@ namespace ItemSCPs.SCP
         public SCPInfo SCPInfo => info;
 
         private static GameObject? _overlay;
-        public static GameObject overlay => _overlay ??= Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay, localPlayer.transform);
+        public static GameObject overlay => _overlay ??= Instantiate(ItemSCPsContentHandler.Instance.SCP3482!.Overlay);
         public static bool localPlayerAffected;
+
+        public static bool isActive;
 
         static bool enableOverlay = true;
         static bool endEffectIfDestroyed = false;
@@ -41,13 +43,16 @@ namespace ItemSCPs.SCP
             base.OnDestroy();
             if (endEffectIfDestroyed)
                 localPlayerAffected = false;
+
+            _overlay = null;
         }
 
         public static void StaticUpdate()
         {
             if (ItemSCPsContentHandler.Instance.SCP3482 == null || ItemSCPsContentHandler.Instance.SCP3482.Overlay == null || !enableOverlay) { return; }
-            bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.inSpecialMenu; // TODO: Test this
+            bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.quickMenuManager.isMenuOpen && !localPlayer.inSpecialMenu; // TODO: Test this
             if (active == overlay.activeSelf) { return; }
+            logger.LogDebug("Setting active");
             overlay.SetActive(active);
         }
 
@@ -58,6 +63,11 @@ namespace ItemSCPs.SCP
             if (TESTING.immunity || SCP714Behavior.localPlayerAffected) { return; }
 
             localPlayerAffected = true;
+
+            _ = overlay;
+            Canvas canvas = overlay.GetComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = -100;
 
             localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
             {
@@ -105,7 +115,7 @@ namespace ItemSCPs.SCP
             }
         }
 
-        //[HarmonyPrefix] // TODO: Use transpiler for this
+        //[HarmonyPrefix] // TODO: Use transpiler for this?
         //[HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.GrabItemOnClient))]
         //private static void GrabbableObject_GrabItemOnClient_Postfix(GrabbableObject __instance)
         //{

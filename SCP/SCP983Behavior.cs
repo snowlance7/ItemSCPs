@@ -44,18 +44,22 @@ namespace ItemSCPs.SCP
         bool isSinging;
         bool inWindow;
 
+        static float timesPlayedNormalized;
         int timesPlayed;
         float score;
 
-        public static float scpVignetteIntensity;
+        public static float vignetteIntensity;
+
+        public static float sprintMeter;
 
         Note[] notes = [];
 
-        // Configs
-        const float distanceToActivate = 2f;
-        readonly BoundedRange pitchRange = new BoundedRange(0.9f, 1.1f);
+        static bool hinderingLocalPlayer;
 
-        static float minAccuracyRequired = 0.5f;
+        const float distanceToActivate = 2f;
+
+        static float minAccuracyRequiredForPerfect = 0.95f;
+        static float minAccuracyRequiredForGood = 0.5f;
         static int maxPlays = 5;
         static float calculateTime = 2.5f;
         static float grace = 0.1f;
@@ -63,7 +67,8 @@ namespace ItemSCPs.SCP
 
         public static void InitConfigs()
         {
-            minAccuracyRequired = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Min Accuracy Required", 0.5f, "The min accuracy required to win the singing minigame.").Value;
+            minAccuracyRequiredForPerfect = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Min Accuracy Required For Perfect", 0.95f, "The min accuracy required to win the singing minigame and dispense a perfect candy.").Value;
+            minAccuracyRequiredForGood = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Min Accuracy Required For Good", 0.5f, "The min accuracy required to win the singing minigame and dispense a good candy.").Value;
             maxPlays = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Max Plays", 5, "The max amount of times SCP-983 will sing the birthday song before the player dies.").Value;
             calculateTime = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Calculate Time", 2.5f, "The amount of time it takes between songs to calculate score. Timing has no effect on actual score, just gives a buffer before singing again.").Value;
             grace = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Grace", 0.1f, "The grace time before and after each note to be counted as holding/singing the note").Value;
@@ -97,8 +102,8 @@ namespace ItemSCPs.SCP
                 var parts = note.Split('-');
                 if (parts.Length > 2)
                 {
-                    logger.LogWarning($"Error parsing config string for SCP-983 NoteHoldTimes. `{note}` should have at most one dash, skipping...");
-                    continue;
+                    logger.LogWarning($"Error parsing config string for SCP-983 NoteHoldTimes. `{note}` should have at most one dash, using default NoteHoldTimes...");
+                    return ParseNoteTimesConfig(defaultNoteTimes);
                 }
 
                 if (float.TryParse(parts[0], out float start))
@@ -106,14 +111,15 @@ namespace ItemSCPs.SCP
                     float end = start;
                     if (parts.Length == 2 && !float.TryParse(parts[1], out end))
                     {
-                        logger.LogWarning($"Invalid end time in `{note}`, skipping...");
-                        continue;
+                        logger.LogWarning($"Invalid end time in `{note}`, using default NoteHoldTimes...");
+                        return ParseNoteTimesConfig(defaultNoteTimes);
                     }
                     result.Add(new Note(start, end, grace));
                 }
                 else
                 {
-                    logger.LogWarning($"Invalid start time in `{note}`, skipping...");
+                    logger.LogWarning($"Invalid start time in `{note}`, using default NoteHoldTimes...");
+                    return ParseNoteTimesConfig(defaultNoteTimes);
                 }
             }
 
@@ -177,9 +183,10 @@ namespace ItemSCPs.SCP
 
         public void PlaySongOnLocalClient()
         {
-            if (timesPlayed >= maxPlays)
+            if (timesPlayed > maxPlays || !targetPlayer.isPlayerControlled || targetPlayer.isPlayerDead)
             {
-                targetPlayer.KillPlayer(Vector3.zero);
+                if (targetPlayer.isPlayerControlled && !targetPlayer.isPlayerDead)
+                    targetPlayer.KillPlayer(Vector3.zero);
                 DispenseCandy(CandyType.Bad);
                 eyesMaterial.SetColor("_EmissiveColor", Color.black);
                 return;
@@ -187,80 +194,6 @@ namespace ItemSCPs.SCP
 
             logger.LogDebug("Animation: song");
             animator.SetTrigger("song");
-        }
-
-        void DoStatusEffects(int songIndex) // TODO: Test this
-        {
-            if (!isTargetPlayer) { return; }
-            logger.LogDebug("Doing player effects " + songIndex);
-
-            if (songIndex > 0)
-                Utils.DisplayStatusEffect("WARNING: You are aging rapidly");
-
-            switch (songIndex)
-            {
-                case 0:
-                    break;
-                case 1:
-                    localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() =>
-                    {
-                        scpVignetteIntensity = Mathf.Min(0.2f, scpVignetteIntensity + Time.deltaTime * 0.1f);
-                        VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, scpVignetteIntensity));
-
-                        localPlayer.sprintMeter = Mathf.Min(localPlayer.sprintMeter, 0.8f);
-                    }, "SCP-983", "SCP-983_Aging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Replace, curable: false, onRemove: (effect) =>
-                    {
-                        scpVignetteIntensity = 0f;
-                    }));
-                    break;
-                case 2:
-                    localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() =>
-                    {
-                        scpVignetteIntensity = Mathf.Min(0.35f, scpVignetteIntensity + Time.deltaTime * 0.1f);
-                        VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, scpVignetteIntensity));
-
-                        localPlayer.sprintMeter = Mathf.Min(localPlayer.sprintMeter, 0.4f);
-                        AudioListener.volume = Mathf.Min(AudioListener.volume, 0.9f);
-                    }, "SCP-983", "SCP-983_Aging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Replace, curable: false, onRemove: (effect) =>
-                    {
-                        AudioListener.volume = IngamePlayerSettings.Instance.settings.masterVolume;
-                        scpVignetteIntensity = 0f;
-                    }));
-                    break;
-                case 3:
-                    localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() =>
-                    {
-                        scpVignetteIntensity = Mathf.Min(0.4f, scpVignetteIntensity + Time.deltaTime * 0.1f);
-                        VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, scpVignetteIntensity));
-
-                        localPlayer.sprintMeter = 0;
-                        localPlayer.isExhausted = true;
-                        AudioListener.volume = Mathf.Min(AudioListener.volume, 0.7f);
-                    }, "SCP-983", "SCP-983_Aging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Replace, curable: false, onRemove: (effect) =>
-                    {
-                        AudioListener.volume = IngamePlayerSettings.Instance.settings.masterVolume;
-                        scpVignetteIntensity = 0f;
-                    }));
-                    break;
-                case 4:
-                    localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() =>
-                    {
-                        scpVignetteIntensity = Mathf.Min(0.5f, scpVignetteIntensity + Time.deltaTime * 0.1f);
-                        VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, scpVignetteIntensity));
-
-                        localPlayer.sprintMeter = 0;
-                        localPlayer.isExhausted = true;
-                        SoundManager.Instance.earsRingingTimer = 1f;
-                        AudioListener.volume = Mathf.Min(AudioListener.volume, 0.5f);
-                    }, "SCP-983", "SCP-983_Aging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Replace, curable: false, onRemove: (effect) =>
-                    {
-                        AudioListener.volume = IngamePlayerSettings.Instance.settings.masterVolume;
-                        scpVignetteIntensity = 0f;
-                    }));
-                    break;
-                default:
-                    break;
-            }
         }
 
         void DispenseCandy(CandyType candyType)
@@ -336,12 +269,12 @@ namespace ItemSCPs.SCP
                 score = CalculateResult();
                 logger.LogDebug("Score: " + score);
 
-                if (score >= 1f)
+                if (score >= minAccuracyRequiredForPerfect)
                 {
                     DispenseCandyRpc(CandyType.Perfect);
                     eyesMaterial.SetColor("_EmissiveColor", Color.black);
                 }
-                else if (score >= minAccuracyRequired)
+                else if (score >= minAccuracyRequiredForGood)
                 {
                     DispenseCandyRpc(CandyType.Good);
                     eyesMaterial.SetColor("_EmissiveColor", Color.black);
@@ -361,9 +294,12 @@ namespace ItemSCPs.SCP
             int songIndex = GetSongIndex(timesPlayed);
             logger.LogDebug("SongIndex: " + songIndex);
 
-            DoStatusEffects(songIndex);
+            if (songIndex > 0 && isTargetPlayer)
+                Utils.DisplayStatusEffect("WARNING: You are aging rapidly");
+
+            timesPlayedNormalized = timesPlayed / maxPlays;
+
             ResetHoldTimes();
-            audioSource.pitch = pitchRange.GetRandomInRange(Utils.randomGlobal);
             audioSource.clip = birthdaySongsSFX[songIndex];
             audioSource.Play();
             songPlaying = true;
@@ -378,16 +314,49 @@ namespace ItemSCPs.SCP
             }
         }
 
-        // RPCs
-
         [Rpc(SendTo.Everyone, RequireOwnership = false)]
         private void ActivateRpc()
         {
             activated = true;
             grabbable = false;
-            logger.LogDebug("Animation: flip");
+            //logger.LogDebug("Animation: flip");
             animator.SetTrigger("flip");
             audioSource.PlayOneShot(monkeyFlipSFX, 1f);
+
+            if (!isTargetPlayer) { return; }
+
+            localPlayer.StatusEffectController().ApplyEffect(new TickActionEffect(() =>
+            {
+                var setVignette = Mathf.Lerp(0f, 0.9f, timesPlayedNormalized);
+                vignetteIntensity = Mathf.Min(setVignette, vignetteIntensity + Time.deltaTime * 0.1f);
+                VignetteOverlay.SetIntensity(Mathf.Max(VignetteOverlay.currentIntensity, vignetteIntensity));
+
+                var setSprintMeter = Mathf.Clamp01(Mathf.Lerp(1f, -1f, timesPlayedNormalized));
+                localPlayer.sprintMeter = Mathf.Min(setSprintMeter, localPlayer.sprintMeter);
+
+                localPlayer.isExhausted |= timesPlayedNormalized > 0.5f;
+
+                if (timesPlayedNormalized > 0.6f && !hinderingLocalPlayer)
+                {
+                    hinderingLocalPlayer = true;
+                    localPlayer.isMovementHindered++;
+                }
+
+                var setVolume = Mathf.Lerp(1f, 0.3f, timesPlayedNormalized);
+                AudioListener.volume = Mathf.Min(AudioListener.volume, setVolume);
+
+            }, "SCP-983", "SCP-983_Aging", onConflict: (existing, incoming) => StatusEffectController.ConflictResult.Replace, curable: false, onRemove: (effect) =>
+            {
+                logger.LogDebug("SCP-983_Aging OnRemove");
+                AudioListener.volume = IngamePlayerSettings.Instance.settings.masterVolume;
+                vignetteIntensity = 0f;
+
+                if (hinderingLocalPlayer)
+                {
+                    hinderingLocalPlayer = false;
+                    localPlayer.isMovementHindered--;
+                }
+            }));
         }
 
         [Rpc(SendTo.Everyone, RequireOwnership = false)]

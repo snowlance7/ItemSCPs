@@ -984,7 +984,6 @@ GameObject:
   - component: {fileID: 2527968179022769410}
   - component: {fileID: 4565912584863148678}
   - component: {fileID: 788876855067887536}
-  - component: {fileID: 1017008716500443170}
   - component: {fileID: 4168675555388540211}
   - component: {fileID: 806128216333731255}
   m_Layer: 6
@@ -1023,7 +1022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1156703001
+  GlobalObjectIdHash: 2043868497
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1072,7 +1071,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 1
+  Priority: 0
   DopplerLevel: 1
   MinDistance: 10
   MaxDistance: 30
@@ -1150,22 +1149,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1017008716500443170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4491930986706136086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useReverb: 0
-  overridingLowPass: 0
-  lowPassOverride: 20000
-  debugLog: 0
 --- !u!95 &4168675555388540211
 Animator:
   serializedVersion: 5
