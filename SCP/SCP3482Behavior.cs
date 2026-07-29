@@ -51,7 +51,7 @@ namespace ItemSCPs.SCP
         {
             if (ItemSCPsContentHandler.Instance.SCP3482 == null || ItemSCPsContentHandler.Instance.SCP3482.Overlay == null || !enableOverlay) { return; }
             bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.quickMenuManager.isMenuOpen && !localPlayer.inSpecialMenu; // TODO: Test this
-            if (active == overlay.activeSelf) { return; }
+            if (overlay == null || active == overlay.activeSelf) { return; }
             logger.LogDebug("Setting active");
             overlay.SetActive(active);
         }

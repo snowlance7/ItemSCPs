@@ -86,6 +86,7 @@ namespace ItemSCPs.SCP
         {
             if (playerWearingInvisible == value || playerWornBy == null) { return; }
             playerWornBy.MakePlayerInvisible(value);
+            mesh.SetActive(value);
             playerWearingInvisible = value;
         }
 

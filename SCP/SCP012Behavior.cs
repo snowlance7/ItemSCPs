@@ -276,6 +276,7 @@ namespace ItemSCPs.SCP
             if (heldByLocalPlayer) { return isLit; }
             if (distance > maxRange) { return false; }
             if (!isLit) { return false; }
+            if (!localPlayer.HasLineOfSightToPosition(transform.position)) { return false; }
             return true;
         }
 

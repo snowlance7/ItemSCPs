@@ -30,10 +30,6 @@ namespace ItemSCPs
         public static void PingScan_performedPostFix()
         {
             if (!Utils.testing) { return; }
-            foreach (var item in FindObjectOfType<SCP983Behavior>().birthdaySongsSFX)
-            {
-                logger.LogDebug(item.length);
-            }
         }
 
         public static void Update()
