@@ -12,6 +12,9 @@ using static ItemSCPs.Plugin;
 //localPlayer.sprintTime 11, idk what this does
 //localPlayer.sprintMultiplier 1-2.5, controls sprint speed
 
+// UPDATE: Crate of 207's similar to the bottles scrap but 207 instead and you can take them out of the crate
+// UPDATE: A 207 vending machine outside the company building that has a chance of appearing
+
 namespace ItemSCPs.SCP
 {
     internal class SCP207Behavior : PhysicsProp, ISCP // UPDATE: Make it so liquid slowly depletes visually
@@ -37,6 +40,8 @@ namespace ItemSCPs.SCP
 
         Coroutine? drinkingRoutine;
 
+        static float totalContributions;
+
         Vector3 drinkingPositionOffset = new Vector3(0f, 0.1f, 0.1f);
         Vector3 drinkingRotationOffset = new Vector3(50, 170, 0);
 
@@ -45,6 +50,7 @@ namespace ItemSCPs.SCP
 
         const float effectDuration = 1200f;
         const float drinkTimePerBottle = 10f;
+        const float maxSprintIncreaseBeforeHeartAttack = 9f;
 
         public void Awake()
         {
@@ -66,6 +72,34 @@ namespace ItemSCPs.SCP
         {
             base.Start();
             drinkAmountLeft = drinkTimePerBottle;
+        }
+
+        public static void StaticUpdate()
+        {
+            totalContributions = GetTotalContributions();
+            if (totalContributions <= 0) { return; }
+
+            float contributionsNormalized = Mathf.Clamp01(totalContributions / maxSprintIncreaseBeforeHeartAttack);
+
+            localPlayer.sprintTime = Mathf.Max(11 + totalContributions, localPlayer.sprintTime);
+
+            localPlayer.sprintMeter = Mathf.Clamp01(localPlayer.sprintMeter + Time.deltaTime / (localPlayer.sprintTime + Mathf.Lerp(15f, 5f, contributionsNormalized)));
+
+            localPlayer.sprintMultiplier = Mathf.Max(localPlayer.sprintMultiplier, Mathf.Lerp(1f, 3f, contributionsNormalized));
+
+            if (totalContributions > maxSprintIncreaseBeforeHeartAttack && !heartAttackLocalPlayer)
+            {
+                logger.LogDebug($"Total contributions {totalContributions} > {maxSprintIncreaseBeforeHeartAttack}, heart attack time");
+                heartAttackLocalPlayer = true;
+                Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
+                localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
+                {
+                    heartAttackLocalPlayer = false;
+                    if (!effect.timeExpired) { return; }
+                    if (!localPlayer.isPlayerDead && localPlayer.isPlayerControlled)
+                        localPlayer.KillPlayer(Vector3.zero);
+                }, "scp207", "heart attack", 6));
+            }
         }
 
         public override void Update()
@@ -199,34 +233,19 @@ namespace ItemSCPs.SCP
 
         void ApplyEffect(float amount)
         {
-            int id = previousContributionsID++;
-            previousContributionsID = id;
+            int id = previousContributionsID;
+            previousContributionsID++;
             contributions[id] = 0f;
 
             localPlayer.StatusEffectController().ApplyEffect(new CurveValueEffect(value =>
             {
                 contributions[id] = Mathf.Lerp(0f, amount, value);
-                float total = GetTotalContributions();
-                localPlayer.sprintTime = Mathf.Max(11 + total, localPlayer.sprintTime);
-                if (total > 10 && !heartAttackLocalPlayer)
-                {
-                    heartAttackLocalPlayer = true;
-                    Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatFastSFX, audibleNoiseID: -1);
-                    localPlayer.StatusEffectController().ApplyEffect(new OnRemoveActionEffect((effect) =>
-                    {
-                        heartAttackLocalPlayer = false;
-                        if (!effect.timeExpired) { return; }
-                        if (!localPlayer.isPlayerDead && localPlayer.isPlayerControlled)
-                            localPlayer.KillPlayer(Vector3.zero);
-                    }, "scp207", "heart attack", 6));
-                }
             }, intensityOverTime, effectDuration, "scp207", $"scp207_{id}", onRemove: (effect) =>
             {
                 contributions.Remove(id);
-                localPlayer.sprintTime = Mathf.Max(11 + GetTotalContributions(), localPlayer.sprintTime);
             }));
 
-            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > 7.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));
+            localPlayer.StatusEffectController().ApplyEffect(new ConditionalActionEffect(() => GetTotalContributions() > maxSprintIncreaseBeforeHeartAttack * 0.5f, () => Utils.PlaySoundAtPosition(localPlayer.bodyParts[0], NetworkHandler.Instance.heartbeatSlowSFX, audibleNoiseID: -1), false, "scp207", 30, 0, "scp207_heartbeatSlow", effectDuration));
         }
 
         static float GetTotalContributions()

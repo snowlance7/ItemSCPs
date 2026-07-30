@@ -30,6 +30,7 @@ namespace ItemSCPs
         {
             SCP689Behavior.StaticUpdate();
             SCP3482Behavior.StaticUpdate();
+            SCP207Behavior.StaticUpdate();
 
             TESTING.Update();
         }

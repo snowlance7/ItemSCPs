@@ -2,8 +2,6 @@
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using System.Collections;
-using System.Reflection;
-using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 

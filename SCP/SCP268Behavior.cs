@@ -1,12 +1,9 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using ItemSCPs.SCP;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
-using System.Collections.Generic;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
 using WearableItemsAPI;
@@ -50,7 +47,7 @@ namespace ItemSCPs.SCP
             base.OnNetworkDespawn();
         }
 
-        public override void Update() // TODO: Make it so the effects pause when the player is speaking or interacting with the player
+        public override void Update()
         {
             base.Update();
             if (playerWornBy != null)
@@ -75,14 +72,12 @@ namespace ItemSCPs.SCP
                 }
             }
         }
-        
-        // TODO: Look at walkie talkie and how it gets the players voice
-        bool PlayerSpeaking() // TODO
+        bool PlayerSpeaking()
         {
             return playerWornBy != null && playerWornBy.IsPlayerSpeaking();
         }
 
-        void SetPlayerInvisible(bool value) // TODO: Test this
+        void SetPlayerInvisible(bool value)
         {
             if (playerWearingInvisible == value || playerWornBy == null) { return; }
             playerWornBy.MakePlayerInvisible(value);

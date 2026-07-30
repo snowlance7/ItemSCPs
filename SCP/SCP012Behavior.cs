@@ -6,8 +6,6 @@ using SnowyLib;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
-// TODO: Screws up players audio/listening?
-
 namespace ItemSCPs.SCP
 {
     internal class SCP012Behavior : PhysicsProp, ISCP, ISingletonItem
@@ -209,7 +207,7 @@ namespace ItemSCPs.SCP
             float normalized = Mathf.InverseLerp(maxRange, minRange, distance);
             float pullStrength = normalized * normalized;
 
-            VignetteOverlay.SetIntensity(normalized / 2); // TODO: Test this
+            VignetteOverlay.SetIntensity(normalized / 2);
             
             if (distance > 1f)
             {

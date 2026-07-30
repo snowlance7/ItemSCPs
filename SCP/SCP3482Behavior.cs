@@ -50,7 +50,7 @@ namespace ItemSCPs.SCP
         public static void StaticUpdate()
         {
             if (ItemSCPsContentHandler.Instance.SCP3482 == null || ItemSCPsContentHandler.Instance.SCP3482.Overlay == null || !enableOverlay) { return; }
-            bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.quickMenuManager.isMenuOpen && !localPlayer.inSpecialMenu; // TODO: Test this
+            bool active = localPlayerAffected && !SCP714Behavior.localPlayerAffected && !TESTING.immunity && !localPlayer.quickMenuManager.isMenuOpen && !localPlayer.inSpecialMenu;
             if (overlay == null || active == overlay.activeSelf) { return; }
             logger.LogDebug("Setting active");
             overlay.SetActive(active);
@@ -115,7 +115,7 @@ namespace ItemSCPs.SCP
             }
         }
 
-        //[HarmonyPrefix] // TODO: Use transpiler for this?
+        //[HarmonyPrefix] // UPDATE: Use transpiler for this?
         //[HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.GrabItemOnClient))]
         //private static void GrabbableObject_GrabItemOnClient_Postfix(GrabbableObject __instance)
         //{

@@ -76,7 +76,7 @@ namespace ItemSCPs.SCP
             CadaverGrowthAI cadaverGrowthAI = FindObjectOfType<CadaverGrowthAI>();
             if (cadaverGrowthAI != null)
             {
-                cadaverGrowthAI.CurePlayerRpc((int)localPlayer.actualClientId); // TODO: Test this
+                cadaverGrowthAI.CurePlayerRpc((int)localPlayer.actualClientId);
             }
         }
 

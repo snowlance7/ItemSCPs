@@ -1,5 +1,4 @@
-﻿using Dawn.Utils;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
@@ -7,12 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using Unity.Services.Authentication.Generated;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
 // UPDATE: Add ability to kill enemies too, use Utils.GetTopOfObjectRender to get where it should appear when it kills
-// TODO: Test this!!
 
 namespace ItemSCPs.SCP
 {

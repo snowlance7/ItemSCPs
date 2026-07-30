@@ -29,12 +29,12 @@ namespace ItemSCPs
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
         {
-            if (!Utils.testing) { return; }
+            //if (!Utils.testing) { return; }
         }
 
         public static void Update()
         {
-            if (!Utils.testing) { return; }
+            //if (!Utils.testing) { return; }
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]
@@ -42,6 +42,7 @@ namespace ItemSCPs
         {
             try
             {
+                if (!Utils.testing || !IsServerOrHost) { return; }
                 string msg = __instance.chatTextField.text;
                 string[] args = msg.Split(" ");
 

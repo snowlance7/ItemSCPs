@@ -11,14 +11,17 @@ using UnityEngine;
 using static ItemSCPs.Plugin;
 using static ItemSCPs.SCP.SCP735Behavior;
 
-// TODO: Add config to unlock scp documents after you scan the scps
+// UPDATE: Add config to unlock scp documents after you scan the scps
+// UPDATE: Make it so the player can hit SCP-735 against walls and other things or even throw it and it responds to every action
 
 namespace ItemSCPs.SCP
 {
-    internal class SCP735Behavior : PhysicsProp, ISCP, ISingletonItem // TODO: Player cant hear it when theyre dead
+    internal class SCP735Behavior : PhysicsProp, ISCP, ISingletonItem
     {
         [SerializeField] SCPInfo info = null!;
         public SCPInfo SCPInfo => info;
+
+        public static SCP735Behavior? Instance { get; private set; }
 
         public AudioSource audioSource = null!;
 
@@ -33,7 +36,7 @@ namespace ItemSCPs.SCP
 
         float phraseCooldown;
 
-        PlayerControllerB? previousPlayerHeldBy;
+        public PlayerControllerB? previousPlayerHeldBy;
 
         public enum Phrase
         {
@@ -59,6 +62,7 @@ namespace ItemSCPs.SCP
             itemProperties.positionOffset = new Vector3(0.07f, 0.2f, -0.25f);
             itemProperties.rotationOffset = new Vector3(80, 0, 90);
             itemProperties.floorYOffset = 90;
+            itemProperties.twoHanded = false;
         }
 
         public override void Start()
@@ -73,13 +77,31 @@ namespace ItemSCPs.SCP
             phrases.Add(Phrase.RandomPhrases, randomPhrases);
         }
 
+        public override void OnNetworkPostSpawn()
+        {
+            if (Instance != null && Instance != this) { return; }
+
+            Instance = this;
+            base.OnNetworkPostSpawn();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (Instance == null || Instance != this) { return; }
+            Instance = null;
+            base.OnNetworkDespawn();
+        }
+
         public override void Update()
         {
             base.Update();
 
-            if (playerHeldBy == null) { return; }
-            previousPlayerHeldBy = playerHeldBy;
-            if (localPlayer != playerHeldBy) { return; }
+            if (playerHeldBy != null)
+                previousPlayerHeldBy = playerHeldBy;
+            else if (previousPlayerHeldBy != null && Vector3.Distance(previousPlayerHeldBy.transform.position, transform.position) > audioSource.maxDistance)
+                previousPlayerHeldBy = null;
+
+            if (localPlayer != previousPlayerHeldBy) { return; }
             if (TESTING.immunity) { return; }
 
             if (phraseCooldown > 0)
@@ -116,7 +138,7 @@ namespace ItemSCPs.SCP
             AudioClip[] clips = phrases[phrase];
             AudioClip clip = clips[index];
             audioSource.Stop();
-            audioSource.spatialBlend = previousPlayerHeldBy != null && previousPlayerHeldBy == localPlayer ? 0 : 1;
+            audioSource.spatialBlend = playerHeldBy != null && playerHeldBy == localPlayer ? 0 : 1;
             audioSource.clip = clip;
             audioSource.Play();
             RoundManager.Instance.PlayAudibleNoise(transform.position, audioSource.maxDistance, audioSource.volume);
@@ -133,8 +155,9 @@ namespace ItemSCPs.SCP
         {
             try
             {
-                if (__instance != localPlayer || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
-                __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(SCP735Behavior.Phrase.PlayerDiesPhrases, overrideIfPlaying: true);
+                if (SCP735Behavior.Instance == null || __instance != localPlayer || SCP735Behavior.Instance.previousPlayerHeldBy != __instance) { return; }
+                SCP735Behavior.Instance.SpeakPhrase(SCP735Behavior.Phrase.PlayerDiesPhrases, overrideIfPlaying: true);
+                SCP735Behavior.Instance.previousPlayerHeldBy = null;
             }
             catch (Exception e)
             {
@@ -147,21 +170,21 @@ namespace ItemSCPs.SCP
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.DamagePlayer))]
         public static void DamagePlayerPostfix(PlayerControllerB __instance, CauseOfDeath causeOfDeath)
         {
-            if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
+            if (SCP735Behavior.Instance == null || __instance != localPlayer || SCP735Behavior.Instance.previousPlayerHeldBy != __instance) { return; }
 
             switch (causeOfDeath)
             {
                 case CauseOfDeath.Gravity:
-                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.PlayerFallDamagePhrases);
+                    SCP735Behavior.Instance.SpeakPhrase(Phrase.PlayerFallDamagePhrases);
                     break;
                 case CauseOfDeath.Mauling:
-                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    SCP735Behavior.Instance.SpeakPhrase(Phrase.MonsterDamagePhrases);
                     break;
                 case CauseOfDeath.Stabbing:
-                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    SCP735Behavior.Instance.SpeakPhrase(Phrase.MonsterDamagePhrases);
                     break;
                 case CauseOfDeath.Scratching:
-                    __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.MonsterDamagePhrases);
+                    SCP735Behavior.Instance.SpeakPhrase(Phrase.MonsterDamagePhrases);
                     break;
                 default:
                     break;
@@ -172,8 +195,8 @@ namespace ItemSCPs.SCP
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.DamagePlayerFromOtherClientClientRpc))]
         public static void DamagePlayerFromOtherClientClientRpcPostfix(PlayerControllerB __instance)
         {
-            if (__instance != localPlayer || __instance.isPlayerDead || __instance.currentlyHeldObjectServer == null || __instance.currentlyHeldObjectServer is not SCP735Behavior) { return; }
-            __instance.currentlyHeldObjectServer?.GetComponent<SCP735Behavior>()?.SpeakPhrase(Phrase.PlayerDamagePhrases);
+            if (SCP735Behavior.Instance == null || __instance != localPlayer || SCP735Behavior.Instance.previousPlayerHeldBy != __instance) { return; }
+            SCP735Behavior.Instance.SpeakPhrase(Phrase.PlayerDamagePhrases);
         }
     }
 }

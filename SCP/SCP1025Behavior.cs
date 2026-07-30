@@ -18,7 +18,7 @@ namespace ItemSCPs.SCP
         public Material[] diseasePageMaterials = null!;
         public SkinnedMeshRenderer renderer = null!;
         
-        public static readonly Action[] diseases = // TODO: Test and rework these?
+        public static readonly Action[] diseases =
         [
             // 0 Common Cold
             () =>

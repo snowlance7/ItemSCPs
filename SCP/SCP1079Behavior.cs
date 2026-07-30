@@ -4,7 +4,6 @@ using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using static ItemSCPs.Plugin;
@@ -89,7 +88,7 @@ namespace ItemSCPs.SCP
                     logger.LogDebug("Dropping blood");
                     Vector3 pos = localPlayer.gameplayCamera.transform.position.GetFloorPosition();
                     NetworkHandler.Instance.DropPinkBloodRpc(pos);
-                }, bloodDropAmount, "SCP-1079", "Dropping Pink Blood", 10f, (existing, incoming) => ConflictResult.Replace)); // TODO: Test if this still works after item is destroyed
+                }, bloodDropAmount, "SCP-1079", "Dropping Pink Blood", 10f, (existing, incoming) => ConflictResult.Replace)); // UPDATE: Test if this still works after item is destroyed
 
                 NetworkHandler.Instance.AddPinkBloodToBodyRpc(localPlayer.actualClientId);
 

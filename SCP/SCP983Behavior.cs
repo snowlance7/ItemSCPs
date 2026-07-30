@@ -1,5 +1,4 @@
-﻿using Dawn.Utils;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
 using SnowyLib;
@@ -139,7 +138,7 @@ namespace ItemSCPs.SCP
             if (!songPlaying || !isTargetPlayer) { return; }
 
             if (!localPlayer.IsPlayerMuted())
-                isSinging = localPlayer.IsPlayerSpeaking(amplitudeThreshold: 0.3f, useRelativeAmplitude: true);
+                isSinging = localPlayer.IsPlayerSpeaking();
 
             float songTime = audioSource.time;
             inWindow = false;
@@ -177,7 +176,7 @@ namespace ItemSCPs.SCP
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (!isTargetPlayer || !localPlayer.IsPlayerMuted()) { return; }
+            if (!isTargetPlayer) { return; }
             isSinging = buttonDown;
         }
 
@@ -319,7 +318,7 @@ namespace ItemSCPs.SCP
         {
             activated = true;
             grabbable = false;
-            //logger.LogDebug("Animation: flip");
+
             animator.SetTrigger("flip");
             audioSource.PlayOneShot(monkeyFlipSFX, 1f);
 
@@ -409,7 +408,7 @@ namespace ItemSCPs.SCP
             base.ItemActivate(used, buttonDown);
             if (!buttonDown) { return; }
 
-            switch (candyType) // TODO: Test this
+            switch (candyType)
             {
                 case CandyType.Perfect:
 
