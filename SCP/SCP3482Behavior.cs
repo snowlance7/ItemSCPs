@@ -25,6 +25,7 @@ namespace ItemSCPs.SCP
         static bool enableOverlay = true;
         static bool endEffectIfDestroyed = false;
 
+        [InitConfig]
         public static void InitConfigs()
         {
             enableOverlay = PluginInstance.Config.Bind("SCP-3482 Options", "SCP-3482 | Enable Overlay", true, "Set to false to disable the black overlay on the left side of the screen when the effect is active.").Value;
@@ -47,6 +48,7 @@ namespace ItemSCPs.SCP
             _overlay = null;
         }
 
+        [StaticUpdate]
         public static void StaticUpdate()
         {
             if (ItemSCPsContentHandler.Instance.SCP3482 == null || ItemSCPsContentHandler.Instance.SCP3482.Overlay == null || !enableOverlay) { return; }

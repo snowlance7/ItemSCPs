@@ -49,8 +49,6 @@ namespace ItemSCPs
             SCPDatabase = ItemSCPsContentHandler.Instance.ItemSCPsAssets!.SCPDatabase;
             SCPAPI.Register(SCPDatabase);
 
-            Configs.Init();
-
             InitializeNetworkBehaviours();
 
             // Finished

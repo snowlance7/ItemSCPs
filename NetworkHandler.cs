@@ -2,7 +2,6 @@
 using HarmonyLib;
 using ItemSCPs.SCP;
 using SnowyLib;
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using static ItemSCPs.Plugin;
@@ -24,15 +23,6 @@ namespace ItemSCPs
             Sneeze,
             Cough,
             CoughHeavy
-        }
-
-        public void Update()
-        {
-            SCP689Behavior.StaticUpdate();
-            SCP3482Behavior.StaticUpdate();
-            SCP207Behavior.StaticUpdate();
-
-            TESTING.Update();
         }
 
         public override void OnNetworkSpawn()

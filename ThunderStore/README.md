@@ -43,4 +43,5 @@ For issues and suggestions visit the [github](https://github.com/snowlance7/SCPI
 ## Credit
 
 - [ButterKing](https://discord.com/users/345076907970265088) for the amazing voice acting for SCP-735
+- [Blunt](https://skfb.ly/orXY7) by damien59492
 - All other models from SCP: Secret Lab or SCP: Containment Breach

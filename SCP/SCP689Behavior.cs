@@ -39,6 +39,7 @@ namespace ItemSCPs.SCP
 
         static bool inShipPhase => (StartOfRound.Instance.inShipPhase || StartOfRound.Instance.shipIsLeaving) && !Utils.inTestRoom;
 
+        [InitConfig]
         public static void InitConfigs()
         {
             killCooldown = PluginInstance.Config.Bind("SCP-689 Options", "SCP-689 | Kill Cooldown", 5f, "The amount of time in seconds for SCP-689 to disappear again after killing someone and not being looked at.").Value;
@@ -55,6 +56,7 @@ namespace ItemSCPs.SCP
             itemProperties.allowDroppingAheadOfPlayer = true;
         }
 
+        [StaticUpdate]
         public static void StaticUpdate() // Called by network handler update
         {
             if (!NetworkHandler.Instance.IsServer) { return; }

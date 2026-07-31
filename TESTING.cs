@@ -1,8 +1,6 @@
-using Dawn;
 using HarmonyLib;
 using ItemSCPs.SCP;
 using SnowyLib;
-using System.Linq;
 using UnityEngine;
 using static ItemSCPs.Plugin;
 
@@ -32,6 +30,7 @@ namespace ItemSCPs
             //if (!Utils.testing) { return; }
         }
 
+        [StaticUpdate]
         public static void Update()
         {
             //if (!Utils.testing) { return; }

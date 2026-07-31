@@ -51,6 +51,7 @@ namespace ItemSCPs.SCP
         static float snoozeTime = 120f;
         static float timeToMaxVolume = 300f;
 
+        [InitConfig]
         public static void InitConfigs()
         {
             snoozeTime = PluginInstance.Config.Bind("SCP-498 Options", "SCP-498 | Snooze Time", 120f, "The amount of time it takes in seconds for the alarm to become active again after snoozing it.").Value;

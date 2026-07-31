@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using PSCPLibrary;
 using PSCPLibrary.Interfaces;
+using SnowyLib;
 using System.Collections;
 using UnityEngine;
 using static ItemSCPs.Plugin;
@@ -40,6 +41,7 @@ namespace ItemSCPs.SCP
 
         static float baseFuelUse = 75;
 
+        [InitConfig]
         public static void InitConfigs()
         {
             baseFuelUse = PluginInstance.Config.Bind("SCP-420-J Options", "SCP-420-J | Base Fuel Use", 75f, "The base fuel use when lighting SCP-420-J. Increase this to make it last longer.").Value;

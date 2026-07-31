@@ -74,6 +74,7 @@ namespace ItemSCPs.SCP
             drinkAmountLeft = drinkTimePerBottle;
         }
 
+        [StaticUpdate]
         public static void StaticUpdate()
         {
             totalContributions = GetTotalContributions();

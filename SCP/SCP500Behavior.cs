@@ -20,6 +20,7 @@ namespace ItemSCPs.SCP
 
         static BoundedRange pillAmountRange = new BoundedRange(2, 15);
 
+        [InitConfig]
         public static void InitConfigs()
         {
             pillAmountRange = PluginInstance.Config.Bind("SCP-500 Options", "SCP-500 | Pill Amount Range", new BoundedRange(2, 15), "The amount of pills SCP-500 can have when spawned.").Value;
