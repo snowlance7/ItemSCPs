@@ -20,20 +20,20 @@ using static ItemSCPs.Plugin;
 namespace ItemSCPs
 {
     [HarmonyPatch]
-    public class TESTING : MonoBehaviour
+    public static class TESTING
     {
         public static bool immunity { get; private set; }
 
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
         public static void PingScan_performedPostFix()
         {
-            //if (!Utils.testing) { return; }
+            if (!Utils.testing) { return; }
         }
 
         [StaticUpdate]
         public static void Update()
         {
-            //if (!Utils.testing) { return; }
+            if (!Utils.testing) { return; }
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SubmitChat_performed))]

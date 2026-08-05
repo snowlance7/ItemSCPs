@@ -1,3 +1,6 @@
+## 0.1.2
+- Added missing dependency
+
 ## 0.1.1
 - Small tweaks and reference updates
 - Added credit for SCP-420-J
