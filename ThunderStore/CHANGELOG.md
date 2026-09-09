@@ -1,3 +1,8 @@
+## 0.1.3
+- Fixed a bug that could occur when generating a new level and SCP-983 is spawned as scrap
+- Fixed a bug involving dawnlib errors
+- Fixed a bug involving an audiolistener on SCP-012
+
 ## 0.1.2
 - Added missing dependency
 

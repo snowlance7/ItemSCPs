@@ -33,7 +33,7 @@ namespace ItemSCPs.SCP
 
         Material eyesMaterial = null!;
 
-        string defaultNoteTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
+        static string defaultNoteTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
 
         bool isTargetPlayer => targetPlayer == localPlayer;
 
@@ -63,6 +63,7 @@ namespace ItemSCPs.SCP
         static float calculateTime = 2.5f;
         static float grace = 0.1f;
         static string noteHoldTimes = ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280";
+        static Note[] parsedNotes = [];
 
         [InitConfig]
         public static void InitConfigs()
@@ -73,6 +74,7 @@ namespace ItemSCPs.SCP
             calculateTime = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Calculate Time", 2.5f, "The amount of time it takes between songs to calculate score. Timing has no effect on actual score, just gives a buffer before singing again.").Value;
             grace = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Grace", 0.1f, "The grace time before and after each note to be counted as holding/singing the note").Value;
             noteHoldTimes = PluginInstance.Config.Bind("SCP-983 Options", "SCP-983 | Note Hold Times", ".150, .453, .604, 1.059, 1.363, 1.817-2.272, 2.576, 2.727, 2.879, 3.334, 3.788, 4.092-4.547, 4.850, 5.002, 5.153, 5.608, 5.911, 6.215-6.518, 6.669-6.973, 7.276, 7.428, 7.731, 8.186, 8.489-9.095, 9.399, 9.702, 10.005, 10.460, 10.612, 10.915-11.218, 11.370-12.280", "The singing/holding times for each note in the song time that the player should sing for").Value;
+            parsedNotes = ParseNoteTimesConfig(noteHoldTimes).ToArray();
         }
 
         public void Awake()
@@ -90,10 +92,10 @@ namespace ItemSCPs.SCP
             eyesMaterial.SetFloat("_EmissiveIntensity", 1f);
 
             targetPlayer = Utils.GetRandomPlayer(Utils.randomGlobal);
-            notes = ParseNoteTimesConfig(noteHoldTimes).ToArray();
+            notes = parsedNotes;
         }
 
-        List<Note> ParseNoteTimesConfig(string cfg)
+        static List<Note> ParseNoteTimesConfig(string cfg)
         {
             var result = new List<Note>();
 

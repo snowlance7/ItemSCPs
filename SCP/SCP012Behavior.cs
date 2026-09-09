@@ -326,8 +326,6 @@ namespace ItemSCPs.SCP
             float average =
                 totalBrightness / pixels.Length;
 
-            logger.LogDebug(average);
-
             return average > 0.015f;
         }
     }
